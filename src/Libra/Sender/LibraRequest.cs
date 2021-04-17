@@ -61,13 +61,10 @@ public static class LibraRequest
                 }
             }
             return default;
-
         }
         catch (Exception ex)
         {
-
             throw ex;
-
         }
         finally
         {
