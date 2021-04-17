@@ -29,9 +29,9 @@ namespace WebServiceProvider
         {
             services.AddScoped(typeof(TeacherService));
             services
-                .AddLibraWpc(opt=>opt
-                .AllowAssembly(Assembly.GetEntryAssembly()) //ÔÊÐí¸Ã³ÌÐò¼¯ÄÚËùÓÐµÄÀàÐÍ±»Ô¶³Ìµ÷ÓÃ
-                .FlagMapper("Hello7","TeacherService.Hello6") //µ±Ô¶³Ì´«À´ Hello7 Ê±Ä¬ÈÏÂ·ÓÉµ½ TeacherService.Hello6
+                .AddLibraWpc(opt => opt
+                .AllowAssembly(Assembly.GetEntryAssembly()) //å…è®¸è¯¥ç¨‹åºé›†å†…æ‰€æœ‰çš„ç±»åž‹è¢«è¿œç¨‹è°ƒç”¨
+                .FlagMapper("Hello7", "TeacherService.Hello6") //å½“è¿œç¨‹ä¼ æ¥ Hello7 æ—¶é»˜è®¤è·¯ç”±åˆ° TeacherService.Hello6
                 )
                 .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
 
