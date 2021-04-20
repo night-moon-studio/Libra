@@ -50,6 +50,14 @@ Libra 库分为请求/分析两部分:
  ); 
   
 ```
+#### 插件调用
+
+```C#
+//Libra 允许客户端远程调用服务端加载的插件方法
+LibraPluginManagement.AddPlugin(filePath);
+LibraPluginManagement.Dispose(filePath);
+
+```
 
 ### 客户端
 
