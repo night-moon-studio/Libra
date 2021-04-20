@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{8497
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C4396801-F1E3-4033-B973-B7A12807EFFF}"
 	ProjectSection(SolutionItems) = preProject
-		C:\Users\Administrator\Desktop\测试\libra.http = C:\Users\Administrator\Desktop\测试\libra.http
+		test\libra.http = test\libra.http
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9A154FFA-A8AE-473E-8940-7020D44B9141}"
@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebServiceProvider", "sampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCallerClient", "samples\WebCallerClient\WebCallerClient.csproj", "{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginService", "samples\PluginService\PluginService.csproj", "{14B69745-D47F-4013-8253-8C90F39690F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginService", "samples\PluginService\PluginService.csproj", "{14B69745-D47F-4013-8253-8C90F39690F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
