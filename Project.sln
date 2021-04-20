@@ -20,7 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra", "src\Libra\Libra.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebServiceProvider", "samples\WebServiceProvider\WebServiceProvider.csproj", "{B1C55AC0-A809-4A28-8050-41E8830F3A04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebCallerClient", "samples\WebCallerClient\WebCallerClient.csproj", "{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCallerClient", "samples\WebCallerClient\WebCallerClient.csproj", "{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginService", "samples\PluginService\PluginService.csproj", "{14B69745-D47F-4013-8253-8C90F39690F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,10 @@ Global
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14B69745-D47F-4013-8253-8C90F39690F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14B69745-D47F-4013-8253-8C90F39690F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14B69745-D47F-4013-8253-8C90F39690F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14B69745-D47F-4013-8253-8C90F39690F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{21607053-D805-47BF-B9E2-95262B611BBB} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 		{B1C55AC0-A809-4A28-8050-41E8830F3A04} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
+		{14B69745-D47F-4013-8253-8C90F39690F9} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E330F2E1-7532-4657-A941-C1782EAE9D1C}

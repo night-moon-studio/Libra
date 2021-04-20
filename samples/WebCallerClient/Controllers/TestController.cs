@@ -65,5 +65,15 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.Hello9".NoWpcParam().Get<HttpStatusCode>();
         }
+        [HttpGet("10")]
+        public string GetHello10()
+        {
+            return "TestPluginService.Get".WpcParam("Jim").Get<string>();
+        }
+        [HttpGet("11")]
+        public HttpStatusCode GetHello11()
+        {
+            return "TestPluginService.Show".NoWpcParam().Execute();
+        }
     }
 }

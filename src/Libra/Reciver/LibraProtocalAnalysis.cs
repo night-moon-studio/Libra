@@ -1,9 +1,10 @@
-﻿using Libra.Reciver;
-using Natasha.CSharp;
+﻿using Natasha.CSharp;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -23,9 +24,26 @@ namespace Libra
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void Remove(IEnumerable<string> keys)
+        {
+            Func<string, string> func = null;
+            foreach (var item in keys)
+            {
+                if (_invokerMapping.ContainsKey(item))
+                {
+                    while (!_invokerMapping.TryRemove(item, out func));
+                    
+                }
+            }
+            func?.DisposeDomain();
+            _invokeFastCache = _invokerMapping.PrecisioTree();
+        }
+
         public static string Call(string caller, string parameters)
         {
-
+            
             if (_invokeFastCache.TryGetValue(caller, out var func))
             {
                 return func(parameters);
@@ -38,11 +56,24 @@ namespace Libra
                 var method = realType.Substring(index + 1, realType.Length - index - 1);
                 try
                 {
-                    var dynamicFunc = NDelegate
-                   .RandomDomain(item => item.LogSyntaxError().LogCompilerError())
-                   .Func<Func<string, string>>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\");")();
+                    var domain = LibraPluginManagement.GetPluginDominByType(type);
+                    NDelegate nDelegate = default;
+                    if (domain!=null)
+                    {
+                        nDelegate = NDelegate.UseDomain(domain, item => item.LogSyntaxError().LogCompilerError());
+                    }
+                    else
+                    {
+                        nDelegate = NDelegate.RandomDomain(item => item.LogSyntaxError().LogCompilerError());
+                    }
+                    var dynamicFunc = nDelegate
+                   .Func<Func<string, string>>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\",\"{type}\");")();
                     if (dynamicFunc != null)
                     {
+                        if (domain != null)
+                        {
+                            LibraPluginManagement.AddRecoder(domain, caller);
+                        }
                         return dynamicFunc(parameters);
                     }
                     else
@@ -54,21 +85,29 @@ namespace Libra
                 {
                     throw new Exception($"请核对您所访问的类: {type} 及方法 {method} 是否存在! 额外信息:{ex.Message}");
                 }
-                return _invokeFastCache[caller](parameters);
             }
            
 
         }
 
-        public static Func<string,string> HandlerType(string key, Type type, string method)
+        public static Func<string,string> HandlerType(string key, Type type, string methodName, string typeName)
         {
-
-            if (!LibraTypeManagement.HasMethod(type,method))
+            var isPlugin = false;
+            var domain = LibraPluginManagement.GetPluginDominByType(typeName);
+            if (!LibraTypeManagement.HasMethod(type,methodName) && domain == null)
             {
                 return null;
             }
+            if (domain == null)
+            {
+                domain = DomainManagement.Random;
+            }
+            else
+            {
+                isPlugin = true;
+            }
 
-            var methodInfo = type.GetMethod(method);
+            var methodInfo = type.GetMethod(methodName);
             var methodCallBuilder = new StringBuilder();
             var parameterInfos = methodInfo.GetParameters();
             ParameterInfo firstParameterInfo = default;
@@ -96,6 +135,7 @@ namespace Libra
             }
             else if (parameterInfos.Length == 1)
             {
+
                 parameterName = "parameters";
                 firstParameterInfo = parameterInfos[0];
                 var pType = firstParameterInfo.ParameterType;
@@ -122,7 +162,20 @@ namespace Libra
             }
             else
             {
-                caller = $"LibraProtocalAnalysis.Provider.GetService<{type.GetDevelopName()}>()";
+                //这里不能用 Provider 检测, 否则不能卸载
+                if (isPlugin)
+                {
+                    caller = $"(new {type.GetDevelopName()}())";
+                }
+                else if (Provider.GetService(type) == null)
+                {
+                    caller = $"(new {type.GetDevelopName()}())";
+                }
+                else
+                {
+                    caller = $"LibraProtocalAnalysis.Provider.GetService<{type.GetDevelopName()}>()";
+                }
+               
             }
 
 
@@ -139,14 +192,13 @@ namespace Libra
             }
 
 
-            var func = NDelegate
-                .RandomDomain(item =>
-                {
-                    item
-                    .LogSyntaxError()
-                    .UseFileCompile();
-                })
-                
+
+            var func = NDelegate.UseDomain(domain, item =>
+            {
+                item
+                .LogSyntaxError()
+                .UseFileCompile();
+            })
                 .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString()))
                 .Func<string, string>(methodCallBuilder.ToString());
             _invokerMapping[key] = func;

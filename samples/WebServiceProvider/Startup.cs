@@ -27,7 +27,7 @@ namespace WebServiceProvider
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped(typeof(TeacherService));
+            //services.AddScoped(typeof(TeacherService));
             services
                 .AddLibraWpc(opt => opt
                 .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用

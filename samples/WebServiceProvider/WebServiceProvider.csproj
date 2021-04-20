@@ -8,5 +8,11 @@
     <ProjectReference Include="..\..\src\Libra\Libra.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Plugin\PluginService.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>
