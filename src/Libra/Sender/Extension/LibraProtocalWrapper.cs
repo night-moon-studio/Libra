@@ -1,5 +1,6 @@
 ﻿using Libra.Model;
 using System;
+using System.Net;
 using System.Text.Json;
 
 public class LibraProtocalWrapper
@@ -13,15 +14,20 @@ public class LibraProtocalWrapper
 
     public S Get<S>(string url)
     {
-        var result = LibraRequest.Post<S>(url, _callMode);
+        var result = LibraRequest.Execute<S>(url, _callMode);
         return result == null ? default : result.Value;
     }
 
 
     public S Get<S>()
     {
-        var result = LibraRequest.Post<S>(_callMode);
+        var result = LibraRequest.Execute<S>(_callMode);
         return result == null ? default : result.Value;
+    }
+
+    public HttpStatusCode Execute()
+    {
+        return LibraRequest.Execute(_callMode);
     }
 
 }
@@ -61,15 +67,20 @@ public class LibraProtocalWrapper<T>
 
     public S Get<S>(string url)
     {
-        var result = LibraRequest.Post<S>(url, _callMode);
+        var result = LibraRequest.Execute<S>(url, _callMode);
         return result == null ? default : result.Value;
     }
 
 
     public S Get<S>()
     {
-        var result = LibraRequest.Post<S>(_callMode);
+        var result = LibraRequest.Execute<S>(_callMode);
         return result == null ? default : result.Value;
+    }
+
+    public HttpStatusCode Execute()
+    {
+        return LibraRequest.Execute(_callMode);
     }
 
 }

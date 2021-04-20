@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net;
 
 namespace WebCallerClient.Controller
 {
@@ -51,6 +52,18 @@ namespace WebCallerClient.Controller
         public string GetHello7()
         {
             return "Hello7".WpcParam(new { Indexs = new int[] { 1, 2, 3, 4 }, name = "abc" }).Get<string>();
+        }
+
+        [HttpGet("8")]
+        public HttpStatusCode GetHello8()
+        {
+            return "TeacherService.Hello8".NoWpcParam().Execute();
+        }
+
+        [HttpGet("9")]
+        public object GetHello9()
+        {
+            return "TeacherService.Hello9".NoWpcParam().Get<HttpStatusCode>();
         }
     }
 }

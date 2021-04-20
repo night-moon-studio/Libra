@@ -30,6 +30,11 @@ namespace WebServiceProvider.Services
             return "aaaaaaa";
         }
 
+        public void Hello8()
+        {
+            Console.WriteLine("haha8888");
+        }
+
         public string Hello6(TestModel model)
         {
             var i = 0;

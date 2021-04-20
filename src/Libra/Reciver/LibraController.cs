@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Libra
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class LibraController : ControllerBase
     {

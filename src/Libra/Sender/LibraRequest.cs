@@ -1,7 +1,9 @@
 ﻿using Libra.Model;
 using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 public static class LibraRequest
@@ -16,7 +18,7 @@ public static class LibraRequest
     private static string _baseUrl;
     public static void SetBaseUrl(string baseUrl)
     {
-        _baseUrl = baseUrl;
+        _baseUrl = baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra");
     }
     internal static HttpClient GetClientInternal()
     {
@@ -28,39 +30,116 @@ public static class LibraRequest
         else
         {
             client = new HttpClient();
-            _stack.Push(client);
             return client;
         }
 
     }
 
-    public static LibraResult<S> Post<S>(LibraProtocalModel callModel)
+    public static LibraResult<S> Execute<S>(LibraProtocalModel callModel)
     {
-        return Post<S>(_baseUrl, callModel);
+        var request = GetClientInternal();
+        try
+        {
+
+            var response = GetMessage(request,_baseUrl, callModel);
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    var message = response.Content.ReadAsStringAsync().Result;
+                    return JsonSerializer.Deserialize<LibraResult<S>>(message);
+                }
+                else
+                {
+                    throw new Exception($"{callModel.Flag} 暂不支持远程调用!");
+                }
+            }
+            else 
+            {
+                throw new Exception("请求失败!");
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+            throw ex;
+
+        }
+        finally
+        {
+            _stack.Push(request);
+        }
     }
-    public static LibraResult<S> Post<S>(string url, LibraProtocalModel callModel)
+
+    public static HttpStatusCode Execute(LibraProtocalModel callModel)
+    {
+        var request = GetClientInternal();
+        try
+        {
+
+            var response = GetMessage(request, _baseUrl, callModel);
+            return response.StatusCode;
+
+        }
+        catch (Exception ex)
+        {
+
+            throw ex;
+
+        }
+        finally
+        {
+            _stack.Push(request);
+        }
+    }
+
+    public static HttpStatusCode Execute(string url, LibraProtocalModel callModel)
+    {
+        var request = GetClientInternal();
+        try
+        {
+            var response = GetMessage(request, url + "/Libra", callModel);
+            return response.StatusCode;
+
+        }
+        catch (Exception ex)
+        {
+
+            throw ex;
+
+        }
+        finally
+        {
+            _stack.Push(request);
+        }
+    }
+
+    public static LibraResult<S> Execute<S>(string url, LibraProtocalModel callModel)
     {
 
         var request = GetClientInternal();
         try
         {
-            
-            StringContent content = new StringContent(JsonSerializer.Serialize(callModel));
-            content.Headers.ContentType.MediaType = "application/json";
-            var result = request.PostAsync(url + "api/Libra", content).Result;
-            if (result.IsSuccessStatusCode)
+
+            var response = GetMessage(request, url + "/Libra", callModel);
+            if (response.IsSuccessStatusCode)
             {
-                if (result.StatusCode != System.Net.HttpStatusCode.NoContent)
+                if (response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var message = result.Content.ReadAsStringAsync().Result;
-                    if (message == "该类型不支持远程调用!")
-                    {
-                        throw new Exception($"{callModel.Flag} 暂不支持远程调用!");
-                    }
+
+                    var message = response.Content.ReadAsStringAsync().Result;
                     return JsonSerializer.Deserialize<LibraResult<S>>(message);
                 }
+                else 
+                {
+                    throw new Exception($"{callModel.Flag} 暂不支持远程调用!");
+                }
             }
-            return default;
+            else
+            {
+                throw new Exception("请求失败!");
+            }
         }
         catch (Exception ex)
         {
@@ -72,5 +151,17 @@ public static class LibraRequest
         }
 
     }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static HttpResponseMessage GetMessage(HttpClient request, string url, LibraProtocalModel callModel)
+    {
+
+        StringContent content = new StringContent(JsonSerializer.Serialize(callModel));
+        content.Headers.ContentType.MediaType = "application/json";
+        return request.PostAsync(url, content).Result;
+
+    }
+
 
 }

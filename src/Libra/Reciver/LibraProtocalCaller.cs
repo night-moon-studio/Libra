@@ -38,12 +38,16 @@ namespace Libra
                 var method = realType.Substring(index + 1, realType.Length - index - 1);
                 try
                 {
-                    var message = NDelegate
+                    var dynamicFunc = NDelegate
                    .RandomDomain(item => item.LogSyntaxError().LogCompilerError())
-                   .Func<string>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\");")();
-                    if (message != null)
+                   .Func<Func<string, string>>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\");")();
+                    if (dynamicFunc != null)
                     {
-                        return message;
+                        return dynamicFunc(parameters);
+                    }
+                    else
+                    {
+                        return null;
                     }
                 }
                 catch (Exception ex)
@@ -56,12 +60,12 @@ namespace Libra
 
         }
 
-        public static string HandlerType(string key, Type type, string method)
+        public static Func<string,string> HandlerType(string key, Type type, string method)
         {
 
             if (!LibraTypeManagement.HasMethod(type,method))
             {
-                return "该类型不支持远程调用!";
+                return null;
             }
 
             var methodInfo = type.GetMethod(method);
@@ -131,11 +135,11 @@ namespace Libra
             else
             {
                 methodCallBuilder.AppendLine($"{caller}.{methodInfo.Name}({parameterName});");
-                methodCallBuilder.AppendLine("return default;");
+                methodCallBuilder.AppendLine("return \"\";");
             }
 
 
-            _invokerMapping[key] = NDelegate
+            var func = NDelegate
                 .RandomDomain(item =>
                 {
                     item
@@ -145,8 +149,9 @@ namespace Libra
                 
                 .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString()))
                 .Func<string, string>(methodCallBuilder.ToString());
+            _invokerMapping[key] = func;
             _invokeFastCache = _invokerMapping.PrecisioTree();
-            return null;
+            return func;
         }
 
     }

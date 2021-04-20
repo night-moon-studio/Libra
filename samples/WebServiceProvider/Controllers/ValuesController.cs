@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebServiceProvider.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
