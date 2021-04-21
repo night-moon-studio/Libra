@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WebServiceProvider.Services
 {
@@ -43,6 +44,12 @@ namespace WebServiceProvider.Services
                 i += item;
             }
             return model.Name + i;
+        }
+
+        public async Task<int> Hello7()
+        {
+            await Task.Delay(3000);
+            return 1;
         }
     }
 }

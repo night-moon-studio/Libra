@@ -1,4 +1,5 @@
 ﻿using Natasha.CSharp;
+using Natasha.CSharp.Reverser;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Libra
 {
@@ -41,7 +43,7 @@ namespace Libra
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
-        public static string Call(string caller, string parameters)
+        public static async Task<string> CallAsync(string caller, string parameters)
         {
             
             if (_invokeFastCache.TryGetValue(caller, out var func))
@@ -178,11 +180,11 @@ namespace Libra
                
             }
 
-
+            bool isAsync = AsyncReverser.GetAsync(methodInfo) != null;
             //调用
             if (methodInfo.ReturnType != typeof(void))
             {
-                methodCallBuilder.AppendLine($"var result = new LibraResult<{methodInfo.ReturnType.GetDevelopName()}>(){{ Value = {caller}.{methodInfo.Name}({parameterName}) }};");
+                methodCallBuilder.AppendLine($"var result = new LibraResult<{(isAsync?methodInfo.ReturnType.GenericTypeArguments[0].GetDevelopName() :methodInfo.ReturnType.GetDevelopName())}>(){{ Value = {caller}.{methodInfo.Name}({parameterName}){(isAsync?".Result":"")} }};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
             else
