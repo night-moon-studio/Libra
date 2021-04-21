@@ -22,47 +22,12 @@ public static class LibraPluginManagement
         _nameDomainCache = new ConcurrentDictionary<string, DomainBase>();
     }
 
-
     /// <summary>
-    /// 添加插件
-    /// </summary>
-    /// <param name="path"></param>
-    public static Assembly AddPlugin(string path)
-    {
-        if (!_pluginKeyCache.ContainsKey(path))
-        {
-            lock (_pluginLock)
-            {
-                if (!_pluginKeyCache.ContainsKey(path))
-                {
-
-                    var domain = DomainManagement.Random;
-                    var assembly = domain.LoadPluginFromStream(path);
-                    var types = assembly.GetTypes();
-
-                    _domainPluginCache[domain] = path;
-                    _pluginKeyCache[path] = new ConcurrentQueue<string>();
-                    _pluginTypesCache[path] = new ConcurrentQueue<string>();
-
-                    foreach (var item in types)
-                    {
-                        var typeName = Reverser(item);
-                        _nameDomainCache[typeName] = domain;
-                        _pluginTypesCache[path].Enqueue(typeName);
-                    }
-                    return assembly;
-                }
-            }
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// 添加插件并用接口进行约束
+    /// 添加插件 允许用接口类型进行约束
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="path"></param>
-    public static Assembly AddPlugin<T>(string path)
+    public static Assembly AddPlugin(string path, params Type[] interfaces)
     {
         if (!_pluginKeyCache.ContainsKey(path))
         {
@@ -79,12 +44,24 @@ public static class LibraPluginManagement
                     _pluginTypesCache[path] = new ConcurrentQueue<string>();
                     foreach (var item in types)
                     {
-
-                        if (item.IsImplementFrom<T>())
+                        if (interfaces.Length == 0)
                         {
                             var typeName = Reverser(item);
                             _nameDomainCache[typeName] = domain;
                             _pluginTypesCache[path].Enqueue(typeName);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < interfaces.Length; i += 1)
+                            {
+                                if (item.IsImplementFrom(interfaces[i]))
+                                {
+                                    var typeName = Reverser(item);
+                                    _nameDomainCache[typeName] = domain;
+                                    _pluginTypesCache[path].Enqueue(typeName);
+                                    break;
+                                }
+                            }
                         }
                     }
                     return assembly;
