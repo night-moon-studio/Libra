@@ -7,7 +7,8 @@ Libra 是一款基于 Natasha 的 Web 远程调用组件, 得益于 Natasha 强�
 
 Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 还可以通过映射 **Key** => **"类名.方法名"** 对外仅暴露 **Key**.
 
-#### Libra 库类型实例化规则:
+#### Libra 库类型实例化规则:  
+
  - 类被 ASP.NET CORE 注入, 则使用服务提供者创建类的实例, 兼容注入功能.
  - 类未被注册 或 来自于插件则使用 **new** 进行实例化.
  - 被调用方法是静态方法, 则直接使用 **静态类** 来调用方法.
@@ -18,13 +19,24 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  - "分析模块" 会通过 **调用者Key** 寻找二三优化字典中的委托, 如果未找到委托, 则通过 Natasha 将字符串转换为类型来动态构造委托, 委托入参和返回值均为字符串类型, 该字符串是被包装的方法参数/返回值的序列化结果.   
  
     - 参数包装策略:
-      - 当参数仅有1个时, 类型为常规类型: 基元类型\string\DateTime 则被包装到 LibraSingleParameter<SType> 中, 以方便序列化.
+      - 当参数仅有1个时, 类型为常规类型: 基元类型\string\DateTime 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
       - 当参数仅有1个时, 类型为复杂类型: 数组\类\集合\字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
-    - 返回值包装策略:
-      - 如果为 void 类型, 返回空.
-      - 如果为其他类型, 则包装到 LibraResult<RType> 中序列化返回.
+   - 返回值包装策略:
+     - 如果为 void 类型, 返回空.
+     - 如果为其他类型, 则包装到 LibraResult< RType > 中序列化返回.  
+      
+
+#### Libra 对异步方法的支持:
+
+ - 如果目标方法为 `async Task<X> Method` 形式, 则 Libra 将在包装方法内部使用 `await Method` 异步调用获取结果. 
+ 
+#### Libra 的结果:
+
+ - 抛出异常 : 则目标方法不允许调用或者不存在.
+ - 空字符串 : 则代表被调用的方法为 void.
+ - `LibraResult<S>` : 正常返回结果.  
 
 <br> 
 
@@ -42,13 +54,14 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
   
   
 <br> 
-
+   
 ## 使用方法
 
 
  - #### Server端
 
-```C#
+```C#  
+
  services
   .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
   .AddLibraWpc(opt => opt
@@ -63,7 +76,8 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 ```
 - #### 插件调用
 
-```C#
+```C#  
+
 //Libra 允许客户端远程调用服务端加载的插件方法
 LibraPluginManagement.AddPlugin(filePath);
 LibraPluginManagement.Dispose(filePath);
@@ -88,6 +102,7 @@ LibraPluginManagement.Dispose(filePath);
 
 ```
 <br> 
+
 
 ## 计划
 
