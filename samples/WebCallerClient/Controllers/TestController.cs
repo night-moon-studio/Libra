@@ -80,5 +80,10 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.Hello7".NoWpcParam().Get<int>();
         }
+        [HttpGet("13")]
+        public HttpStatusCode GetHello13()
+        {
+            return "TeacherService.Hello9".NoWpcParam().Execute();
+        }
     }
 }

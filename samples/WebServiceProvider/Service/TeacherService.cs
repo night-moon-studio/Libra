@@ -51,5 +51,10 @@ namespace WebServiceProvider.Services
             await Task.Delay(3000);
             return 1;
         }
+        public async Task Hello9()
+        {
+            await Task.Delay(3000);
+            Console.WriteLine(2);
+        }
     }
 }

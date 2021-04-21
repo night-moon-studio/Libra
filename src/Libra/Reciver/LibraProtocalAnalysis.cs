@@ -184,7 +184,7 @@ namespace Libra
             //调用
             if (methodInfo.ReturnType != typeof(void))
             {
-                methodCallBuilder.AppendLine($"var result = new LibraResult<{(isAsync?methodInfo.ReturnType.GenericTypeArguments[0].GetDevelopName() :methodInfo.ReturnType.GetDevelopName())}>(){{ Value = {caller}.{methodInfo.Name}({parameterName}){(isAsync?".Result":"")} }};");
+                methodCallBuilder.AppendLine($"var result = new LibraResult<{(isAsync?methodInfo.ReturnType.GenericTypeArguments[0].GetDevelopName() : methodInfo.ReturnType.GetDevelopName())}>(){{ Value = {(isAsync ? "await" : "")}{caller}.{methodInfo.Name}({parameterName})}};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
             else
@@ -193,16 +193,23 @@ namespace Libra
                 methodCallBuilder.AppendLine("return \"\";");
             }
 
-
-
-            var func = NDelegate.UseDomain(domain, item =>
+            var delegateFunc = NDelegate.UseDomain(domain, item =>
             {
                 item
                 .LogSyntaxError()
                 .UseFileCompile();
             })
-                .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString()))
-                .Func<string, string>(methodCallBuilder.ToString());
+                .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString()));
+            Func<string, string> func;
+            if (isAsync)
+            {
+                var tempFunc = delegateFunc.AsyncFunc<string, Task<string>>(methodCallBuilder.ToString());
+                func = (param) => tempFunc(param).Result;
+            }
+            else
+            {
+                func = delegateFunc.Func<string, string>(methodCallBuilder.ToString());
+            }
             _invokerMapping[key] = func;
             _invokeFastCache = _invokerMapping.PrecisioTree();
             return func;
