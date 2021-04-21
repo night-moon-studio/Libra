@@ -25,7 +25,7 @@ namespace Libra.Extension.Utils
         /// </summary>
         /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public string[] MulticastGetAsync(string key, params int[] indexs)
+        public string[] MulticastGet(string key, params int[] indexs)
         {
             if (indexs.Length == 0)
             {
@@ -52,7 +52,7 @@ namespace Libra.Extension.Utils
         /// </summary>
         /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public S[] MulticastGetAsync<S>(string key, params int[] indexs)
+        public S[] MulticastGet<S>(string key, params int[] indexs)
         {
 
             if (indexs.Length == 0)
@@ -82,7 +82,7 @@ namespace Libra.Extension.Utils
         /// </summary>
         /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public HttpStatusCode[] MulticastExecuteAsync(string key, params int[] indexs)
+        public HttpStatusCode[] MulticastExecute(string key, params int[] indexs)
         {
 
             if (indexs.Length == 0)

@@ -105,12 +105,12 @@ namespace WebCallerClient.Controller
         [HttpGet("17")]
         public int[] GetHello17()
         {
-            return "TeacherService.Hello7".NoWpcParam().MulticastGetAsync<int>("测试组");
+            return "TeacherService.Hello7".NoWpcParam().MulticastGet<int>("测试组");
         }
         [HttpGet("18")]
         public string[] GetHello18()
         {
-            return "TeacherService.Hello5".NoWpcParam().MulticastGetAsync("测试组");
+            return "TeacherService.Hello5".NoWpcParam().MulticastGet("测试组");
         }
     }
 }
