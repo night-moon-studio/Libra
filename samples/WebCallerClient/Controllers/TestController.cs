@@ -90,5 +90,15 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.Hello10".WpcParam(new int[] { 1,2,3,4,5,6,7}).Get<int>();
         }
+        [HttpGet("15")]
+        public TestModel GetHello15()
+        {
+            return "TeacherService.GetNull".NoWpcParam().Get<TestModel>();
+        }
+        [HttpGet("16")]
+        public TestModel GetHello16()
+        {
+            return "TeacherService.GetNotNull".NoWpcParam().Get<TestModel>();
+        }
     }
 }

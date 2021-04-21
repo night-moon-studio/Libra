@@ -65,5 +65,15 @@ namespace WebServiceProvider.Services
             }
             return result;
         }
+
+        public TestModel GetNull()
+        {
+            return null;
+        }
+
+        public TestModel GetNotNull()
+        {
+            return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
+        }
     }
 }

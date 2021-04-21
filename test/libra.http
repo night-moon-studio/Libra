@@ -48,3 +48,7 @@ GET https://localhost:6001/api/Test/12 HTTP/1.1
 GET https://localhost:6001/api/Test/13 HTTP/1.1
 ### 调用插件
 GET https://localhost:6001/api/Test/14 HTTP/1.1
+### 调用插件
+GET https://localhost:6001/api/Test/15 HTTP/1.1
+### 调用插件
+GET https://localhost:6001/api/Test/16 HTTP/1.1
