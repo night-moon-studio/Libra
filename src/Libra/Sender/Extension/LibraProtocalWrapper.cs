@@ -6,10 +6,10 @@ using System.Text.Json;
 public class LibraProtocalWrapper
 {
 
-    private readonly LibraProtocalModel _callMode;
+    private readonly LibraProtocal _callMode;
     public LibraProtocalWrapper(string caller)
     {
-        _callMode = new LibraProtocalModel() { Flag = caller, Parameters = null };
+        _callMode = new LibraProtocal() { Flag = caller, Parameters = null };
     }
 
     public S Get<S>(string url)
@@ -58,10 +58,10 @@ public class LibraProtocalWrapper<T>
     }
 
 
-    private readonly LibraProtocalModel _callMode;
+    private readonly LibraProtocal _callMode;
     public LibraProtocalWrapper(string caller, T parameter)
     {
-        _callMode = new LibraProtocalModel() { Flag = caller, Parameters = _serialize(parameter) };
+        _callMode = new LibraProtocal() { Flag = caller, Parameters = _serialize(parameter) };
     }
 
 

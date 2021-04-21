@@ -1,6 +1,6 @@
 ﻿namespace Libra.Model
 {
-    public class LibraProtocalModel
+    public class LibraProtocal
     {
 
         public string Flag { get; set; }

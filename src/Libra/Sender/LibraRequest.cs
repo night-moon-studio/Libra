@@ -35,7 +35,7 @@ public static class LibraRequest
 
     }
 
-    public static LibraResult<S> Execute<S>(LibraProtocalModel callModel)
+    public static LibraResult<S> Execute<S>(LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -72,7 +72,7 @@ public static class LibraRequest
         }
     }
 
-    public static HttpStatusCode Execute(LibraProtocalModel callModel)
+    public static HttpStatusCode Execute(LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -94,7 +94,7 @@ public static class LibraRequest
         }
     }
 
-    public static HttpStatusCode Execute(string url, LibraProtocalModel callModel)
+    public static HttpStatusCode Execute(string url, LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -115,7 +115,7 @@ public static class LibraRequest
         }
     }
 
-    public static LibraResult<S> Execute<S>(string url, LibraProtocalModel callModel)
+    public static LibraResult<S> Execute<S>(string url, LibraProtocal callModel)
     {
 
         var request = GetClientInternal();
@@ -154,7 +154,7 @@ public static class LibraRequest
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static HttpResponseMessage GetMessage(HttpClient request, string url, LibraProtocalModel callModel)
+    private static HttpResponseMessage GetMessage(HttpClient request, string url, LibraProtocal callModel)
     {
 
         StringContent content = new StringContent(JsonSerializer.Serialize(callModel));
