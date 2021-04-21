@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 public static class LibraRequest
 {
@@ -35,6 +36,11 @@ public static class LibraRequest
 
     }
 
+
+    public static async Task<string> ExecuteAsync(LibraProtocal callModel)
+    {
+        return Execute(callModel);
+    }
     public static string Execute(LibraProtocal callModel)
     {
         var request = GetClientInternal();
@@ -94,6 +100,10 @@ public static class LibraRequest
         }
     }
 
+    public static async Task<HttpStatusCode> ExecuteVoidAsync(LibraProtocal callModel)
+    {
+        return ExecuteVoid(callModel);
+    }
     public static HttpStatusCode ExecuteVoid(LibraProtocal callModel)
     {
         var request = GetClientInternal();
@@ -116,12 +126,17 @@ public static class LibraRequest
         }
     }
 
+
+    public static async Task<HttpStatusCode> ExecuteVoidAsync(string url, LibraProtocal callModel)
+    {
+        return ExecuteVoid(url, callModel);
+    }
     public static HttpStatusCode ExecuteVoid(string url, LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
         {
-            var response = GetMessage(request, url + "/Libra", callModel);
+            var response = GetMessage(request, url, callModel);
             return response.StatusCode;
 
         }
@@ -137,6 +152,11 @@ public static class LibraRequest
         }
     }
 
+
+    public static async Task<string> ExecuteAsync(string url, LibraProtocal callModel)
+    {
+        return Execute(url, callModel);
+    }
     public static string Execute(string url, LibraProtocal callModel)
     {
 
@@ -144,7 +164,7 @@ public static class LibraRequest
         try
         {
 
-            var response = GetMessage(request, url + "/Libra", callModel);
+            var response = GetMessage(request, url, callModel);
             if (response.IsSuccessStatusCode)
             {
                 if (response.StatusCode != HttpStatusCode.NoContent)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace WebServiceProvider.Services
+namespace WebServiceProvider2.Services
 {
     public class TeacherService
     {
@@ -36,20 +36,11 @@ namespace WebServiceProvider.Services
             Console.WriteLine("haha8888");
         }
 
-        public string Hello6(TestModel model)
-        {
-            var i = 0;
-            foreach (var item in model.Indexs)
-            {
-                i += item;
-            }
-            return model.Name + i;
-        }
 
         public async Task<int> Hello7()
         {
-            await Task.Delay(1000);
-            return 1;
+            await Task.Delay(4000);
+            return 2;
         }
 
         public async Task Hello11()
@@ -68,14 +59,5 @@ namespace WebServiceProvider.Services
             return result;
         }
 
-        public TestModel GetNull()
-        {
-            return null;
-        }
-
-        public TestModel GetNotNull()
-        {
-            return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
-        }
     }
 }

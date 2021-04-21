@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace WebCallerClient.Controller
 {
@@ -99,6 +100,17 @@ namespace WebCallerClient.Controller
         public TestModel GetHello16()
         {
             return "TeacherService.GetNotNull".NoWpcParam().Get<TestModel>();
+        }
+
+        [HttpGet("17")]
+        public int[] GetHello17()
+        {
+            return "TeacherService.Hello7".NoWpcParam().MulticastGetAsync<int>("测试组");
+        }
+        [HttpGet("18")]
+        public string[] GetHello18()
+        {
+            return "TeacherService.Hello5".NoWpcParam().MulticastGetAsync("测试组");
         }
     }
 }

@@ -9,9 +9,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace WebCallerClient
+namespace WebServiceProvider2
 {
     public class Startup
     {
@@ -25,13 +26,10 @@ namespace WebCallerClient
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddLibraWpc(opt=>opt.SetBaseUrl("https://localhost:5001/"));
+            services
+               .AddLibraWpc(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()))
+               .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
             services.AddControllers();
-
-            var multicast = LibraMulticastHostManagement.GetOrCreate("²âÊÔ×é");
-            multicast.AddHost("https://localhost:5001/");
-            multicast.AddHost("https://localhost:7001/");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,7 +40,11 @@ namespace WebCallerClient
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
+
             app.UseRouting();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

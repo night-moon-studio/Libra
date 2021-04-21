@@ -24,6 +24,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCallerClient", "samples\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginService", "samples\PluginService\PluginService.csproj", "{14B69745-D47F-4013-8253-8C90F39690F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServiceProvider2", "samples\WebServiceProvider2\WebServiceProvider2.csproj", "{F0866BCA-E802-488F-9900-28D6CF589CB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 		{14B69745-D47F-4013-8253-8C90F39690F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14B69745-D47F-4013-8253-8C90F39690F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14B69745-D47F-4013-8253-8C90F39690F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +71,7 @@ Global
 		{B1C55AC0-A809-4A28-8050-41E8830F3A04} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{14B69745-D47F-4013-8253-8C90F39690F9} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
+		{F0866BCA-E802-488F-9900-28D6CF589CB4} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E330F2E1-7532-4657-A941-C1782EAE9D1C}
