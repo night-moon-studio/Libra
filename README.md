@@ -23,9 +23,10 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
       - 当参数仅有1个时, 类型为复杂类型: 数组\类\集合\字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
-    - 返回值包装策略:
-      - 如果为 void 类型, 返回空.
-      - 如果为其他类型, 则包装到 LibraResult< RType > 中序列化返回.
+   - 返回值包装策略:
+     - 如果为 void 类型, 返回空.
+     - 如果为其他类型, 则包装到 LibraResult< RType > 中序列化返回.  
+      
 
 #### Libra 对异步方法的支持:
 
@@ -33,10 +34,9 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  
 #### Libra 的结果:
 
- - 抛出异常:则目标方法不允许调用或者不存在.
- - 空字符串:则代表被调用的方法为 void.
- - LibraResult<S> : 正常返回结果.  
- - 
+ - 抛出异常 : 则目标方法不允许调用或者不存在.
+ - 空字符串 : 则代表被调用的方法为 void.
+ - LibraResult< S > : 正常返回结果.  
 
 <br> 
 
@@ -55,13 +55,13 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
   
 <br> 
    
-   
 ## 使用方法
 
 
  - #### Server端
 
-```C#
+```C#  
+
  services
   .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
   .AddLibraWpc(opt => opt
@@ -76,7 +76,8 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 ```
 - #### 插件调用
 
-```C#
+```C#  
+
 //Libra 允许客户端远程调用服务端加载的插件方法
 LibraPluginManagement.AddPlugin(filePath);
 LibraPluginManagement.Dispose(filePath);
@@ -101,6 +102,7 @@ LibraPluginManagement.Dispose(filePath);
 
 ```
 <br> 
+
 
 ## 计划
 
