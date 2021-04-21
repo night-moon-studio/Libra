@@ -11,7 +11,7 @@ namespace Libra
         [HttpPost]
         public async Task<string> Run(LibraProtocal model)
         {
-            return await LibraProtocalAnalysis.CallAsync(model.Flag, model.Parameters);
+            return await LibraProtocalAnalysis.CallAsync(model.Flag, model.Parameters, Response);
         }
     }
 }

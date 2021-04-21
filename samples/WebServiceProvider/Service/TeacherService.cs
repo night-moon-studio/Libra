@@ -48,13 +48,22 @@ namespace WebServiceProvider.Services
 
         public async Task<int> Hello7()
         {
-            await Task.Delay(3000);
+            await Task.Delay(1000);
             return 1;
         }
-        public async Task Hello9()
+        public async Task Hello11()
         {
-            await Task.Delay(3000);
+            await Task.Delay(1000);
             Console.WriteLine(2);
+        }
+        public int Hello10(int[] values)
+        {
+            int result = 0;
+            for (int i = 0; i < values.Length; i+=1)
+            {
+                result += values[i];
+            }
+            return result;
         }
     }
 }

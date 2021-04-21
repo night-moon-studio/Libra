@@ -35,7 +35,7 @@ public static class LibraRequest
 
     }
 
-    public static LibraResult<S> Execute<S>(LibraProtocal callModel)
+    public static string Execute(LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -46,18 +46,40 @@ public static class LibraRequest
             {
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var message = response.Content.ReadAsStringAsync().Result;
-                    return JsonSerializer.Deserialize<LibraResult<S>>(message);
+                    return response.Content.ReadAsStringAsync().Result;
                 }
                 else
                 {
-                    throw new Exception($"{callModel.Flag} 暂不支持远程调用!");
+                    return null;
                 }
             }
-            else 
+            else if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                throw new Exception("请求失败!");
+
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new Exception(response.Content.ReadAsStringAsync().Result);
+                }
+                else
+                {
+                    throw new Exception("请检查对方服务是否开启!");
+                }
+
             }
+            else
+            {
+
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new Exception("请求失败!" + response.Content.ReadAsStringAsync().Result);
+                }
+                else
+                {
+                    throw new Exception("请求失败!");
+                }
+
+            }
+
 
         }
         catch (Exception ex)
@@ -72,7 +94,7 @@ public static class LibraRequest
         }
     }
 
-    public static HttpStatusCode Execute(LibraProtocal callModel)
+    public static HttpStatusCode ExecuteVoid(LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -94,7 +116,7 @@ public static class LibraRequest
         }
     }
 
-    public static HttpStatusCode Execute(string url, LibraProtocal callModel)
+    public static HttpStatusCode ExecuteVoid(string url, LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -115,7 +137,7 @@ public static class LibraRequest
         }
     }
 
-    public static LibraResult<S> Execute<S>(string url, LibraProtocal callModel)
+    public static string Execute(string url, LibraProtocal callModel)
     {
 
         var request = GetClientInternal();
@@ -127,19 +149,40 @@ public static class LibraRequest
             {
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
-
-                    var message = response.Content.ReadAsStringAsync().Result;
-                    return JsonSerializer.Deserialize<LibraResult<S>>(message);
+                    return response.Content.ReadAsStringAsync().Result;
                 }
-                else 
+                else
                 {
-                    throw new Exception($"{callModel.Flag} 暂不支持远程调用!");
+                    return null;
                 }
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new Exception(response.Content.ReadAsStringAsync().Result);
+                }
+                else
+                {
+                    throw new Exception("请检查对方服务是否开启!");
+                }
+                
             }
             else
             {
-                throw new Exception("请求失败!");
+
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new Exception("请求失败!"+ response.Content.ReadAsStringAsync().Result);
+                }
+                else
+                {
+                    throw new Exception("请求失败!");
+                }
+
             }
+
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
-﻿using Natasha.CSharp;
+﻿using Microsoft.AspNetCore.Http;
+using Natasha.CSharp;
 using Natasha.CSharp.Reverser;
 using System;
 using System.Collections.Concurrent;
@@ -43,7 +44,7 @@ namespace Libra
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
-        public static async Task<string> CallAsync(string caller, string parameters)
+        public static async Task<string> CallAsync(string caller, string parameters, HttpResponse response)
         {
             
             if (_invokeFastCache.TryGetValue(caller, out var func))
@@ -80,12 +81,16 @@ namespace Libra
                     }
                     else
                     {
+                        response.StatusCode = 404;
+                        await response.WriteAsync($"请核对您所访问的类: {type} 及方法 {method} 是否存在!");
                         return null;
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"请核对您所访问的类: {type} 及方法 {method} 是否存在! 额外信息:{ex.Message}");
+                    response.StatusCode = 404;
+                    await response.WriteAsync($"请核对您所访问的类: {type} 及方法 {method} 是否存在! 额外信息:{ex.Message}");
+                    return null;
                 }
             }
            
@@ -110,6 +115,7 @@ namespace Libra
             }
 
             var methodInfo = type.GetMethod(methodName);
+
             var methodCallBuilder = new StringBuilder();
             var parameterInfos = methodInfo.GetParameters();
             ParameterInfo firstParameterInfo = default;
@@ -141,12 +147,16 @@ namespace Libra
                 parameterName = "parameters";
                 firstParameterInfo = parameterInfos[0];
                 var pType = firstParameterInfo.ParameterType;
-                if (pType.IsPrimitive || pType == typeof(string) || pType == typeof(DateTime))
+                if (pType.IsPrimitive ||  pType.IsValueType)
                 {
 
                     methodCallBuilder.AppendLine($"var {parameterName} = string.IsNullOrEmpty(arg) ? default : System.Text.Json.JsonSerializer.Deserialize<LibraSingleParameter<{firstParameterInfo.ParameterType.GetDevelopName()}>>(arg,LibraProtocalAnalysis.JsonOption);");
                     parameterName += ".Value";
 
+                }
+                else if(pType == typeof(string))
+                {
+                    methodCallBuilder.AppendLine($"var {parameterName} = arg;");
                 }
                 else
                 {
@@ -181,16 +191,34 @@ namespace Libra
             }
 
             bool isAsync = AsyncReverser.GetAsync(methodInfo) != null;
-            //调用
-            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
+            Type returnType = methodInfo.ReturnType;
+            if (isAsync)
             {
-                methodCallBuilder.AppendLine($"var result = new LibraResult<{(isAsync?methodInfo.ReturnType.GenericTypeArguments[0].GetDevelopName() : methodInfo.ReturnType.GetDevelopName())}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName})}};");
+                if (returnType!=typeof(Task))
+                {
+                    returnType = methodInfo.ReturnType.GenericTypeArguments[0];
+                }
+                
+            }
+            //调用
+            if (returnType == typeof(void) || returnType == typeof(Task))
+            {
+                methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+                methodCallBuilder.AppendLine("return \"\";");
+            }
+            else if (returnType == typeof(string))
+            {
+                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+            }
+            else if(returnType.IsPrimitive || returnType.IsValueType)
+            {
+                methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName})}};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
             else
             {
-                methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
-                methodCallBuilder.AppendLine("return \"\";");
+                methodCallBuilder.AppendLine($"var result = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
 
             var delegateFunc = NDelegate.UseDomain(domain, item =>

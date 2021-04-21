@@ -1,14 +1,16 @@
-﻿public static class WpcStringExtension
+﻿using Libra.Extension.Utils;
+
+public static class WpcStringExtension
 {
 
-    public static LibraProtocalWrapper<T> WpcParam<T>(this string caller, T obj)
+    public static LibraParameterHandler WpcParam<T>(this string caller, T obj)
     {
-        return new LibraProtocalWrapper<T>(caller, obj);
+        return new LibraParameterHandler<T>(caller, obj);
     }
 
-    public static LibraProtocalWrapper NoWpcParam(this string caller)
+    public static LibraParameterHandler NoWpcParam(this string caller)
     {
-        return new LibraProtocalWrapper(caller);
+        return new LibraParameterHandler(caller);
     }
 
 }

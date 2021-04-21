@@ -3,7 +3,7 @@
   "profiles": {
     "Client": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "",
       "applicationUrl": "https://localhost:6001",
       "environmentVariables": {

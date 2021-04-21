@@ -44,3 +44,7 @@ GET https://localhost:5001/api/Plugin/dispose HTTP/1.1
 
 ### 调用插件
 GET https://localhost:6001/api/Test/12 HTTP/1.1
+### 调用插件
+GET https://localhost:6001/api/Test/13 HTTP/1.1
+### 调用插件
+GET https://localhost:6001/api/Test/14 HTTP/1.1
