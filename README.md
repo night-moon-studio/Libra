@@ -19,7 +19,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  - "分析模块" 会通过 **调用者Key** 寻找二三优化字典中的委托, 如果未找到委托, 则通过 Natasha 将字符串转换为类型来动态构造委托, 委托入参和返回值均为字符串类型, 该字符串是被包装的方法参数/返回值的序列化结果.   
  
     - 参数包装策略:
-      - 当参数仅有1个时, 类型为常规类型: 基元类型\string\DateTime 则被包装到 LibraSingleParameter< SType > 中, 以方便序列化.
+      - 当参数仅有1个时, 类型为常规类型: 基元类型\string\DateTime 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
       - 当参数仅有1个时, 类型为复杂类型: 数组\类\集合\字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
@@ -36,7 +36,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
  - 抛出异常 : 则目标方法不允许调用或者不存在.
  - 空字符串 : 则代表被调用的方法为 void.
- - LibraResult< S > : 正常返回结果.  
+ - `LibraResult<S>` : 正常返回结果.  
 
 <br> 
 
