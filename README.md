@@ -88,6 +88,7 @@ LibraPluginManagement.Dispose(filePath);
 
 ```
 
+
 - #### 客户端
 
 ```C#
@@ -105,6 +106,21 @@ LibraPluginManagement.Dispose(filePath);
 "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).Get<int>();
 
 ```
+
+- #### 组播
+
+```C#
+
+var multicast = LibraMulticastHostManagement.GetOrCreate("测试组");
+multicast.AddHost("https://localhost:5001/");
+multicast.AddHost("https://localhost:7001/");
+
+"TeacherService.Hello7".NoWpcParam().MulticastGet<int>("测试组");
+"TeacherService.Hello5".NoWpcParam().MulticastGet("测试组");
+"TeacherService.Hello11".NoWpcParam().MulticastExecute("测试组");
+ 
+```  
+
 <br> 
 
 
@@ -113,7 +129,7 @@ LibraPluginManagement.Dispose(filePath);
  - [ ] 完善各种类型的测试,增加 UT 测试.
  - [ ] 增加安全认证.
  - [ ] 接入其他高性能序列化.
- - [ ] 实现组播配置.
+ - [x] 实现组播配置.
  - [ ] 单播/组播的高并发任务合并/转发/执行.
 
 还在更新中...
