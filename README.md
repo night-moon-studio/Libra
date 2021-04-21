@@ -1,5 +1,6 @@
 # Libra
-Libra 是一款基于 Natasha 的 Web 远程调用组件, 得益于 Natasha 强大的动态构建功能,它允许调用方不使用强接口约束,仅通过类及方法名即可完成调用. 
+Libra 是一款基于 Natasha 的 Web 远程调用组件, 得益于 Natasha 强大的动态构建功能,它允许调用方不使用强接口约束,仅通过类及方法名即可完成调用.   
+
 <br> 
 
 ## 原理介绍
@@ -20,6 +21,7 @@ Libra 库分为请求/分析两部分:
       - 如果为 void 类型, 返回空.
       - 如果为其他类型, 则包装到 LibraResult<RType> 中序列化返回.
 
+<br> 
 
 ## 功能列表
 
@@ -39,7 +41,7 @@ Libra 库分为请求/分析两部分:
 ## 使用方法
 
 
-#### Server端
+ - #### Server端
 
 ```C#
  services
@@ -54,7 +56,7 @@ Libra 库分为请求/分析两部分:
  ); 
   
 ```
-#### 插件调用
+- #### 插件调用
 
 ```C#
 //Libra 允许客户端远程调用服务端加载的插件方法
@@ -63,7 +65,7 @@ LibraPluginManagement.Dispose(filePath);
 
 ```
 
-### 客户端
+- #### 客户端
 
 ```C#
 
@@ -82,7 +84,7 @@ LibraPluginManagement.Dispose(filePath);
 ```
 <br> 
 
-### 计划
+## 计划
 
  - [ ] 完善各种类型的测试.
 
