@@ -182,7 +182,7 @@ namespace Libra
 
             bool isAsync = AsyncReverser.GetAsync(methodInfo) != null;
             //调用
-            if (methodInfo.ReturnType != typeof(void))
+            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
             {
                 methodCallBuilder.AppendLine($"var result = new LibraResult<{(isAsync?methodInfo.ReturnType.GenericTypeArguments[0].GetDevelopName() : methodInfo.ReturnType.GetDevelopName())}>(){{ Value = {(isAsync ? "await" : "")}{caller}.{methodInfo.Name}({parameterName})}};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
