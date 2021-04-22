@@ -8,14 +8,14 @@ namespace Libra.Extension.Utils
 {
     public static class LibraResultHandler<S>
     {
-        public readonly static Func<string, S> GetResult;
+        public readonly static Func<byte[], S> GetResult;
         static LibraResultHandler()
         {
             if (typeof(S).IsPrimitive || typeof(S).IsValueType)
             {
                 GetResult = (obj) => JsonSerializer.Deserialize<LibraResult<S>>(obj).Value;
             }
-            else if (typeof(S) != typeof(string))
+            else //if (typeof(S) != typeof(string))
             {
                 GetResult = (obj) =>
                 {

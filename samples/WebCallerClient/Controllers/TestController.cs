@@ -12,7 +12,7 @@ namespace WebCallerClient.Controller
         [HttpGet("1")]
         public string GetHello1()
         {
-            return "TeacherService.Hello1".WpcParam("Jim").Get();
+            return "TeacherService.Hello1".WpcParam("Jim").Get<string>();
         }
 
 
@@ -40,19 +40,19 @@ namespace WebCallerClient.Controller
         [HttpGet("5")]
         public string GetHello5()
         {
-            return "TeacherService.Hello5".NoWpcParam().Get();
+            return "TeacherService.Hello5".NoWpcParam().Get<string>();
         }
 
         [HttpGet("6")]
         public string GetHello6()
         {
-            return "TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).Get();
+            return "TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).Get<string>();
         }
 
         [HttpGet("7")]
         public string GetHello7()
         {
-            return "Hello7".WpcParam(new { Indexs = new int[] { 1, 2, 3, 4 }, name = "abc" }).Get();
+            return "Hello7".WpcParam(new { Indexs = new int[] { 1, 2, 3, 4 }, name = "abc" }).Get<string>();
         }
 
         [HttpGet("8")]
@@ -69,7 +69,7 @@ namespace WebCallerClient.Controller
         [HttpGet("10")]
         public string GetHello10()
         {
-            return "TestPluginService.Get".WpcParam("Jim").Get();
+            return "TestPluginService.Get".WpcParam("Jim").Get<string>();
         }
         [HttpGet("11")]
         public HttpStatusCode GetHello11()
@@ -107,10 +107,11 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.Hello7".NoWpcParam().MulticastGet<int>("测试组");
         }
+
         [HttpGet("18")]
         public string[] GetHello18()
         {
-            return "TeacherService.Hello5".NoWpcParam().MulticastGet("测试组");
+            return "TeacherService.Hello5".NoWpcParam().MulticastGet<string>("测试组");
         }
     }
 }

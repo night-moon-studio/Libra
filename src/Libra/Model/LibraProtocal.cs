@@ -4,7 +4,7 @@
     {
 
         public string Flag { get; set; }
-        public string Parameters { get; set; }
+        public byte[] Parameters { get; set; }
 
     }
 }

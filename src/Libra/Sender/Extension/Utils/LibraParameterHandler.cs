@@ -14,12 +14,12 @@ namespace Libra.Extension.Utils
 
         protected readonly LibraProtocal _callMode;
         public LibraParameterHandler() { }
-        public LibraParameterHandler(string caller, string parameters = null)
+        public LibraParameterHandler(string caller, byte[] parameters = null)
         {
             _callMode = new LibraProtocal() { Flag = caller, Parameters = parameters };
         }
 
-
+        /*
         /// <summary>
         /// 执行一组远程请求,并返回一组结果
         /// </summary>
@@ -45,7 +45,7 @@ namespace Libra.Extension.Utils
 
             }
         }
-
+        */
 
         /// <summary>
         /// 执行一组远程请求,并返回一组结果
@@ -107,7 +107,7 @@ namespace Libra.Extension.Utils
         }
 
 
-
+        /*
         /// <summary>
         /// 指定地址执行直接返回字符串
         /// </summary>
@@ -124,7 +124,7 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public string Get(Uri url)
         {
-            return LibraRequest.Execute(url, _callMode);
+            return LibraRequestPool.Execute(url, _callMode);
         }
         /// <summary>
         /// 指定地址异步执行,返回字符串
@@ -144,7 +144,7 @@ namespace Libra.Extension.Utils
         {
             return Get(url);
         }
-
+        */
 
         /// <summary>
         /// 指定地址执行返回实体
@@ -165,7 +165,7 @@ namespace Libra.Extension.Utils
         public S Get<S>(Uri url)
         {
 
-            var result = LibraRequest.Execute(url, _callMode);
+            var result = LibraRequestPool.Execute(url, _callMode);
             return LibraResultHandler<S>.GetResult(result);
 
         }
@@ -207,7 +207,7 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public HttpStatusCode Execute(Uri url)
         {
-            return LibraRequest.ExecuteVoid(url, _callMode);
+            return LibraRequestPool.ExecuteVoid(url, _callMode);
         }
         /// <summary>
         /// 指定远程地址, 异步执行 Void 方法
@@ -228,19 +228,19 @@ namespace Libra.Extension.Utils
             return Execute(url);
 
         }
-
+        /*
         /// <summary>
         /// 使用BaseUrl地址作为远程调用地址, 直接返回字符串
         /// </summary>
         /// <returns></returns>
         public string Get()
         {
-            return LibraRequest.Execute(_callMode);
+            return LibraRequestPool.Execute(_callMode);
         }
         public async Task<string> GetAsync()
         {
             return Get();
-        }
+        }*/
 
         /// <summary>
         /// 不指定地址, 使用 BaseUrl, 执行返回实体
@@ -249,7 +249,7 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public S Get<S>()
         {
-            var result = LibraRequest.Execute(_callMode);
+            var result = LibraRequestPool.Execute(_callMode);
             return LibraResultHandler<S>.GetResult(result);
         }
         public async Task<S> GetAsync<S>()
@@ -262,7 +262,7 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public HttpStatusCode Execute()
         {
-            return LibraRequest.ExecuteVoid(_callMode);
+            return LibraRequestPool.ExecuteVoid(_callMode);
         }
 
         public async Task<HttpStatusCode> ExecuteAsync()
@@ -285,16 +285,12 @@ namespace Libra.Extension.Utils
         }
 
 
-        private static readonly Func<T, string> _serialize;
+        private static readonly Func<T, byte[]> _serialize;
         static LibraParameterHandler()
         {
             if (typeof(T).IsPrimitive || typeof(T).IsValueType)
             {
-                _serialize = (obj) => JsonSerializer.Serialize(new LibraSingleParameter<T>() { Value = obj });
-            }
-            else if (typeof(T) == typeof(string))
-            {
-                _serialize = obj => obj.ToString();
+                _serialize = (obj) => JsonSerializer.SerializeToUtf8Bytes(new LibraSingleParameter<T>() { Value = obj });
             }
             else
             {
@@ -302,9 +298,9 @@ namespace Libra.Extension.Utils
                 {
                     if (obj == null)
                     {
-                        return "";
+                        return null;
                     }
-                    return JsonSerializer.Serialize(obj);
+                    return JsonSerializer.SerializeToUtf8Bytes(obj);
                 };
             }
 

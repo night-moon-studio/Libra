@@ -1,230 +1,132 @@
-﻿using Libra.Model;
+﻿using Libra;
+using Libra.Model;
+using Natasha.CSharp;
 using System;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Threading;
 
-public static class LibraRequest
+public class LibraRequest
 {
-
-    private readonly static ConcurrentStack<HttpClient> _stack;
+    private readonly static Func<HttpClient, HttpMethod, Uri, HttpRequestMessage> _createRequest;
+    private readonly static Action<HttpRequestMessage> _resetState;
+    private readonly static FieldInfo _state;
+    private readonly static Uri _defaultUrl;
+    private HttpRequestMessage _request;
+    private readonly HttpClient _client;
+    private readonly LibraContent _content;
     static LibraRequest()
     {
-        _stack = new ConcurrentStack<HttpClient>();
+
+        var methodInfo = typeof(HttpClient).GetMethod("CreateRequestMessage", BindingFlags.NonPublic | BindingFlags.Instance);
+        _createRequest = (Func<HttpClient, HttpMethod, Uri, HttpRequestMessage>)Delegate.CreateDelegate(typeof(Func<HttpClient, HttpMethod, Uri, HttpRequestMessage>), methodInfo);
+        //_resetState = NDelegate
+            //.RandomDomain()
+            //.SetClass(item => item.AllowPrivate<HttpRequestMessage>())
+            //.Action<HttpRequestMessage>("obj._sendStatus = 0;");
+
+        _state= typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
+        _defaultUrl = new Uri("http://localhost:80");
     }
 
-    private static Uri _baseUrl;
-    public static void SetBaseUrl(string baseUrl)
-    {
-        _baseUrl = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
-    }
-    internal static HttpClient GetClientInternal()
+    internal void RefreshRequest()
     {
 
-        if (_stack.TryPop(out var client))
+        _state.SetValue(_request,0);
+        //_resetState(_request);
+        //_request = _createRequest(_client, HttpMethod.Post, _request.RequestUri);
+    }
+
+
+    public LibraRequest()
+    {
+        _content = new LibraContent();
+        _client = new HttpClient();
+        _request = _createRequest(_client, HttpMethod.Post, _defaultUrl);
+        _request.Content = _content;
+    }
+
+    public void SetBaseUrl(string baseUrl)
+    {
+        _request.RequestUri = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
+    }
+
+
+    private HttpResponseMessage GetReponse(LibraProtocal callModel)
+    {
+        _content.Protocal = callModel;
+        return _client.SendAsync(_request, CancellationToken.None).Result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal HttpStatusCode GetHttpStatusCode(Uri url, LibraProtocal callModel)
+    {
+        _request.RequestUri = url;
+        return GetHttpStatusCode(callModel);
+
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal HttpStatusCode GetHttpStatusCode(LibraProtocal callModel)
+    {
+        return GetReponse(callModel).StatusCode;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal byte[] GetMessage(Uri url, LibraProtocal callModel)
+    {
+
+        _request.RequestUri = url;
+        return GetMessage(callModel);
+
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal byte[] GetMessage(LibraProtocal callModel)
+    {
+
+        var response = GetReponse(callModel);
+        if (response.IsSuccessStatusCode)
         {
-            return client;
+            if (response.StatusCode != HttpStatusCode.NoContent)
+            {
+                return response.Content.ReadAsByteArrayAsync().Result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+
+            if (response.StatusCode != HttpStatusCode.NoContent)
+            {
+                throw new Exception(response.Content.ReadAsStringAsync().Result);
+            }
+            else
+            {
+                throw new Exception("请检查对方服务是否开启!");
+            }
+
         }
         else
         {
-            client = new HttpClient();
-            return client;
-        }
 
-    }
-
-
-    public static async Task<string> ExecuteAsync(LibraProtocal callModel)
-    {
-        return Execute(callModel);
-    }
-    public static string Execute(LibraProtocal callModel)
-    {
-        var request = GetClientInternal();
-        try
-        {
-
-            var response = GetMessage(request,_baseUrl, callModel);
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode != HttpStatusCode.NoContent)
             {
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    return response.Content.ReadAsStringAsync().Result;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    throw new Exception(response.Content.ReadAsStringAsync().Result);
-                }
-                else
-                {
-                    throw new Exception("请检查对方服务是否开启!");
-                }
-
+                throw new Exception("请求失败!" + response.Content.ReadAsStringAsync().Result);
             }
             else
             {
-
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    throw new Exception("请求失败!" + response.Content.ReadAsStringAsync().Result);
-                }
-                else
-                {
-                    throw new Exception("请求失败!");
-                }
-
-            }
-
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-            _stack.Push(request);
-        }
-    }
-
-    public static async Task<HttpStatusCode> ExecuteVoidAsync(LibraProtocal callModel)
-    {
-        return ExecuteVoid(callModel);
-    }
-    public static HttpStatusCode ExecuteVoid(LibraProtocal callModel)
-    {
-        var request = GetClientInternal();
-        try
-        {
-
-            var response = GetMessage(request, _baseUrl, callModel);
-            return response.StatusCode;
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-            _stack.Push(request);
-        }
-    }
-
-
-    public static async Task<HttpStatusCode> ExecuteVoidAsync(Uri url, LibraProtocal callModel)
-    {
-        return ExecuteVoid(url, callModel);
-    }
-    public static HttpStatusCode ExecuteVoid(Uri url, LibraProtocal callModel)
-    {
-        var request = GetClientInternal();
-        try
-        {
-            var response = GetMessage(request, url, callModel);
-            return response.StatusCode;
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-            _stack.Push(request);
-        }
-    }
-
-
-    public static async Task<string> ExecuteAsync(Uri url, LibraProtocal callModel)
-    {
-        return Execute(url, callModel);
-    }
-    public static string Execute(Uri url, LibraProtocal callModel)
-    {
-
-        var request = GetClientInternal();
-        try
-        {
-
-            var response = GetMessage(request, url, callModel);
-            if (response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    return response.Content.ReadAsStringAsync().Result;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    throw new Exception(response.Content.ReadAsStringAsync().Result);
-                }
-                else
-                {
-                    throw new Exception("请检查对方服务是否开启!");
-                }
-                
-            }
-            else
-            {
-
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    throw new Exception("请求失败!"+ response.Content.ReadAsStringAsync().Result);
-                }
-                else
-                {
-                    throw new Exception("请求失败!");
-                }
-
+                throw new Exception("请求失败!");
             }
 
         }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-        finally
-        {
-            _stack.Push(request);
-        }
 
     }
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static HttpResponseMessage GetMessage(HttpClient request, Uri url, LibraProtocal callModel)
-    {
-
-        StringContent content = new StringContent(JsonSerializer.Serialize(callModel));
-        content.Headers.ContentType.MediaType = "application/json";
-        return request.PostAsync(url, content).Result;
-
-    }
-
 
 }

@@ -1,4 +1,5 @@
 ﻿using Libra.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -9,9 +10,10 @@ namespace Libra
     public class LibraController : ControllerBase
     {
         [HttpPost]
-        public async Task<string> Run(LibraProtocal model)
+        public async void Run(LibraProtocal model)
         {
-            return await LibraProtocalAnalysis.CallAsync(model.Flag, model.Parameters, Response);
+            var result = await LibraProtocalAnalysis.CallAsync(model.Flag, model.Parameters, Response);
+            await Response.Body.WriteAsync(result);
         }
     }
 }

@@ -18,12 +18,12 @@ namespace Libra
 
         public static JsonSerializerOptions JsonOption;
         public static IServiceProvider Provider;
-        private static DynamicDictionaryBase<string, Func<string, string>> _invokeFastCache;
-        private static readonly ConcurrentDictionary<string, Func<string, string>> _invokerMapping;
+        private static DynamicDictionaryBase<string, Func<byte[], byte[]>> _invokeFastCache;
+        private static readonly ConcurrentDictionary<string, Func<byte[], byte[]>> _invokerMapping;
         static LibraProtocalAnalysis()
         {
             JsonOption = new JsonSerializerOptions();
-            _invokerMapping = new ConcurrentDictionary<string, Func<string, string>>();
+            _invokerMapping = new ConcurrentDictionary<string, Func<byte[], byte[]>>();
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
@@ -31,7 +31,7 @@ namespace Libra
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Remove(IEnumerable<string> keys)
         {
-            Func<string, string> func = null;
+            Func<byte[], byte[]> func = null;
             foreach (var item in keys)
             {
                 if (_invokerMapping.ContainsKey(item))
@@ -44,7 +44,7 @@ namespace Libra
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
-        public static async Task<string> CallAsync(string caller, string parameters, HttpResponse response)
+        public static async Task<byte[]> CallAsync(string caller, byte[] parameters, HttpResponse response)
         {
             
             if (_invokeFastCache.TryGetValue(caller, out var func))
@@ -63,14 +63,14 @@ namespace Libra
                     NDelegate nDelegate = default;
                     if (domain!=null)
                     {
-                        nDelegate = NDelegate.UseDomain(domain, item => item.LogSyntaxError().LogCompilerError());
+                        nDelegate = NDelegate.UseDomain(domain);
                     }
                     else
                     {
-                        nDelegate = NDelegate.RandomDomain(item => item.LogSyntaxError().LogCompilerError());
+                        nDelegate = NDelegate.RandomDomain();
                     }
                     var dynamicFunc = nDelegate
-                   .Func<Func<string, string>>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\",\"{type}\");")();
+                   .Func<Func<byte[], byte[]>>($"return LibraProtocalAnalysis.HandlerType(\"{caller}\",typeof({type}),\"{method}\",\"{type}\");")();
                     if (dynamicFunc != null)
                     {
                         if (domain != null)
@@ -97,7 +97,7 @@ namespace Libra
 
         }
 
-        public static Func<string,string> HandlerType(string key, Type type, string methodName, string typeName)
+        public static Func<byte[],byte[]> HandlerType(string key, Type type, string methodName, string typeName)
         {
             var isPlugin = false;
             var domain = LibraPluginManagement.GetPluginDominByType(typeName);
@@ -135,7 +135,7 @@ namespace Libra
                     classBuilder.Append($"public {item.ParameterType.GetDevelopName()} {item.Name} {{ get;set; }}");
                 }
                 classBuilder.Append('}');
-                methodCallBuilder.AppendLine($"var {parameterName} = string.IsNullOrEmpty(arg) ? default : System.Text.Json.JsonSerializer.Deserialize<{className}>(arg,LibraProtocalAnalysis.JsonOption);");
+                methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<{className}>(arg,LibraProtocalAnalysis.JsonOption);");
                 
                 parameterBuilder.Length -= 1;
                 parameterName = parameterBuilder.ToString();
@@ -150,17 +150,13 @@ namespace Libra
                 if (pType.IsPrimitive ||  pType.IsValueType)
                 {
 
-                    methodCallBuilder.AppendLine($"var {parameterName} = string.IsNullOrEmpty(arg) ? default : System.Text.Json.JsonSerializer.Deserialize<LibraSingleParameter<{firstParameterInfo.ParameterType.GetDevelopName()}>>(arg,LibraProtocalAnalysis.JsonOption);");
+                    methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<LibraSingleParameter<{firstParameterInfo.ParameterType.GetDevelopName()}>>(arg,LibraProtocalAnalysis.JsonOption);");
                     parameterName += ".Value";
 
                 }
-                else if(pType == typeof(string))
-                {
-                    methodCallBuilder.AppendLine($"var {parameterName} = arg;");
-                }
                 else
                 {
-                    methodCallBuilder.AppendLine($"var {parameterName} = string.IsNullOrEmpty(arg) ? default : System.Text.Json.JsonSerializer.Deserialize<{firstParameterInfo.ParameterType.GetDevelopName()}>(arg,LibraProtocalAnalysis.JsonOption);");
+                    methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<{firstParameterInfo.ParameterType.GetDevelopName()}>(arg,LibraProtocalAnalysis.JsonOption);");
                 }
 
             }
@@ -200,43 +196,40 @@ namespace Libra
                 }
                 
             }
+
             //调用
             if (returnType == typeof(void) || returnType == typeof(Task))
             {
                 methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
-                methodCallBuilder.AppendLine("return \"\";");
-            }
-            else if (returnType == typeof(string))
-            {
-                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
+                methodCallBuilder.AppendLine("return null;");
             }
             else if(returnType.IsPrimitive || returnType.IsValueType)
             {
                 methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")}}};");
-                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
+                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(result);");
             }
             else
             {
                 methodCallBuilder.AppendLine($"var result = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
-                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
+                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(result);");
             }
-
+            
             var delegateFunc = NDelegate.UseDomain(domain, item =>
             {
                 item
                 .LogSyntaxError()
-                .UseFileCompile();
+                .LogCompilerError();
             })
                 .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString()));
-            Func<string, string> func;
+            Func<byte[], byte[]> func;
             if (isAsync)
             {
-                var tempFunc = delegateFunc.AsyncFunc<string, Task<string>>(methodCallBuilder.ToString());
+                var tempFunc = delegateFunc.AsyncFunc<byte[], Task<byte[]>>(methodCallBuilder.ToString());
                 func = (param) => tempFunc(param).Result;
             }
             else
             {
-                func = delegateFunc.Func<string, string>(methodCallBuilder.ToString());
+                func = delegateFunc.Func<byte[], byte[]>(methodCallBuilder.ToString());
             }
             _invokerMapping[key] = func;
             _invokeFastCache = _invokerMapping.PrecisioTree();
