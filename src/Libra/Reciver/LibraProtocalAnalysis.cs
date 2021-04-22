@@ -203,21 +203,21 @@ namespace Libra
             //调用
             if (returnType == typeof(void) || returnType == typeof(Task))
             {
-                methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+                methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
                 methodCallBuilder.AppendLine("return \"\";");
             }
             else if (returnType == typeof(string))
             {
-                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
             }
             else if(returnType.IsPrimitive || returnType.IsValueType)
             {
-                methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName})}};");
+                methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")}}};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
             else
             {
-                methodCallBuilder.AppendLine($"var result = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName});");
+                methodCallBuilder.AppendLine($"var result = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.Serialize(result);");
             }
 

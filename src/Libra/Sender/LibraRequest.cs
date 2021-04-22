@@ -16,10 +16,10 @@ public static class LibraRequest
         _stack = new ConcurrentStack<HttpClient>();
     }
 
-    private static string _baseUrl;
+    private static Uri _baseUrl;
     public static void SetBaseUrl(string baseUrl)
     {
-        _baseUrl = baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra");
+        _baseUrl = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
     }
     internal static HttpClient GetClientInternal()
     {
@@ -127,11 +127,11 @@ public static class LibraRequest
     }
 
 
-    public static async Task<HttpStatusCode> ExecuteVoidAsync(string url, LibraProtocal callModel)
+    public static async Task<HttpStatusCode> ExecuteVoidAsync(Uri url, LibraProtocal callModel)
     {
         return ExecuteVoid(url, callModel);
     }
-    public static HttpStatusCode ExecuteVoid(string url, LibraProtocal callModel)
+    public static HttpStatusCode ExecuteVoid(Uri url, LibraProtocal callModel)
     {
         var request = GetClientInternal();
         try
@@ -153,11 +153,11 @@ public static class LibraRequest
     }
 
 
-    public static async Task<string> ExecuteAsync(string url, LibraProtocal callModel)
+    public static async Task<string> ExecuteAsync(Uri url, LibraProtocal callModel)
     {
         return Execute(url, callModel);
     }
-    public static string Execute(string url, LibraProtocal callModel)
+    public static string Execute(Uri url, LibraProtocal callModel)
     {
 
         var request = GetClientInternal();
@@ -217,7 +217,7 @@ public static class LibraRequest
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static HttpResponseMessage GetMessage(HttpClient request, string url, LibraProtocal callModel)
+    private static HttpResponseMessage GetMessage(HttpClient request, Uri url, LibraProtocal callModel)
     {
 
         StringContent content = new StringContent(JsonSerializer.Serialize(callModel));

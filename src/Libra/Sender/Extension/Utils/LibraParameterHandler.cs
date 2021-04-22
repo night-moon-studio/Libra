@@ -108,14 +108,21 @@ namespace Libra.Extension.Utils
 
 
 
-
-
         /// <summary>
         /// 指定地址执行直接返回字符串
         /// </summary>
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
         public string Get(string url)
+        {
+            return Get(new Uri(url));
+        }
+        /// <summary>
+        /// 指定地址执行直接返回字符串
+        /// </summary>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public string Get(Uri url)
         {
             return LibraRequest.Execute(url, _callMode);
         }
@@ -125,6 +132,15 @@ namespace Libra.Extension.Utils
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
         public async Task<string> GetAsync(string url)
+        {
+            return Get(new Uri(url));
+        }
+        /// <summary>
+        /// 指定地址异步执行,返回字符串
+        /// </summary>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public async Task<string> GetAsync(Uri url)
         {
             return Get(url);
         }
@@ -138,6 +154,16 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public S Get<S>(string url)
         {
+            return Get<S>(new Uri(url));
+        }
+        /// <summary>
+        /// 指定地址执行返回实体
+        /// </summary>
+        /// <typeparam name="S">返回值类型</typeparam>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public S Get<S>(Uri url)
+        {
 
             var result = LibraRequest.Execute(url, _callMode);
             return LibraResultHandler<S>.GetResult(result);
@@ -149,18 +175,37 @@ namespace Libra.Extension.Utils
         /// <typeparam name="S">返回值类型</typeparam>
         /// <param name="url">>远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
+
         public async Task<S> GetAsync<S>(string url)
+        {
+            return Get<S>(new Uri(url));
+        }
+        /// <summary>
+        /// 指定地址异步执行返回实体
+        /// </summary>
+        /// <typeparam name="S">返回值类型</typeparam>
+        /// <param name="url">>远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public async Task<S> GetAsync<S>(Uri url)
         {
             return Get<S>(url);
 
         }
-
         /// <summary>
         /// 指定远程地址, 执行 Void 方法
         /// </summary>
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
         public HttpStatusCode Execute(string url)
+        {
+            return Execute(new Uri(url));
+        }
+        /// <summary>
+        /// 指定远程地址, 执行 Void 方法
+        /// </summary>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public HttpStatusCode Execute(Uri url)
         {
             return LibraRequest.ExecuteVoid(url, _callMode);
         }
@@ -170,6 +215,15 @@ namespace Libra.Extension.Utils
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
         public async Task<HttpStatusCode> ExecuteAsync(string url)
+        {
+            return Execute(new Uri(url));
+        }
+        /// <summary>
+        /// 指定远程地址, 异步执行 Void 方法
+        /// </summary>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public async Task<HttpStatusCode> ExecuteAsync(Uri url)
         {
             return Execute(url);
 

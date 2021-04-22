@@ -7,12 +7,12 @@ public static class LibraMulticastHostManagement
 {
 
     private static readonly ConcurrentDictionary<string, LibraMulticastHost> _keyHostMapper;
-    private static readonly ConcurrentDictionary<string, string[]> _hostsCache;
-    private static DynamicDictionaryBase<string, string[]> _keyUrlsMapper;
+    private static readonly ConcurrentDictionary<string, Uri[]> _hostsCache;
+    private static DynamicDictionaryBase<string, Uri[]> _keyUrlsMapper;
     static LibraMulticastHostManagement()
     {
         _keyHostMapper = new ConcurrentDictionary<string, LibraMulticastHost>();
-        _hostsCache = new ConcurrentDictionary<string, string[]>();
+        _hostsCache = new ConcurrentDictionary<string, Uri[]>();
         _keyUrlsMapper = _hostsCache.FuzzyTree();
     }
 
@@ -33,13 +33,13 @@ public static class LibraMulticastHostManagement
     }
 
 
-    public static void SetMapper(string key, string[] urls)
+    public static void SetMapper(string key, Uri[] urls)
     {
         _hostsCache[key] = urls;
         _keyUrlsMapper = _hostsCache.FuzzyTree();
     }
 
-    public static string[] GetUrls(string key)
+    public static Uri[] GetUrls(string key)
     {
         return _keyUrlsMapper[key];
     }

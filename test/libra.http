@@ -42,13 +42,17 @@ GET https://localhost:6001/api/Test/11 HTTP/1.1
 GET https://localhost:5001/api/Plugin/dispose HTTP/1.1
 
 
-### 调用插件
+### 异步
 GET https://localhost:6001/api/Test/12 HTTP/1.1
-### 调用插件
+### 异步
 GET https://localhost:6001/api/Test/13 HTTP/1.1
-### 调用插件
+### 数组
 GET https://localhost:6001/api/Test/14 HTTP/1.1
-### 调用插件
+### 空结果
 GET https://localhost:6001/api/Test/15 HTTP/1.1
-### 调用插件
+### 非空结果
 GET https://localhost:6001/api/Test/16 HTTP/1.1
+### 组播
+GET https://localhost:6001/api/Test/17 HTTP/1.1
+### 组播
+GET https://localhost:6001/api/Test/18 HTTP/1.1

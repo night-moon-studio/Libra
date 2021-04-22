@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Libra.Multicast
@@ -17,7 +18,6 @@ namespace Libra.Multicast
         }
 
 
-
         /// <summary>
         /// 添加若干主机
         /// </summary>
@@ -31,9 +31,10 @@ namespace Libra.Multicast
             lock (_multicastLock)
             {
                 _urlList.UnionWith(urls.Select(item => item + (item.EndsWith('/') ? "Libra" : "/Libra")));
-                LibraMulticastHostManagement.SetMapper(Name, _urlList.ToArray());
+                SyncUris();
             }
         }
+
 
         /// <summary>
         /// 添加一个主机
@@ -45,9 +46,17 @@ namespace Libra.Multicast
             {
                 if (_urlList.Add(url + (url.EndsWith('/') ? "Libra" : "/Libra")))
                 {
-                    LibraMulticastHostManagement.SetMapper(Name, _urlList.ToArray());
+                    SyncUris();
                 }
             }
+        }
+
+        /// <summary>
+        /// 向 Management 同步资源
+        /// </summary>
+        private void SyncUris()
+        {
+            LibraMulticastHostManagement.SetMapper(Name, _urlList.Select(item => (new Uri(item))).ToArray());
         }
 
     }
