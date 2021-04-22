@@ -1,12 +1,9 @@
 ﻿using Libra.Model;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Libra
@@ -15,9 +12,8 @@ namespace Libra
     public class LibraContent : HttpContent
     {
        
-        private byte[] _content;
-        private int _count;
         private readonly static MediaTypeHeaderValue _contentType;
+        private LibraProtocal _protocal;
         static LibraContent()
         {
             _contentType = new MediaTypeHeaderValue("application/json");
@@ -33,22 +29,21 @@ namespace Libra
         { 
             set
             {
-                _content = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value);
-                _count = _content.Length;
-                Headers.ContentLength = _count;
+                _protocal = value;
             }
         }
 
 
 
         protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
-            stream.WriteAsync(_content, 0, _count);
+            JsonSerializer.SerializeAsync(stream,_protocal);
+
 
 
         protected override bool TryComputeLength(out long length)
         {
-            length = _count;
-            return true;
+            length = 0;
+            return false;
         }
     }
 }
