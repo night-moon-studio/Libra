@@ -20,13 +20,13 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  
     - 参数包装策略:
       - 当参数仅有1个时, 类型为常规类型: 基元类型\值类型 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
-      - 当参数仅有1个时, 类型为 string: 不参与序列化直接传值.
+      - 当参数仅有1个时, 类型为 byte[]: 不参与序列化直接传值.
       - 当参数仅有1个时, 类型为复杂类型: 数组\类\集合\字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
    - 返回值包装策略:
      - 如果为 void / Task 类型, 返回空.
-     - 如果为 string (可能被Task包裹`Task<string>`) 类型, 则直接返回结果.
+     - 如果为 byte[] (可能被Task包裹`Task<byte[]>`) 类型, 则直接返回结果.
      - 如果为 基元类型/值类型 (可能被Task包裹), 则被包装到 LibraResult 中序列化返回.
      - 如果为 复杂类型 (可能被Task包裹), 则直接将其序列化返回.  
       
@@ -102,7 +102,7 @@ LibraPluginManagement.Dispose(filePath);
 "TeacherService.Hello8".NoWpcParam().Execute(); 
 
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
-"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).Get(); 
+"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).Get<string>(); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
 "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).Get<int>();
@@ -118,7 +118,7 @@ multicast.AddHost("https://localhost:5001/");
 multicast.AddHost("https://localhost:7001/");
 
 "TeacherService.Hello7".NoWpcParam().MulticastGet<int>("测试组");
-"TeacherService.Hello5".NoWpcParam().MulticastGet("测试组");
+"TeacherService.Hello5".NoWpcParam().MulticastGet<string>("测试组");
 "TeacherService.Hello11".NoWpcParam().MulticastExecute("测试组");
  
 ```  
