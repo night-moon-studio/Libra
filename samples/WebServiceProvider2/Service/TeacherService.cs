@@ -59,5 +59,12 @@ namespace WebServiceProvider2.Services
             return result;
         }
 
+
+
+        public byte[] GetBytes(byte[] arr)
+        {
+            return arr;
+        }
+
     }
 }

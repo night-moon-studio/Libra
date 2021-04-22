@@ -1,6 +1,7 @@
 ﻿using Libra.Model;
 using System;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -292,6 +293,10 @@ namespace Libra.Extension.Utils
             {
                 _serialize = (obj) => JsonSerializer.SerializeToUtf8Bytes(new LibraSingleParameter<T>() { Value = obj });
             }
+            else if (typeof(T) == typeof(byte[]))
+            {
+               LibraParameterHandler<byte[]>._serialize = item => item;
+            }
             else
             {
                 _serialize = (obj) =>
@@ -303,6 +308,7 @@ namespace Libra.Extension.Utils
                     return JsonSerializer.SerializeToUtf8Bytes(obj);
                 };
             }
+
 
         }
 

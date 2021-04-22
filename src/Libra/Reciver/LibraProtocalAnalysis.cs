@@ -154,6 +154,10 @@ namespace Libra
                     parameterName += ".Value";
 
                 }
+                else if (pType == typeof(byte[]))
+                {
+                    parameterName = "arg";
+                }
                 else
                 {
                     methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<{firstParameterInfo.ParameterType.GetDevelopName()}>(arg,LibraProtocalAnalysis.JsonOption);");
@@ -207,6 +211,10 @@ namespace Libra
             {
                 methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")}}};");
                 methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(result);");
+            }
+            else if (returnType == typeof(byte[]))
+            {
+                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
             }
             else
             {

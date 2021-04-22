@@ -77,5 +77,10 @@ namespace WebServiceProvider.Services
         {
             return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
         }
+
+        public byte[] GetBytes(byte[] arr)
+        {
+            return arr;
+        }
     }
 }

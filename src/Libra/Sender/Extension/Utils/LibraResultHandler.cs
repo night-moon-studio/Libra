@@ -15,7 +15,11 @@ namespace Libra.Extension.Utils
             {
                 GetResult = (obj) => JsonSerializer.Deserialize<LibraResult<S>>(obj).Value;
             }
-            else //if (typeof(S) != typeof(string))
+            else if (typeof(S) == typeof(byte[]))
+            {
+                LibraResultHandler<byte[]>.GetResult = item => item;
+            }
+            else //if ()
             {
                 GetResult = (obj) =>
                 {

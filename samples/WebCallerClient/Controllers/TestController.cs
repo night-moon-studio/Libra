@@ -113,5 +113,11 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.Hello5".NoWpcParam().MulticastGet<string>("测试组");
         }
+
+        [HttpGet("19")]
+        public byte[][] GetHello19()
+        {
+            return "TeacherService.GetBytes".WpcParam(new byte[] { 1,2,3,4,5}).MulticastGet<byte[]>("测试组");
+        }
     }
 }
