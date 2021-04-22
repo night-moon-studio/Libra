@@ -6,10 +6,13 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Libra
+namespace Libra.Sender
 {
 
-    public class LibraContent : HttpContent
+    /// <summary>
+    /// body 内容协议类(感谢 WebApiClient 作者)
+    /// </summary>
+    internal class LibraContent : HttpContent
     {
        
         private readonly static MediaTypeHeaderValue _contentType;
@@ -19,6 +22,7 @@ namespace Libra
             _contentType = new MediaTypeHeaderValue("application/json");
             _contentType.CharSet = "UTF-8";
         }
+
         public LibraContent()
         {
             Headers.ContentType = _contentType;
@@ -34,12 +38,21 @@ namespace Libra
         }
 
 
-
+        /// <summary>
+        /// 序列化直接写到流里,感谢 WebApiClient 作者
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
             JsonSerializer.SerializeAsync(stream,_protocal);
 
 
-
+        /// <summary>
+        /// 不检查长度,自动填充,感谢 WebApiClient 作者
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
         protected override bool TryComputeLength(out long length)
         {
             length = 0;

@@ -4,16 +4,25 @@ using System.Linq;
 
 namespace Libra.Multicast
 {
+
+    /// <summary>
+    /// 多播主机操作类,该类的操作将被记录到 Management
+    /// </summary>
     public class LibraMulticastHost
     {
 
         private readonly object _multicastLock = new object();
         private readonly HashSet<string> _urlList;
         public string[] Urls;
-        public string Name;
-        public LibraMulticastHost(string name)
+        public string MulticastKey;
+
+        /// <summary>
+        /// 创建一个多播主机群
+        /// </summary>
+        /// <param name="name">多播KEY</param>
+        public LibraMulticastHost(string key)
         {
-            Name = name;
+            MulticastKey = key;
             _urlList = new HashSet<string>();
         }
 
@@ -51,12 +60,13 @@ namespace Libra.Multicast
             }
         }
 
+
         /// <summary>
         /// 向 Management 同步资源
         /// </summary>
         private void SyncUris()
         {
-            LibraMulticastHostManagement.SetMapper(Name, _urlList.Select(item => (new Uri(item))).ToArray());
+            LibraMulticastHostManagement.SetMapper(MulticastKey, _urlList.Select(item => (new Uri(item))).ToArray());
         }
 
     }

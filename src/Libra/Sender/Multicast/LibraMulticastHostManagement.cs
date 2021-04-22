@@ -3,6 +3,9 @@ using System;
 using System.Collections.Concurrent;
 
 
+/// <summary>
+/// Libra 多播管理类
+/// </summary>
 public static class LibraMulticastHostManagement
 {
 
@@ -33,12 +36,22 @@ public static class LibraMulticastHostManagement
     }
 
 
+    /// <summary>
+    /// 设置 多播KEY 到 URL 的映射. 一个 KEY 对应多个 URL.
+    /// </summary>
+    /// <param name="key">多播KEY</param>
+    /// <param name="urls">目标url</param>
     public static void SetMapper(string key, Uri[] urls)
     {
         _hostsCache[key] = urls;
         _keyUrlsMapper = _hostsCache.FuzzyTree();
     }
 
+    /// <summary>
+    /// 根据 多播KEY 获取URL地址集合
+    /// </summary>
+    /// <param name="key">多播KEY</param>
+    /// <returns></returns>
     public static Uri[] GetUrls(string key)
     {
         return _keyUrlsMapper[key];

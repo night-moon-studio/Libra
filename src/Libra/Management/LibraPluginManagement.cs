@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 
+/// <summary>
+/// Libra 插件管理类
+/// </summary>
 public static class LibraPluginManagement
 {
     private static readonly object _pluginLock = new object();
@@ -21,6 +24,7 @@ public static class LibraPluginManagement
         _pluginKeyCache = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         _nameDomainCache = new ConcurrentDictionary<string, DomainBase>();
     }
+
 
     /// <summary>
     /// 添加插件 允许用接口类型进行约束
@@ -71,10 +75,17 @@ public static class LibraPluginManagement
         return null;
     }
 
+
+    /// <summary>
+    /// 添加域到调用KEY的映射
+    /// </summary>
+    /// <param name="domain"></param>
+    /// <param name="key"></param>
     public static void AddRecoder(DomainBase domain, string key)
     {
         _pluginKeyCache[_domainPluginCache[domain]].Enqueue(key);
     }
+
 
     /// <summary>
     /// 通过类型名获取域
@@ -90,6 +101,12 @@ public static class LibraPluginManagement
         return null;
     }
 
+
+    /// <summary>
+    /// 清除所有引用,以便卸载
+    /// </summary>
+    /// <param name="pluginPath"></param>
+    /// <returns></returns>
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static string Clear(string pluginPath)
     {
@@ -119,13 +136,11 @@ public static class LibraPluginManagement
             {
 
             }
-           
-            domain.Remove(pluginPath);
             ((NatashaAssemblyDomain)domain).Dispose();
-            domain.Unload();
             return domainName;
         }
     }
+
 
     /// <summary>
     /// 卸载插件
@@ -146,6 +161,7 @@ public static class LibraPluginManagement
         }
         return true;
     }
+
 
     /// <summary>
     /// 类名反解
