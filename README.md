@@ -114,13 +114,20 @@ LibraPluginManagement.Dispose(filePath);
 ```C#
 
 var multicast = LibraMulticastHostManagement.GetOrCreate("测试组");
-multicast.AddHost("https://localhost:5001/");
-multicast.AddHost("https://localhost:7001/");
+multicast.AppendHost("https://localhost:5001/");
+multicast.AppendHost("https://localhost:7001/");
 
-"TeacherService.Hello7".NoWpcParam().MulticastGet<int>("测试组");
-"TeacherService.Hello5".NoWpcParam().MulticastGet<string>("测试组");
-"TeacherService.Hello11".NoWpcParam().MulticastExecute("测试组");
- 
+//返回数组结果
+"TeacherService.Helloxxx".NoWpcParam().MulticastArrayResult<int>("测试组"); //[ 1, 2]
+
+//返回主机+元组数组
+"TeacherService.Helloxxx".NoWpcParam().MulticastTupleResult<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
+
+//远程通知目标主机的 void xxx() 方法, 遇到第一个结果不是 200 / 204 的就返回 false .
+"TeacherService.Helloxxx".NoWpcParam().MulticastNotifyAsync("测试组"); 
+
+//远程通知目标主机的 bool xxx() 方法, 遇到第一个结果为 false 的就返回 false .
+"TeacherService.Helloxxx".NoWpcParam().MulticastNotifyAsync<bool>("测试组"); 
 ```  
 
 <br> 
