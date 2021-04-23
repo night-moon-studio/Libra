@@ -1,12 +1,15 @@
 ﻿using Libra;
 using Libra.Model;
 using Libra.Sender;
+using Natasha.CSharp;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
+
 
 
 /// <summary>
@@ -14,24 +17,40 @@ using System.Threading;
 /// </summary>
 public class LibraRequest
 {
-    private readonly static Func<HttpClient, HttpMethod, Uri, HttpRequestMessage> _createRequest;
+
     private readonly static Action<HttpRequestMessage> _resetState;
-    private readonly static FieldInfo _state;
     private readonly static Uri _defaultUrl;
-    private HttpRequestMessage _request;
+    private readonly HttpRequestMessage _request;
     private readonly HttpClient _client;
     private readonly LibraContent _content;
     static LibraRequest()
     {
+        try
+        {
 
-        var methodInfo = typeof(HttpClient).GetMethod("CreateRequestMessage", BindingFlags.NonPublic | BindingFlags.Instance);
-        _createRequest = (Func<HttpClient, HttpMethod, Uri, HttpRequestMessage>)Delegate.CreateDelegate(typeof(Func<HttpClient, HttpMethod, Uri, HttpRequestMessage>), methodInfo);
-        //_resetState = NDelegate
-            //.RandomDomain()
-            //.SetClass(item => item.AllowPrivate<HttpRequestMessage>())
-            //.Action<HttpRequestMessage>("obj._sendStatus = 0;");
+            var domain = DomainManagement.Random;
+            domain.AddReferencesFromDllFile(typeof(HttpClient).Assembly.Location);
+            _resetState = NDelegate
+                   .UseDomain(domain)
+                   .SetClass(item => item.AllowPrivate<HttpRequestMessage>())
+                   .Action<HttpRequestMessage>("obj._sendStatus = 0;");
 
-        _state= typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+        catch{}
+
+
+        if (_resetState == default)
+        {
+            var _state = typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
+            DynamicMethod method = new DynamicMethod(Guid.NewGuid().ToString(), null, new Type[] { typeof(HttpRequestMessage) });
+            ILGenerator il = method.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Stfld, _state);
+            il.Emit(OpCodes.Ret);
+            _resetState = (Action<HttpRequestMessage>)(method.CreateDelegate(typeof(Action<HttpRequestMessage>)));
+        }
+
         _defaultUrl = new Uri("http://localhost:80");
     }
 
@@ -40,10 +59,7 @@ public class LibraRequest
     /// </summary>
     internal void RefreshRequest()
     {
-
-        _state.SetValue(_request,0);
-        //_resetState(_request);
-        //_request = _createRequest(_client, HttpMethod.Post, _request.RequestUri);
+        _resetState(_request);
     }
 
 
@@ -51,7 +67,7 @@ public class LibraRequest
     {
         _content = new LibraContent();
         _client = new HttpClient();
-        _request = _createRequest(_client, HttpMethod.Post, _defaultUrl);
+        _request = new HttpRequestMessage(HttpMethod.Post, _defaultUrl);
         _request.Content = _content;
     }
 
