@@ -19,22 +19,128 @@ namespace Libra.Extension.Utils
             _callMode = new LibraProtocal() { Flag = caller, Parameters = parameters };
         }
 
-      
 
         /// <summary>
-        /// 执行一组远程请求,并返回一组结果
+        /// 通知一组远程主机,并返回通知是否成功
         /// </summary>
         /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public S[] MulticastGet<S>(string key, params int[] indexs)
+        public Task<bool> MulticastNotifyAsync<TBool>(string key, params int[] indexs)
+        {
+
+            TaskCompletionSource<bool> cts = new TaskCompletionSource<bool>();
+            if (indexs.Length == 0)
+            {
+
+                Task.Run(() =>
+                {
+
+                    var urls = LibraMulticastHostManagement.GetUrls(key);
+                    Parallel.For(0, urls.Length, index =>
+                    {
+                        if (!Execute<bool>(urls[index]))
+                        {
+                            cts.SetResult(false);
+                        }
+                    });
+                    cts.SetResult(true);
+
+                });
+
+
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+
+                    var urls = LibraMulticastHostManagement.GetUrls(key);
+                    Parallel.For(0, indexs.Length, index =>
+                    {
+                        if (!Execute<bool>(urls[indexs[index]]))
+                        {
+                            cts.SetResult(false);
+                        }
+                    });
+                    cts.SetResult(true);
+
+                });
+
+            }
+            return cts.Task;
+
+        }
+
+
+
+        /// <summary>
+        /// 通知一组远程主机,并返回通知是否成功
+        /// </summary>
+        /// <param name="key">组播KEY</param>
+        /// <returns></returns>
+        public Task<bool> MulticastNotifyAsync(string key, params int[] indexs)
+        {
+
+            TaskCompletionSource<bool> cts = new TaskCompletionSource<bool>();
+            if (indexs.Length == 0)
+            {
+
+                Task.Run(() =>
+                {
+
+                    var urls = LibraMulticastHostManagement.GetUrls(key);
+                    Parallel.For(0, urls.Length, index =>
+                    {
+                        var result = Execute(urls[index]);
+                        if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
+                        {
+                            cts.SetResult(false);
+                        }
+                    });
+                    cts.SetResult(true);
+
+                });
+                
+               
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+
+                    var urls = LibraMulticastHostManagement.GetUrls(key);
+                    Parallel.For(0, indexs.Length, index =>
+                    {
+                        var result = Execute(urls[indexs[index]]);
+                        if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
+                        {
+                            cts.SetResult(false);
+                        }
+                    });
+                    cts.SetResult(true);
+
+                });
+
+            }
+            return cts.Task;
+
+        }
+
+
+        /// <summary>
+        /// 执行一组远程请求,并返回数组结果
+        /// </summary>
+        /// <param name="key">组播KEY</param>
+        /// <returns></returns>
+        public S[] MulticastArrayResult<S>(string key, params int[] indexs)
         {
 
             if (indexs.Length == 0)
             {
 
                 var urls = LibraMulticastHostManagement.GetUrls(key);
-                S[] result = new S[urls.Length];
-                Parallel.For(0, urls.Length, index => { result[index] = Get<S>(urls[index]); });
+                var result = new S[urls.Length];
+                Parallel.For(0, urls.Length, index => { result[index] = Execute<S>(urls[index]); });
                 return result;
 
             }
@@ -42,8 +148,8 @@ namespace Libra.Extension.Utils
             {
 
                 var urls = LibraMulticastHostManagement.GetUrls(key);
-                S[] result = new S[indexs.Length];
-                Parallel.For(0, indexs.Length, index => { result[indexs[index]] = Get<S>(urls[indexs[index]]); });
+                var result = new S[urls.Length];
+                Parallel.For(0, indexs.Length, index => { result[indexs[index]] = Execute<S>(urls[indexs[index]]); });
                 return result;
 
             }
@@ -52,18 +158,18 @@ namespace Libra.Extension.Utils
 
 
         /// <summary>
-        /// 执行一组远程请求,并返回一组结果
+        /// 执行一组远程请求,并返回数组结果
         /// </summary>
         /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public HttpStatusCode[] MulticastExecute(string key, params int[] indexs)
+        public HttpStatusCode[] MulticastArrayResult(string key, params int[] indexs)
         {
 
             if (indexs.Length == 0)
             {
 
                 var urls = LibraMulticastHostManagement.GetUrls(key);
-                HttpStatusCode[] result = new HttpStatusCode[urls.Length];
+                var result = new HttpStatusCode[urls.Length];
                 Parallel.For(0, urls.Length, index => { result[index] = Execute(urls[index]); });
                 return result;
 
@@ -72,7 +178,7 @@ namespace Libra.Extension.Utils
             {
 
                 var urls = LibraMulticastHostManagement.GetUrls(key);
-                HttpStatusCode[] result = new HttpStatusCode[indexs.Length];
+                var result = new HttpStatusCode[urls.Length];
                 Parallel.For(0, indexs.Length, index => { result[indexs[index]] = Execute(urls[indexs[index]]); });
                 return result;
 
@@ -82,14 +188,62 @@ namespace Libra.Extension.Utils
 
 
         /// <summary>
-        /// 指定地址执行返回实体
+        /// 执行一组远程请求,并返回元祖数组结果
         /// </summary>
-        /// <typeparam name="S">返回值类型</typeparam>
-        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <param name="key">组播KEY</param>
         /// <returns></returns>
-        public S Get<S>(string url)
+        public (string Url,S Result)[] MulticastTupleResult<S>(string key, params int[] indexs)
         {
-            return Get<S>(new Uri(url));
+
+            if (indexs.Length == 0)
+            {
+
+                var urls = LibraMulticastHostManagement.GetUrls(key);
+                (string Url, S Result)[] result = new (string Url, S Result)[urls.Length];
+                Parallel.For(0, urls.Length, index => { result[index] =(urls[index].Authority, Execute<S>(urls[index])); });
+                return result;
+
+            }
+            else
+            {
+
+                var urls = LibraMulticastHostManagement.GetUrls(key);
+                (string Url, S Result)[] result = new (string Url, S Result)[indexs.Length];
+                Parallel.For(0, indexs.Length, index => { result[indexs[index]] = (urls[index].Authority, Execute<S>(urls[indexs[index]])); });
+                return result;
+
+            }
+
+        }
+
+
+        /// <summary>
+        /// 执行一组远程请求,并返回元祖数组结果
+        /// </summary>
+        /// <param name="key">组播KEY</param>
+        /// <returns></returns>
+        public (string Url, HttpStatusCode Result)[] MulticastTupleResult(string key, params int[] indexs)
+        {
+
+            if (indexs.Length == 0)
+            {
+
+                var urls = LibraMulticastHostManagement.GetUrls(key);
+                (string Url, HttpStatusCode Result)[] result = new (string Url, HttpStatusCode Result)[urls.Length];
+                Parallel.For(0, urls.Length, index => { result[index] = (urls[index].Authority, Execute(urls[index])); });
+                return result;
+
+            }
+            else
+            {
+
+                var urls = LibraMulticastHostManagement.GetUrls(key);
+                (string Url, HttpStatusCode Result)[] result = new (string Url, HttpStatusCode Result)[indexs.Length];
+                Parallel.For(0, indexs.Length, index => { result[indexs[index]] = (urls[index].Authority, Execute(urls[indexs[index]])); });
+                return result;
+
+            }
+
         }
 
 
@@ -99,7 +253,19 @@ namespace Libra.Extension.Utils
         /// <typeparam name="S">返回值类型</typeparam>
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
-        public S Get<S>(Uri url)
+        public S Execute<S>(string url)
+        {
+            return Execute<S>(new Uri(url));
+        }
+
+
+        /// <summary>
+        /// 指定地址执行返回实体
+        /// </summary>
+        /// <typeparam name="S">返回值类型</typeparam>
+        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
+        /// <returns></returns>
+        public S Execute<S>(Uri url)
         {
 
             var result = LibraRequestPool.Execute(url, _callMode);
@@ -114,9 +280,9 @@ namespace Libra.Extension.Utils
         /// <typeparam name="S">返回值类型</typeparam>
         /// <param name="url">>远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
-        public async Task<S> GetAsync<S>(string url)
+        public async Task<S> ExecuteAsync<S>(string url)
         {
-            return Get<S>(new Uri(url));
+            return Execute<S>(new Uri(url));
         }
 
 
@@ -126,9 +292,9 @@ namespace Libra.Extension.Utils
         /// <typeparam name="S">返回值类型</typeparam>
         /// <param name="url">>远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
-        public async Task<S> GetAsync<S>(Uri url)
+        public async Task<S> ExecuteAsync<S>(Uri url)
         {
-            return Get<S>(url);
+            return Execute<S>(url);
 
         }
 
@@ -183,7 +349,7 @@ namespace Libra.Extension.Utils
         /// </summary>
         /// <typeparam name="S">返回值类型</typeparam>
         /// <returns></returns>
-        public S Get<S>()
+        public S Execute<S>()
         {
             var result = LibraRequestPool.Execute(_callMode);
             return LibraResultHandler<S>.GetResult(result);
@@ -195,9 +361,9 @@ namespace Libra.Extension.Utils
         /// </summary>
         /// <typeparam name="S">返回值类型</typeparam>
         /// <returns></returns>
-        public async Task<S> GetAsync<S>()
+        public async Task<S> ExecuteAsync<S>()
         {
-            return Get<S>();
+            return Execute<S>();
         }
 
 

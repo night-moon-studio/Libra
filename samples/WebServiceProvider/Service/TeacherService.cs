@@ -82,5 +82,16 @@ namespace WebServiceProvider.Services
         {
             return arr;
         }
+
+        public async void Notify()
+        {
+            throw new Exception("");
+            return;
+        }
+
+        public void Notify1()
+        {
+            return;
+        }
     }
 }

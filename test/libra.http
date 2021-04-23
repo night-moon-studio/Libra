@@ -58,3 +58,7 @@ GET https://localhost:6001/api/Test/17 HTTP/1.1
 GET https://localhost:6001/api/Test/18 HTTP/1.1
 ### 组播
 GET https://localhost:6001/api/Test/19 HTTP/1.1
+### 组播通知
+GET https://localhost:6001/api/Test/20 HTTP/1.1
+### 组播通知
+GET https://localhost:6001/api/Test/21 HTTP/1.1

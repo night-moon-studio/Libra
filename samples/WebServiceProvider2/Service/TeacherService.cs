@@ -66,5 +66,14 @@ namespace WebServiceProvider2.Services
             return arr;
         }
 
+        public async void Notify()
+        {
+            await Task.Delay(4000);
+            return;
+        }
+        public void Notify1()
+        {
+            return;
+        }
     }
 }
