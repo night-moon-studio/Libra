@@ -117,10 +117,10 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 "TeacherService.Hello8".NoWpcParam().GetCode(); 
 
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
-"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResult<string>(); 
+"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResult<string>(url); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
-"TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();
+"TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(url);
 
 ```
 
