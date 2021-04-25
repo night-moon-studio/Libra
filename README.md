@@ -15,19 +15,19 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
 #### Libra 库分为请求/分析两部分:  
 
- - "请求模块" 会序列化 **调用者Key** 及其 **方法参数**, 并将其传递给远程服务的 **/Libra** 路由接口来获取数据.
+ - "请求模块" 会序列化 **调用者Key** 及其 **方法参数**, 并将其传递给远程服务的 **/Libra** 中间件来获取数据.
  - "分析模块" 会通过 **调用者Key** 寻找二三优化字典中的委托, 如果未找到委托, 则通过 Natasha 将字符串转换为类型来动态构造委托, 委托入参和返回值均为字符串类型, 该字符串是被包装的方法参数/返回值的序列化结果.   
  
     - 参数包装策略:
-      - 当参数仅有1个时, 类型为常规类型: 基元类型\值类型 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
+      - 当参数仅有1个时, 类型为常规类型: 基元类型/值类型/string 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
       - 当参数仅有1个时, 类型为 byte[]: 不参与序列化直接传值.
-      - 当参数仅有1个时, 类型为复杂类型: 数组\类\集合\字典 则以当前类型进行序列化.
+      - 当参数仅有1个时, 类型为复杂类型: 数组/类/集合/字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
    - 返回值包装策略:
      - 如果为 void / Task 类型, 返回空.
      - 如果为 byte[] (可能被Task包裹`Task<byte[]>`) 类型, 则直接返回结果.
-     - 如果为 基元类型/值类型 (可能被Task包裹), 则被包装到 LibraResult 中序列化返回.
+     - 如果为 基元类型/值类型/string (可能被Task包裹), 则被包装到 LibraResult 中序列化返回.
      - 如果为 复杂类型 (可能被Task包裹), 则直接将其序列化返回.  
       
 
@@ -38,8 +38,9 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 #### Libra 的结果:
 
  - 抛出异常 : 则目标方法不允许调用或者不存在.
- - HTTP状态码/空字符串 : 则代表被调用的方法为 void, 视调用的API而定.
- - `LibraResult<S>` : 正常基元/值类型返回结果.  
+ - HTTP状态码 : 则代表被调用的方法为 void, 视调用的API而定.
+ - byte[] : 如果目标方法返回 byte[] 则为目标方法的执行结果, 否则为 Reponse.Body 中读取的流.
+ - `LibraResult<S>` : 正常基元/值/string类型返回结果.  
  - 类实例 : 复杂类型返回结果.
 
 <br> 
@@ -68,6 +69,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
 ```C#  
 
+//配置服务
  services
   .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
   .AddLibraWpc(opt => opt
@@ -78,6 +80,10 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
          //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
          .FlagMapper("Hello7", "TeacherService.Hello6") 
  ); 
+ 
+ 
+ //添加服务, 使用请求拦截
+ app.UseLibraService();
   
 ```
 - #### 插件调用
@@ -95,17 +101,21 @@ LibraPluginManagement.Dispose(filePath);
 
 ```C#
 
-// 调用远程类 TeacherService 中 public int Hello3(double value) 方法
-"TeacherService.Hello3".WpcParam(12.34).Get<int>();
+// 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
+"TeacherService.HelloX".WpcParam(12.34).GetBytes();
 
-// 调用远程类 TeacherService 中 public void Hello8() 方法
-"TeacherService.Hello8".NoWpcParam().Execute(); 
+
+// 调用远程类 TeacherService 中 public int Hello3(double value) 方法
+"TeacherService.Hello3".WpcParam(12.34).GetResult<int>();
+
+// 调用远程类 TeacherService 中 public void Hello8() 方法, 返回 HttpStatusCode
+"TeacherService.Hello8".NoWpcParam().GetCode(); 
 
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
-"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).Get<string>(); 
+"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResult<string>(); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
-"TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).Get<int>();
+"TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();
 
 ```
 
@@ -120,7 +130,7 @@ multicast.AppendHost("https://localhost:7001/");
 //返回数组结果
 "TeacherService.Helloxxx".NoWpcParam().MulticastArrayResult<int>("测试组"); //[ 1, 2]
 
-//返回主机+元组数组
+//返回 LibraMulticastResult 数组, 包括调用的 URL 和 其结果 Result;
 "TeacherService.Helloxxx".NoWpcParam().MulticastTupleResult<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
 
 //远程通知目标主机的 void xxx() 方法, 遇到第一个结果不是 200 / 204 的就返回 false .
@@ -139,6 +149,7 @@ multicast.AppendHost("https://localhost:7001/");
  - [ ] 增加安全认证.
  - [ ] 接入其他高性能序列化.
  - [x] 实现组播配置.
+ - [x] 对接 Request 和 Response 流操作.
  - [ ] 单播/组播的高并发任务合并/转发/执行.
 
 还在更新中...
