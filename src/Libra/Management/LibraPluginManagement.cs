@@ -31,7 +31,7 @@ public static class LibraPluginManagement
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="path"></param>
-    public static Assembly AddPlugin(string path, params Type[] interfaces)
+    public static Assembly LoadPlugin(string path, params Type[] interfaces)
     {
         if (!_pluginKeyCache.ContainsKey(path))
         {
@@ -146,7 +146,7 @@ public static class LibraPluginManagement
     /// 卸载插件
     /// </summary>
     /// <param name="pluginPath"></param>
-    public static bool Dispose(string pluginPath)
+    public static bool UnloadPlugin(string pluginPath)
     {
 
         if (_pluginKeyCache.ContainsKey(pluginPath))

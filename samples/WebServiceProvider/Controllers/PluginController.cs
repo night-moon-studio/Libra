@@ -16,13 +16,13 @@ namespace WebServiceProvider.Controllers
         [HttpGet("add")]
         public void AddPlugin()
         {
-            LibraPluginManagement.AddPlugin(PLUGIN_PATH);
+            LibraPluginManagement.LoadPlugin(PLUGIN_PATH);
         }
 
         [HttpGet("dispose")]
         public bool DeletePlugin()
         {
-            return LibraPluginManagement.Dispose(PLUGIN_PATH);
+            return LibraPluginManagement.UnloadPlugin(PLUGIN_PATH);
         }
     }
 }
