@@ -14,7 +14,11 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class LibraMiddleware
     {
-        public static async void UseLibraServer(this IApplicationBuilder app)
+        /// <summary>
+        /// 使用 Libra 远程调用服务
+        /// </summary>
+        /// <param name="app"></param>
+        public static async void UseLibraService(this IApplicationBuilder app)
         {
             app.Use(async (context,next) => {
                 
