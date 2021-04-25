@@ -6,6 +6,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Reciver\LibraController.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="NMS.DynamicDictionary" Version="1.1.0.1" />
 	</ItemGroup>
 	

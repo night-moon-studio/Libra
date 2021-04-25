@@ -8,6 +8,7 @@ namespace WebServiceProvider2.Services
 
         public string Hello1(string studentName)
         {
+            Console.WriteLine("1"+ studentName);
             return "Hello" + studentName;
         }
 
@@ -61,9 +62,9 @@ namespace WebServiceProvider2.Services
 
 
 
-        public byte[] GetBytes(byte[] arr)
+        public byte[] GetBytes(int[] arr)
         {
-            return arr;
+            return null;
         }
 
         public async void Notify()

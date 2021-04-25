@@ -47,6 +47,7 @@ namespace WebServiceProvider
             }
 
             app.UseRouting();
+            app.UseLibraServer();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

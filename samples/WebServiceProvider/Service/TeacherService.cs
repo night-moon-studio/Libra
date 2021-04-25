@@ -1,13 +1,18 @@
-﻿using System;
+﻿using Libra.Model;
+using System;
 using System.Threading.Tasks;
 
 namespace WebServiceProvider.Services
 {
     public class TeacherService
     {
-
+        public string Hello(string studentName)
+        {
+            return null;
+        }
         public string Hello1(string studentName)
         {
+            Console.WriteLine("1" + studentName);
             return "Hello" + studentName;
         }
 
@@ -23,7 +28,7 @@ namespace WebServiceProvider.Services
 
         public int Hello4(double value, DateTime time)
         {
-            return ((int)(value+3) * 100) + time.Hour;
+            return ((int)(value + 3) * 100) + time.Hour;
         }
 
         public string Hello5()
@@ -61,7 +66,7 @@ namespace WebServiceProvider.Services
         public int Hello10(int[] values)
         {
             int result = 0;
-            for (int i = 0; i < values.Length; i+=1)
+            for (int i = 0; i < values.Length; i += 1)
             {
                 result += values[i];
             }
@@ -73,14 +78,31 @@ namespace WebServiceProvider.Services
             return null;
         }
 
-        public TestModel GetNotNull()
+        public TestModel GetNotNull(TestModel model)
         {
             return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
         }
 
-        public byte[] GetBytes(byte[] arr)
+        public byte[] GetBytes(int[] arr)
         {
-            return arr;
+            //Console.WriteLine(arr[0]);
+            return null;
+        }
+
+        public string[] GetStrings(string[] arr)
+        {
+            //Console.WriteLine(arr[0]);
+            return null;
+        }
+        public int[] GetInts(int[] arr)
+        {
+            //Console.WriteLine(arr[0]);
+            return null;
+        }
+        public byte[] GetInts2(byte[] arr)
+        {
+            //Console.WriteLine(arr[0]);
+            return null;
         }
 
         public async void Notify()
@@ -92,6 +114,16 @@ namespace WebServiceProvider.Services
         public void Notify1()
         {
             return;
+        }
+    }
+
+    public static class Na41151da884a4636b704706c2ccbd793
+    {
+        public static async System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response)
+        {
+            var parameters = Libra.LibraCaller.Deserialize<LibraSingleParameter<System.String>>(request);
+            var result = new LibraResult<System.String>() { Value = (new WebServiceProvider.Services.TeacherService()).Hello(parameters.Value) };
+            await System.Text.Json.JsonSerializer.SerializeAsync(response.Body, result);
         }
     }
 }

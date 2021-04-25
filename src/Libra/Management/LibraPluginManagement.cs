@@ -115,7 +115,7 @@ public static class LibraPluginManagement
         {
             if (_pluginKeyCache.TryGetValue(pluginPath, out var queue))
             {
-                LibraProtocalAnalysis.Remove(queue.ToArray());
+                LibraCaller.Remove(queue.ToArray());
             }
 
             DomainBase domain = default;

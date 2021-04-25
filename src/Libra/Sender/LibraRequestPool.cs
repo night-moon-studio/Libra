@@ -2,6 +2,7 @@
 using Libra.Model;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -56,28 +57,17 @@ public static class LibraRequestPool
 
 
     /// <summary>
-    /// 异步执行并返回 byte[] 结果, 请求地址是 BaseUrl(可以通过 SetBaseUrl 进行配置)
-    /// </summary>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static async Task<byte[]> ExecuteAsync(LibraProtocal protocal)
-    {
-        return Execute(protocal);
-    }
-
-
-    /// <summary>
     /// 同步执行并返回对方执行的序列化结果, 请求地址是 BaseUrl (可以通过 SetBaseUrl 进行配置)
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static byte[] Execute(LibraProtocal protocal)
+    public static byte[] BytesResult(string route, Func<Stream, Task> protocal)
     {
         var request = GetRequestInternal();
         try
         {
 
-            return request.GetMessage(protocal);
+            return request.GetResponseBytes(route, protocal);
 
         }
         catch (Exception ex)
@@ -95,28 +85,17 @@ public static class LibraRequestPool
 
 
     /// <summary>
-    /// 异步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是 BaseUrl(可以通过 SetBaseUrl 进行配置)
-    /// </summary>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static async Task<HttpStatusCode> ExecuteVoidAsync(LibraProtocal protocal)
-    {
-        return ExecuteVoid(protocal);
-    }
-
-
-    /// <summary>
     /// 同步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是 BaseUrl(可以通过 SetBaseUrl 进行配置)
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static HttpStatusCode ExecuteVoid(LibraProtocal protocal)
+    public static HttpStatusCode CodeResult(string route, Func<Stream, Task> protocal)
     {
         var request = GetRequestInternal();
         try
         {
 
-            return request.GetHttpStatusCode(protocal);
+            return request.GetResponseCode(route, protocal);
 
         }
         catch (Exception ex)
@@ -129,18 +108,6 @@ public static class LibraRequestPool
         {
             Collect(request);
         }
-    }
-
-
-    /// <summary>
-    /// 异步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static async Task<HttpStatusCode> ExecuteVoidAsync(Uri url, LibraProtocal protocal)
-    {
-        return ExecuteVoid(url, protocal);
     }
 
 
@@ -150,13 +117,13 @@ public static class LibraRequestPool
     /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static HttpStatusCode ExecuteVoid(Uri url, LibraProtocal protocal)
+    public static HttpStatusCode CodeResult(Uri url, string route, Func<Stream, Task> protocal)
     {
         var request = GetRequestInternal();
         try
         {
 
-            return request.GetHttpStatusCode(url, protocal);
+            return request.GetResponseCode(url, route, protocal);
 
         }
         catch (Exception ex)
@@ -174,31 +141,19 @@ public static class LibraRequestPool
 
 
     /// <summary>
-    /// 异步执行并返回对方执行的序列化结果 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static async Task<byte[]> ExecuteAsync(Uri url, LibraProtocal protocal)
-    {
-        return Execute(url, protocal);
-    }
-
-
-    /// <summary>
     /// 同步执行并返回对方执行的序列化结果 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
     /// </summary>
     /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static byte[] Execute(Uri url, LibraProtocal callModel)
+    public static byte[] BytesResult(Uri url, string route, Func<Stream, Task> protocal)
     {
 
         var request = GetRequestInternal();
         try
         {
 
-            return request.GetMessage(url, callModel);
+            return request.GetResponseBytes(url, route, protocal);
            
         }
         catch (Exception ex)

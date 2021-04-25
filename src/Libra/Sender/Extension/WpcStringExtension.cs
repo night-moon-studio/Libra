@@ -9,9 +9,9 @@ public static class WpcStringExtension
     /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
     /// <param name="parameters">方法参数, 多参数请用匿名类包裹</param>
     /// <returns></returns>
-    public static LibraParameterHandler WpcParam<T>(this string caller, T parameters)
+    public static LibraExecutor WpcParam<T>(this string caller, T parameters)
     {
-        return new LibraParameterHandler<T>(caller, parameters);
+        return new LibraWriteHandler<T>(caller, parameters);
     }
 
 
@@ -20,9 +20,9 @@ public static class WpcStringExtension
     /// </summary>
     /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
     /// <returns></returns>
-    public static LibraParameterHandler NoWpcParam(this string caller)
+    public static LibraExecutor NoWpcParam(this string caller)
     {
-        return new LibraParameterHandler(caller);
+        return new LibraExecutor(caller);
     }
 
 }

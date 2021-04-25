@@ -45,7 +45,7 @@ namespace WebServiceProvider2
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseLibraServer();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

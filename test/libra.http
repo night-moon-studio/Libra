@@ -11,6 +11,8 @@ Content-Type:application/json
 }
 
 ###
+GET https://localhost:6001/api/Test/0 HTTP/1.1
+###
 GET https://localhost:6001/api/Test/1 HTTP/1.1
 ###
 GET https://localhost:6001/api/Test/2 HTTP/1.1
@@ -62,3 +64,15 @@ GET https://localhost:6001/api/Test/19 HTTP/1.1
 GET https://localhost:6001/api/Test/20 HTTP/1.1
 ### 组播通知
 GET https://localhost:6001/api/Test/21 HTTP/1.1
+### 组播
+GET https://localhost:6001/api/Test/18.5 HTTP/1.1
+
+### 测试
+#GET https://localhost:5001/api/Values HTTP/1.1
+
+### 数组
+GET https://localhost:6001/api/Test/22 HTTP/1.1
+### 数组
+GET https://localhost:6001/api/Test/23 HTTP/1.1
+### 数组
+GET https://localhost:6001/api/Test/24 HTTP/1.1

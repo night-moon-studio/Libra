@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Libra.Protocal;
+using Microsoft.AspNetCore.Http;
 using Natasha.CSharp;
 using Natasha.CSharp.Reverser;
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -11,22 +14,25 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+
 namespace Libra
 {
+
+    public delegate Task ExecuteLibraMethod(HttpRequest request, HttpResponse response); 
     /// <summary>
     /// Libra 协议分析及执行类
     /// </summary>
-    public static class LibraProtocalAnalysis
+    public static class LibraCaller
     {
-
+        
         public static JsonSerializerOptions JsonOption;
         public static IServiceProvider Provider;
-        private static DynamicDictionaryBase<string, Func<byte[], byte[]>> _invokeFastCache;
-        private static readonly ConcurrentDictionary<string, Func<byte[], byte[]>> _invokerMapping;
-        static LibraProtocalAnalysis()
+        private static DynamicDictionaryBase<string, ExecuteLibraMethod> _invokeFastCache;
+        private static readonly ConcurrentDictionary<string, ExecuteLibraMethod> _invokerMapping;
+        static LibraCaller()
         {
             JsonOption = new JsonSerializerOptions();
-            _invokerMapping = new ConcurrentDictionary<string, Func<byte[], byte[]>>();
+            _invokerMapping = new ConcurrentDictionary<string, ExecuteLibraMethod>();
             _invokeFastCache = _invokerMapping.PrecisioTree();
         }
 
@@ -38,7 +44,7 @@ namespace Libra
         public static void Remove(IEnumerable<string> keys)
         {
 
-            Func<byte[], byte[]> func = null;
+            ExecuteLibraMethod func = null;
             foreach (var item in keys)
             {
                 if (_invokerMapping.ContainsKey(item))
@@ -58,12 +64,13 @@ namespace Libra
         /// <param name="parameters"></param>
         /// <param name="response"></param>
         /// <returns></returns>
-        public static async Task<byte[]> CallAsync(string caller, byte[] parameters, HttpResponse response)
+        public static async Task ExecuteAsync(string caller, HttpRequest request, HttpResponse response)
         {
-            
+
             if (_invokeFastCache.TryGetValue(caller, out var func))
             {
-                return func(parameters);
+                await func(request ,response);
+
             }
             else
             {
@@ -90,7 +97,7 @@ namespace Libra
                     }
                     //将类型字符串转换成运行时类型传参生成调用委托
                     var dynamicFunc = nDelegate
-                            .Func<Func<byte[], byte[]>>($"return LibraProtocalAnalysis.CreateDelegate(\"{caller}\",typeof({typeName}),\"{methodName}\",\"{typeName}\");")();
+                            .Func<ExecuteLibraMethod>($"return LibraCaller.CreateDelegate(\"{caller}\",typeof({typeName}),\"{methodName}\",\"{typeName}\");")();
                     
                     
                     if (dynamicFunc != null)
@@ -101,14 +108,14 @@ namespace Libra
                             LibraPluginManagement.AddRecoder(domain, caller);
                         }
                         //执行委托返回结果
-                        return dynamicFunc(parameters);
+                        await dynamicFunc(request, response);
                     }
                     else
                     {
                         //如果未成功生成委托,则说明该调用不符合系统规范,可能不存在
                         response.StatusCode = 404;
                         await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!");
-                        return null;
+
                     }
 
                 }
@@ -117,13 +124,45 @@ namespace Libra
 
                     response.StatusCode = 404;
                     await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在! 额外信息:{ex.Message}");
-                    return null;
+
 
                 }
             }
-           
 
         }
+
+
+        /// <summary>
+        /// 反序列化实体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bodyBuffer"></param>
+        /// <returns></returns>
+        public static T Deserialize<T>(HttpRequest request)
+        {
+
+            request.EnableBuffering();
+            var bufferResult = request.BodyReader.ReadAsync().Result;
+            if (bufferResult.Buffer.IsEmpty)
+            {
+                return default(T);
+            }
+            var reader = new Utf8JsonReader(bufferResult.Buffer);
+            return JsonSerializer.Deserialize<T>(ref reader, JsonOption);
+
+        }
+
+        public static byte[] GetBytesFromRequest(HttpRequest request)
+        {
+            request.EnableBuffering();
+            var bufferResult = request.BodyReader.ReadAsync().Result;
+            if (bufferResult.Buffer.IsEmpty)
+            {
+                return null;
+            }
+            return bufferResult.Buffer.ToArray();
+        }
+
 
         /// <summary>
         /// 生成动态委托
@@ -133,9 +172,9 @@ namespace Libra
         /// <param name="methodName"></param>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public static Func<byte[],byte[]> CreateDelegate(string key, Type type, string methodName, string typeName)
+        public static ExecuteLibraMethod CreateDelegate(string key, Type type, string methodName, string typeName)
         {
-
+            NSucceedLog.Enabled = true;
             //判断类型是否来自插件,如果是则获取插件域
             var isPlugin = false;
             var domain = LibraPluginManagement.GetPluginDominByType(typeName);
@@ -198,8 +237,7 @@ namespace Libra
                 //else{
                 //  parameters = JsonSerializer.Deserialize<ProxyClass>(arg, LibraProtocalAnalysis.JsonOption);
                 //}
-                methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<{className}>(arg,LibraProtocalAnalysis.JsonOption);");
-                
+                methodCallBuilder.AppendLine($"var {parameterName} = {LibraProtocal.DeserializeScript}<{className}>(request);");
                 //移除最后一个都好
                 parameterBuilder.Length -= 1;
                 //复用这个变量,临时变量名后面无需再用,后可作为参数逻辑使用.
@@ -208,6 +246,7 @@ namespace Libra
             }
             else if (parameterInfos.Length == 1)
             {
+
                 //当仅由一个参数时
                 //临时变量名为 parameters
                 parameterName = "parameters";
@@ -215,42 +254,8 @@ namespace Libra
                 firstParameterInfo = parameterInfos[0];
                 //获取参数类型
                 var pType = firstParameterInfo.ParameterType;
-
-                if (pType.IsPrimitive ||  pType.IsValueType)
-                {
-
-                    //如果是基元类型或者是值类型
-                    //生成以下逻辑:
-                    //if(arg == null){
-                    //  parameters = default;
-                    //}
-                    //else{
-                    //  parameters = JsonSerializer.Deserialize<LibraSingleParameter<int>>(arg, LibraProtocalAnalysis.JsonOption);
-                    //}
-                    methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<LibraSingleParameter<{firstParameterInfo.ParameterType.GetDevelopName()}>>(arg,LibraProtocalAnalysis.JsonOption);");
-                    //复用这个变量, 此时记录参数的调用逻辑 
-                    //parameters.Value
-                    parameterName += ".Value";
-
-                }
-                else if (pType == typeof(byte[]))
-                {
-                    //如果是byte数组
-                    //复用这个变量, 此时记录参数的调用逻辑 
-                    //无需创建临时变量直接使用函数参数即可
-                    parameterName = "arg";
-                }
-                else
-                {
-                    //如果是其他类型
-                    //if(arg == null){
-                    //  parameters = default;
-                    //}
-                    //else{
-                    //  parameters = JsonSerializer.Deserialize<ParameterType>(arg, LibraProtocalAnalysis.JsonOption);
-                    //}
-                    methodCallBuilder.AppendLine($"var {parameterName} = arg == null ? default : System.Text.Json.JsonSerializer.Deserialize<{firstParameterInfo.ParameterType.GetDevelopName()}>(arg,LibraProtocalAnalysis.JsonOption);");
-                }
+                methodCallBuilder.AppendLine(LibraProtocal.GetSingleParameterDeserializeTypeScript(pType, parameterName, out string parameterCaller));
+                parameterName = parameterCaller;
 
             }
 
@@ -285,7 +290,7 @@ namespace Libra
                 {
 
                     //如果该类型被注入了,则使用 asp.net core的 provider 进行创建
-                    caller = $"LibraProtocalAnalysis.Provider.GetService<{type.GetDevelopName()}>()";
+                    caller = $"LibraCaller.Provider.GetService<{type.GetDevelopName()}>()";
 
                 }
                
@@ -306,59 +311,8 @@ namespace Libra
                 
             }
 
-
-            if (returnType == typeof(void) || returnType == typeof(Task))
-            {
-
-                //如果返回值为 void 或者是 Task
-                //生成执行逻辑代码:
-                // (new TestService()).Hello(parameters.Name,parameters.Age);
-                // 或
-                // await (new TestService()).Hello(parameters.Name,parameters.Age).ConfigureAwait(false);
-                methodCallBuilder.AppendLine($"{(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
-                methodCallBuilder.AppendLine("return null;");
-
-            }
-            else if(returnType.IsPrimitive || returnType.IsValueType)
-            {
-
-                //如果返回值为妓院类型或者值类型
-                //生成执行逻辑代码:
-                // var result =  new LibraResult<int>(){ Value = (new TestService()).Hello(parameters.Name,parameters.Age) };
-                // return JsonSerializer.SerializeToUtf8Bytes(result);
-                // 或
-                // var result =  new LibraResult<int>(){ Value = await (new TestService()).Hello(parameters.Name,parameters.Age).ConfigureAwait(false) };
-                // return JsonSerializer.SerializeToUtf8Bytes(result);
-                methodCallBuilder.AppendLine($"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")}}};");
-                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(result);");
-
-            }
-            else if (returnType == typeof(byte[]))
-            {
-
-                //如果是byte[]类型,则直接返回
-                //生成执行逻辑代码:
-                //return  (new TestService()).Hello(parameters.Name,parameters.Age);
-                //或
-                //return await (new TestService()).Hello(parameters.Name,parameters.Age).ConfigureAwait(false);
-                methodCallBuilder.AppendLine($"return {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
-
-            }
-            else
-            {
-
-                //如果是其他墙类型
-                //生成执行逻辑代码:
-                // var result = (new TestService()).Hello(parameters.Name,parameters.Age);
-                // return JsonSerializer.SerializeToUtf8Bytes(result);
-                // 或
-                // var result = await (new TestService()).Hello(parameters.Name,parameters.Age).ConfigureAwait(false);
-                // return JsonSerializer.SerializeToUtf8Bytes(result);
-                methodCallBuilder.AppendLine($"var result = {(isAsync ? "await" : "")} {caller}.{methodInfo.Name}({parameterName}){(isAsync ? ".ConfigureAwait(false)" : "")};");
-                methodCallBuilder.AppendLine($"return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(result);");
-            }
+            methodCallBuilder.AppendLine(LibraProtocal.GetReturnScript(returnType, $"{caller}.{methodInfo.Name}({parameterName})", isAsync));
             
-
             //使用 Natasha 进行动态方法构造
             var delegateFunc = NDelegate
                 .UseDomain(domain, item =>
@@ -370,21 +324,9 @@ namespace Libra
                 .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString())); //将代理类添加到当前构造类的Body中去
 
 
-            Func<byte[], byte[]> func;
-            if (isAsync)
-            {
-                //如果是异步方法,需要 async Task 来执行 await, 构造出异步方法
-                var tempFunc = delegateFunc.AsyncFunc<byte[], Task<byte[]>>(methodCallBuilder.ToString());
-                //这里包裹一层,直接返回上面异步方法的结果
-                func = (param) => tempFunc(param).Result;
-            }
-            else
-            {
-                //动态构造方法
-                func = delegateFunc.Func<byte[], byte[]>(methodCallBuilder.ToString());
-            }
-
-
+            ExecuteLibraMethod func;
+            //如果是异步方法,需要 async Task 来执行 await, 构造出异步方法
+            func = delegateFunc.AsyncDelegate<ExecuteLibraMethod>(methodCallBuilder.ToString());
             //添加到字典
             _invokerMapping[key] = func;
             //从字典转换到精确快速查找树

@@ -3,14 +3,14 @@ using Libra.Model;
 using Libra.Sender;
 using Natasha.CSharp;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
-
-
+using System.Threading.Tasks;
 
 /// <summary>
 /// Libra 请求基本操作单元
@@ -19,7 +19,7 @@ public class LibraRequest
 {
 
     private readonly static Action<HttpRequestMessage> _resetState;
-    private readonly static Uri _defaultUrl;
+    private static Uri _defaultUrl;
     private readonly HttpRequestMessage _request;
     private readonly HttpClient _client;
     private readonly LibraContent _content;
@@ -50,8 +50,6 @@ public class LibraRequest
             il.Emit(OpCodes.Ret);
             _resetState = (Action<HttpRequestMessage>)(method.CreateDelegate(typeof(Action<HttpRequestMessage>)));
         }
-
-        _defaultUrl = new Uri("http://localhost:80");
     }
 
     /// <summary>
@@ -59,6 +57,11 @@ public class LibraRequest
     /// </summary>
     internal void RefreshRequest()
     {
+        _request.Headers.Remove("Libra");
+        if (_request.RequestUri != _defaultUrl)
+        {
+            _request.RequestUri = _defaultUrl;
+        }
         _resetState(_request);
     }
 
@@ -78,7 +81,8 @@ public class LibraRequest
     /// <param name="baseUrl"></param>
     public void SetBaseUrl(string baseUrl)
     {
-        _request.RequestUri = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
+        _defaultUrl = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
+        _request.RequestUri = _defaultUrl;
     }
 
 
@@ -87,9 +91,11 @@ public class LibraRequest
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    private HttpResponseMessage GetReponse(LibraProtocal protocal)
+    
+    private HttpResponseMessage GetReponse(string route, Func<Stream,Task> protocal)
     {
-        _content.Protocal = protocal;
+        _request.Headers.Add("Libra", route);
+        _content.ProtocalAction = protocal;
         return _client.SendAsync(_request, CancellationToken.None).Result;
     }
 
@@ -101,10 +107,27 @@ public class LibraRequest
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal HttpStatusCode GetHttpStatusCode(Uri url, LibraProtocal protocal)
+    internal HttpStatusCode GetResponseCode(Uri url, string route, Func<Stream, Task> protocal)
     {
         _request.RequestUri = url;
-        return GetHttpStatusCode(protocal);
+        return GetResponseCode(route,protocal);
+
+    }
+
+
+
+    /// <summary>
+    /// 请求 URL 地址并获取对方执行的序列化结果
+    /// </summary>
+    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+    /// <param name="protocal">传递给对方服务器的协议内容</param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal byte[] GetResponseBytes(Uri url, string route, Func<Stream, Task> protocal)
+    {
+
+        _request.RequestUri = url;
+        return GetResponseBytes(route, protocal);
 
     }
 
@@ -115,26 +138,11 @@ public class LibraRequest
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal HttpStatusCode GetHttpStatusCode(LibraProtocal protocal)
+    internal HttpStatusCode GetResponseCode(string route, Func<Stream, Task> protocal)
     {
-        return GetReponse(protocal).StatusCode;
+        return GetReponse(route, protocal).StatusCode;
     }
 
-
-    /// <summary>
-    /// 请求 URL 地址并获取对方执行的序列化结果
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] GetMessage(Uri url, LibraProtocal protocal)
-    {
-
-        _request.RequestUri = url;
-        return GetMessage(protocal);
-
-    }
 
 
     /// <summary>
@@ -143,10 +151,10 @@ public class LibraRequest
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] GetMessage(LibraProtocal protocal)
+    internal byte[] GetResponseBytes(string route, Func<Stream, Task> protocal)
     {
 
-        var response = GetReponse(protocal);
+        var response = GetReponse(route, protocal);
         if (response.IsSuccessStatusCode)
         {
             if (response.StatusCode != HttpStatusCode.NoContent)

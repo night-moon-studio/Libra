@@ -60,6 +60,10 @@ public static class LibraTypeManagement
         }
         foreach (var item in types)
         {
+            if (!_typeMethodCache.ContainsKey(item))
+            {
+                _typeMethodCache[item] = new ConcurrentDictionary<string, bool>();
+            }
             var methods = item.GetMethods();
             foreach (var method in methods)
             {
@@ -78,10 +82,6 @@ public static class LibraTypeManagement
     private static void AddFlag(Type type, MethodInfo methodInfo)
     {
 
-        if (!_typeMethodCache.ContainsKey(type))
-        {
-            _typeMethodCache[type] = new ConcurrentDictionary<string, bool>();
-        }
         _typeMethodCache[type][methodInfo.Name] = true;
 
     }

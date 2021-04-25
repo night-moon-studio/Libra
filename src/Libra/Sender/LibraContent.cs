@@ -1,4 +1,5 @@
 ﻿using Libra.Model;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -16,7 +17,7 @@ namespace Libra.Sender
     {
        
         private readonly static MediaTypeHeaderValue _contentType;
-        private LibraProtocal _protocal;
+        //private LibraProtocal _protocal;
         static LibraContent()
         {
             _contentType = new MediaTypeHeaderValue("application/json");
@@ -29,13 +30,15 @@ namespace Libra.Sender
         }
 
 
-        public LibraProtocal Protocal 
-        { 
-            set
-            {
-                _protocal = value;
-            }
-        }
+        //public LibraProtocal Protocal 
+        //{ 
+        //    set
+        //    {
+        //        _protocal = value;
+        //    }
+        //}
+
+        public Func<Stream, Task> ProtocalAction;
 
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace Libra.Sender
         /// <param name="context"></param>
         /// <returns></returns>
         protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
-            JsonSerializer.SerializeAsync(stream,_protocal);
+            ProtocalAction(stream);
 
 
         /// <summary>

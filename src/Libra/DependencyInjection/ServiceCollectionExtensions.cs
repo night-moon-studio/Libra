@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddLibraWpc(this IServiceCollection services, Func<LibraOption, LibraOption> optAction)
         {
             NatashaInitializer.InitializeAndPreheating();
-            LibraProtocalAnalysis.Provider = services.BuildServiceProvider();
+            LibraCaller.Provider = services.BuildServiceProvider();
             optAction?.Invoke(new LibraOption());
             return services;
         }
@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IServiceCollection AddLibraJson(this IServiceCollection services, Action<JsonSerializerOptions> action)
         {
-            action?.Invoke(LibraProtocalAnalysis.JsonOption);
+            action?.Invoke(LibraCaller.JsonOption);
             return services;
         }
 
