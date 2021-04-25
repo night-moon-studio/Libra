@@ -77,7 +77,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
          //使用实现了 IGetHello 接口的类
          .AllowAssembly<IGetHello>(Assembly.Load("PluginService"))
          //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
-         .FlagMapper("Hello7", "TeacherService.Hello6") 
+         .CallerMapper("Hello7", "TeacherService.Hello6") 
  ); 
  
  
