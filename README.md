@@ -72,10 +72,16 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  services
   .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
   .AddLibraWpc(opt => opt
-          //允许该程序集内所有的类型被远程调用
+  
+         //设置基准地址,每次 Request 进入池后将以该地址作为默认地址.
+         .SetBaseUrl("https://localhost:5001/")
+         
+         //允许该程序集内所有的类型被远程调用
          .AllowAssembly(Assembly.GetEntryAssembly()) 
+         
          //使用实现了 IGetHello 接口的类
          .AllowAssembly<IGetHello>(Assembly.Load("PluginService"))
+         
          //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
          .CallerMapper("Hello7", "TeacherService.Hello6") 
  ); 
