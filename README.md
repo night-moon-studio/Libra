@@ -104,7 +104,6 @@ LibraPluginManagement.Dispose(filePath);
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 "TeacherService.HelloX".WpcParam(12.34).GetBytes();
 
-
 // 调用远程类 TeacherService 中 public int Hello3(double value) 方法
 "TeacherService.Hello3".WpcParam(12.34).GetResult<int>();
 
