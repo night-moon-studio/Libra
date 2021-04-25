@@ -90,8 +90,9 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 ```C#  
 
 //Libra 允许客户端远程调用服务端加载的插件方法
-LibraPluginManagement.AddPlugin(filePath);
-LibraPluginManagement.Dispose(filePath);
+//服务端加/卸载插件
+LibraPluginManagement.LoadPlugin(dllFilePath);
+LibraPluginManagement.UnloadPlugin(dllFilePath);
 
 ```
 
