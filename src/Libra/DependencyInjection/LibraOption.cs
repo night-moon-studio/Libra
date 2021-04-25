@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key">对外暴漏的key</param>
         /// <param name="caller">"类名.方法名"</param>
         /// <returns></returns>
-        public LibraOption FlagMapper(string key, string caller)
+        public LibraOption CallerMapper(string key, string caller)
         {
             LibraTypeManagement.AddMapper(key, caller);
             return this;
