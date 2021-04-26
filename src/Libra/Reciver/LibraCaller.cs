@@ -1,5 +1,6 @@
 ﻿using Libra.Protocal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Natasha.CSharp;
 using Natasha.CSharp.Reverser;
 using System;
@@ -22,113 +23,15 @@ namespace Libra
     /// <summary>
     /// Libra 协议分析及执行类
     /// </summary>
-    public static class LibraCaller
+    public static class LibraProxyCreator
     {
-        
+        public static IServiceCollection DIService;
         public static JsonSerializerOptions JsonOption;
         public static IServiceProvider Provider;
-        private static DynamicDictionaryBase<string, ExecuteLibraMethod> _invokeFastCache;
-        private static readonly ConcurrentDictionary<string, ExecuteLibraMethod> _invokerMapping;
-        static LibraCaller()
+        
+        static LibraProxyCreator()
         {
             JsonOption = new JsonSerializerOptions();
-            _invokerMapping = new ConcurrentDictionary<string, ExecuteLibraMethod>();
-            _invokeFastCache = _invokerMapping.PrecisioTree();
-        }
-
-        /// <summary>
-        /// 批量移除已缓存的方法映射
-        /// </summary>
-        /// <param name="keys"></param>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Remove(IEnumerable<string> keys)
-        {
-
-            ExecuteLibraMethod func = null;
-            foreach (var item in keys)
-            {
-                if (_invokerMapping.ContainsKey(item))
-                {
-                    while (!_invokerMapping.TryRemove(item, out func));
-                }
-            }
-            func?.DisposeDomain();
-            _invokeFastCache = _invokerMapping.PrecisioTree();
-
-        }
-
-        /// <summary>
-        /// 异步执行
-        /// </summary>
-        /// <param name="caller"></param>
-        /// <param name="parameters"></param>
-        /// <param name="response"></param>
-        /// <returns></returns>
-        public static async Task ExecuteAsync(string caller, HttpRequest request, HttpResponse response)
-        {
-
-            if (_invokeFastCache.TryGetValue(caller, out var func))
-            {
-                await func(request ,response);
-
-            }
-            else
-            {
-                //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
-                var realType = LibraTypeManagement.GetTypeFromMapper(caller);
-
-                //获取类名及方法名
-                var index = realType.LastIndexOf('.');
-                var typeName = realType.Substring(0, index);
-                var methodName = realType.Substring(index + 1, realType.Length - index - 1);
-                try
-                {
-
-                    //从插件管理获取方法所在的域
-                    var domain = LibraPluginManagement.GetPluginDominByType(typeName);
-                    NDelegate nDelegate = default;
-                    if (domain!=null)
-                    {
-                        nDelegate = NDelegate.UseDomain(domain);
-                    }
-                    else
-                    {
-                        nDelegate = NDelegate.RandomDomain();
-                    }
-                    //将类型字符串转换成运行时类型传参生成调用委托
-                    var dynamicFunc = nDelegate
-                            .Func<ExecuteLibraMethod>($"return LibraCaller.CreateDelegate(\"{caller}\",typeof({typeName}),\"{methodName}\",\"{typeName}\");")();
-                    
-                    
-                    if (dynamicFunc != null)
-                    {
-                        //如果生成委托,如果是插件委托,则记录到管理类中
-                        if (domain != null)
-                        {
-                            LibraPluginManagement.AddRecoder(domain, caller);
-                        }
-                        //执行委托返回结果
-                        await dynamicFunc(request, response);
-                    }
-                    else
-                    {
-                        //如果未成功生成委托,则说明该调用不符合系统规范,可能不存在
-                        response.StatusCode = 404;
-                        await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!");
-
-                    }
-
-                }
-                catch (Exception ex)
-                {
-
-                    response.StatusCode = 404;
-                    await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在! 额外信息:{ex.Message}");
-
-
-                }
-            }
-
         }
 
 
@@ -164,6 +67,64 @@ namespace Libra
         }
 
 
+        public static async Task<ExecuteLibraMethod> CreateDelegate(string route, HttpResponse response)
+        {
+            //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
+            var realType = LibraTypeManagement.GetTypeFromMapper(route);
+
+            //获取类名及方法名
+            var index = realType.LastIndexOf('.');
+            var typeName = realType.AsSpan().Slice(0, index).ToString();
+            var methodName = realType.AsSpan().Slice(index + 1, realType.Length - index - 1).ToString();
+            try
+            {
+
+                //从插件管理获取方法所在的域
+                var domain = LibraPluginManagement.GetPluginDominByType(typeName);
+                NDelegate nDelegate = default;
+                if (domain != null)
+                {
+                    nDelegate = NDelegate.UseDomain(domain);
+                }
+                else
+                {
+                    nDelegate = NDelegate.RandomDomain();
+                }
+                //将类型字符串转换成运行时类型传参生成调用委托
+                var dynamicFunc = nDelegate
+                        .Func<ExecuteLibraMethod>($"return LibraProxyCreator.CreateDelegate(typeof({typeName}),\"{methodName}\",\"{typeName}\");")();
+
+
+                if (dynamicFunc != null)
+                {
+                    //如果生成委托,如果是插件委托,则记录到管理类中
+                    if (domain != null)
+                    {
+                        LibraPluginManagement.AddRecoder(domain, route);
+                    }
+                    //执行委托返回结果
+                    return dynamicFunc;
+                }
+                else
+                {
+                    //如果未成功生成委托,则说明该调用不符合系统规范,可能不存在
+                    response.StatusCode = 404;
+                    await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                response.StatusCode = 404;
+                await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在! 额外信息:{ex.Message}");
+
+            }
+            return null;
+        }
+
+
         /// <summary>
         /// 生成动态委托
         /// </summary>
@@ -172,7 +133,7 @@ namespace Libra
         /// <param name="methodName"></param>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public static ExecuteLibraMethod CreateDelegate(string key, Type type, string methodName, string typeName)
+        public static ExecuteLibraMethod CreateDelegate(Type type, string methodName, string typeName)
         {
             NSucceedLog.Enabled = true;
             //判断类型是否来自插件,如果是则获取插件域
@@ -259,7 +220,7 @@ namespace Libra
 
             }
 
-
+            Provider = DIService.BuildServiceProvider();
             //获取调用者
             string caller = default;
             if (methodInfo.IsStatic)
@@ -290,7 +251,7 @@ namespace Libra
                 {
 
                     //如果该类型被注入了,则使用 asp.net core的 provider 进行创建
-                    caller = $"LibraCaller.Provider.GetService<{type.GetDevelopName()}>()";
+                    caller = $"LibraProxyCreator.Provider.GetService<{type.GetDevelopName()}>()";
 
                 }
                
@@ -327,10 +288,6 @@ namespace Libra
             ExecuteLibraMethod func;
             //如果是异步方法,需要 async Task 来执行 await, 构造出异步方法
             func = delegateFunc.AsyncDelegate<ExecuteLibraMethod>(methodCallBuilder.ToString());
-            //添加到字典
-            _invokerMapping[key] = func;
-            //从字典转换到精确快速查找树
-            _invokeFastCache = _invokerMapping.PrecisioTree();
             return func;
         }
 

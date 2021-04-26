@@ -173,5 +173,10 @@ namespace WebCallerClient.Controller
         {
             return "TeacherService.GetInts2".WpcParam(new byte[] { 1, 2 }).GetBytes();
         }
+        [HttpGet("25")]
+        public string GetHello25()
+        {
+            return "IStudent.GetName".NoWpcParam().GetResult<string>();
+        }
     }
 }

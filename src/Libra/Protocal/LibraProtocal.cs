@@ -11,8 +11,8 @@ namespace Libra.Protocal
     public static class LibraProtocal
     {
 
-        public const string DeserializeScript = "Libra.LibraCaller.Deserialize";
-        public const string DirectlyScript = "Libra.LibraCaller.GetBytesFromRequest";
+        public const string DeserializeScript = "Libra.LibraProxyCreator.Deserialize";
+        public const string DirectlyScript = "Libra.LibraProxyCreator.GetBytesFromRequest";
         /// <summary>
         /// 获取单个参数时,需要反序列化的参数类型脚本
         /// </summary>

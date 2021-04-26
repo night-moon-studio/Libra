@@ -26,7 +26,10 @@ namespace WebCallerClient
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddLibraWpc(opt=>opt.SetBaseUrl("https://localhost:5001/"));
+            services.AddLibraWpc()
+                .ConfigureLibra(opt => opt.SetBaseUrl("https://localhost:5001/"));
+
+
             services.AddControllers();
 
             var multicast = LibraMulticastHostManagement.GetOrCreate("²âÊÔ×é");

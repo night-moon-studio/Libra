@@ -14,6 +14,7 @@ public static class LibraMulticastHostManagement
     private static DynamicDictionaryBase<string, Uri[]> _keyUrlsMapper;
     static LibraMulticastHostManagement()
     {
+        NatashaInitializer.InitializeAndPreheating();
         _keyHostMapper = new ConcurrentDictionary<string, LibraMulticastHost>();
         _hostsCache = new ConcurrentDictionary<string, Uri[]>();
         _keyUrlsMapper = _hostsCache.FuzzyTree();

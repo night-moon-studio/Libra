@@ -1,4 +1,5 @@
 ﻿using Libra;
+using Microsoft.AspNetCore.Builder;
 using Natasha.Framework;
 using System;
 using System.Collections.Concurrent;
@@ -115,7 +116,7 @@ public static class LibraPluginManagement
         {
             if (_pluginKeyCache.TryGetValue(pluginPath, out var queue))
             {
-                LibraCaller.Remove(queue.ToArray());
+                LibraMiddleware.Remove(queue.ToArray());
             }
 
             DomainBase domain = default;

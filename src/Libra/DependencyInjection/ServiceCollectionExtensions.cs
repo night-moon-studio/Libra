@@ -1,4 +1,5 @@
 ﻿using Libra;
+using Libra.DependencyInjection;
 using System;
 using System.Text.Json;
 
@@ -16,24 +17,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services"></param>
         /// <param name="optAction"></param>
         /// <returns></returns>
-        public static IServiceCollection AddLibraWpc(this IServiceCollection services, Func<LibraOption, LibraOption> optAction)
+        public static LibraBuilder AddLibraWpc(this IServiceCollection services)
         {
-            NatashaInitializer.InitializeAndPreheating();
-            LibraCaller.Provider = services.BuildServiceProvider();
-            optAction?.Invoke(new LibraOption());
-            return services;
-        }
 
-        /// <summary>
-        /// 配置 LibraWpc 接收端的 Json 选项
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddLibraJson(this IServiceCollection services, Action<JsonSerializerOptions> action)
-        {
-            action?.Invoke(LibraCaller.JsonOption);
-            return services;
+            NatashaInitializer.InitializeAndPreheating();
+            services.AddSingleton(typeof(LibraBuilder));
+            LibraProxyCreator.DIService = services;
+            LibraProxyCreator.Provider = services.BuildServiceProvider();
+            return LibraProxyCreator.Provider.GetService<LibraBuilder>();
+
         }
 
     }

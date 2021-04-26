@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using WebServiceProvider.Service;
 using WebServiceProvider.Services;
 
 namespace WebServiceProvider
@@ -27,14 +28,15 @@ namespace WebServiceProvider
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddScoped(typeof(TeacherService));
-            services
-                .AddLibraWpc(opt => opt
-                .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
-                .CallerMapper("Hello7", "TeacherService.Hello6") //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
-                )
-                .AddLibraJson(json => { json.PropertyNameCaseInsensitive = true; });
+         
+            services.AddLibraWpc()
+                .ConfigureJson(json => { json.PropertyNameCaseInsensitive = true; })
+                .ConfigureLibra(opt => opt
+                    .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
+                    .CallerMapper("Hello7", "TeacherService.Hello6") //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
 
+                );
+            services.AddScoped<IStudent, Student>();
             services.AddControllers();
         }
 
