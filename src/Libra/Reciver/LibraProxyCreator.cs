@@ -43,7 +43,7 @@ namespace Libra
         /// <returns></returns>
         public static T Deserialize<T>(HttpRequest request)
         {
-
+            
             request.EnableBuffering();
             var bufferResult = request.BodyReader.ReadAsync().Result;
             if (bufferResult.Buffer.IsEmpty)
