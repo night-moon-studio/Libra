@@ -39,7 +39,7 @@ namespace Libra
         /// 反序列化实体
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="bodyBuffer"></param>
+        /// <param name="request">HTTP请求</param>
         /// <returns></returns>
         public static T Deserialize<T>(HttpRequest request)
         {
@@ -55,6 +55,11 @@ namespace Libra
 
         }
 
+        /// <summary>
+        /// 直接获取bytes
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public static byte[] GetBytesFromRequest(HttpRequest request)
         {
             request.EnableBuffering();
@@ -67,6 +72,12 @@ namespace Libra
         }
 
 
+        /// <summary>
+        /// 创建执行委托
+        /// </summary>
+        /// <param name="route">路由</param>
+        /// <param name="response">回应实体</param>
+        /// <returns></returns>
         public static async Task<ExecuteLibraMethod> CreateDelegate(string route, HttpResponse response)
         {
             //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
@@ -117,8 +128,8 @@ namespace Libra
             catch (Exception ex)
             {
 
-                response.StatusCode = 404;
-                await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在! 额外信息:{ex.Message}");
+                response.StatusCode = 501;
+                await response.WriteAsync($"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}");
 
             }
             return null;
@@ -135,7 +146,7 @@ namespace Libra
         /// <returns></returns>
         public static ExecuteLibraMethod CreateDelegate(Type type, string methodName, string typeName)
         {
-            NSucceedLog.Enabled = true;
+            //NSucceedLog.Enabled = true;
             //判断类型是否来自插件,如果是则获取插件域
             var isPlugin = false;
             var domain = LibraPluginManagement.GetPluginDominByType(typeName);
@@ -190,14 +201,6 @@ namespace Libra
 
                 }
                 classBuilder.Append('}');
-
-                //参数赋值逻辑代码:
-                //if(arg == null){
-                //  parameters = default;
-                //}
-                //else{
-                //  parameters = JsonSerializer.Deserialize<ProxyClass>(arg, LibraProtocalAnalysis.JsonOption);
-                //}
                 methodCallBuilder.AppendLine($"var {parameterName} = {LibraProtocal.DeserializeScript}<{className}>(request);");
                 //移除最后一个都好
                 parameterBuilder.Length -= 1;
@@ -279,8 +282,8 @@ namespace Libra
                 .UseDomain(domain, item =>
                 {
                     item
-                    .LogSyntaxError()    //开启语法错误日志
-                    .LogCompilerError(); //开启编译错误日志
+                    .ThrowCompilerError()    //开启语法错误日志
+                    .ThrowSyntaxError(); //开启编译错误日志
                 })
                 .SetClass(item => item.AllowPrivate(type).Body(classBuilder.ToString())); //将代理类添加到当前构造类的Body中去
 
