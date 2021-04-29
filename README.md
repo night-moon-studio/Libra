@@ -100,6 +100,8 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 
 ```C#
 
+ LibraClientPool.SetBaseUrl("https://localhost:5001/");
+
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 "TeacherService.HelloX".WpcParam(12.34).GetBytes();
 
