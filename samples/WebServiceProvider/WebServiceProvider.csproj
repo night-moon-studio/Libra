@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Libra\Libra.csproj" />
+    <ProjectReference Include="..\..\src\Libra.Server\Libra.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

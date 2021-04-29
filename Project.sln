@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9A154FFA-A8A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkProject", "test\BenchmarkProject\BenchmarkProject.csproj", "{BADB6031-8605-40B4-94BF-96256438A77C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra", "src\Libra\Libra.csproj", "{21607053-D805-47BF-B9E2-95262B611BBB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Server", "src\Libra.Server\Libra.Server.csproj", "{21607053-D805-47BF-B9E2-95262B611BBB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebServiceProvider", "samples\WebServiceProvider\WebServiceProvider.csproj", "{B1C55AC0-A809-4A28-8050-41E8830F3A04}"
 EndProject
@@ -24,7 +24,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCallerClient", "samples\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginService", "samples\PluginService\PluginService.csproj", "{14B69745-D47F-4013-8253-8C90F39690F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServiceProvider2", "samples\WebServiceProvider2\WebServiceProvider2.csproj", "{F0866BCA-E802-488F-9900-28D6CF589CB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebServiceProvider2", "samples\WebServiceProvider2\WebServiceProvider2.csproj", "{F0866BCA-E802-488F-9900-28D6CF589CB4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Common", "src\Libra.Common\Libra.Common.csproj", "{4A689F79-3D76-44C8-875A-C6F8EC127F09}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Client", "src\Libra.Client\Libra.Client.csproj", "{EA66B592-1E50-459D-8C8C-6665D63368D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libra.Client.Multicast", "src\Libra.Client.Multicast\Libra.Client.Multicast.csproj", "{774FF29C-F1F8-45EE-BCEB-B5502D327F50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +66,18 @@ Global
 		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0866BCA-E802-488F-9900-28D6CF589CB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A689F79-3D76-44C8-875A-C6F8EC127F09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A689F79-3D76-44C8-875A-C6F8EC127F09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A689F79-3D76-44C8-875A-C6F8EC127F09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A689F79-3D76-44C8-875A-C6F8EC127F09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA66B592-1E50-459D-8C8C-6665D63368D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA66B592-1E50-459D-8C8C-6665D63368D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA66B592-1E50-459D-8C8C-6665D63368D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA66B592-1E50-459D-8C8C-6665D63368D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{774FF29C-F1F8-45EE-BCEB-B5502D327F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{774FF29C-F1F8-45EE-BCEB-B5502D327F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{774FF29C-F1F8-45EE-BCEB-B5502D327F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{774FF29C-F1F8-45EE-BCEB-B5502D327F50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +90,9 @@ Global
 		{E23CA0C1-0143-4C35-99A0-30EE558AF5C3} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{14B69745-D47F-4013-8253-8C90F39690F9} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{F0866BCA-E802-488F-9900-28D6CF589CB4} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
+		{4A689F79-3D76-44C8-875A-C6F8EC127F09} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
+		{EA66B592-1E50-459D-8C8C-6665D63368D2} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
+		{774FF29C-F1F8-45EE-BCEB-B5502D327F50} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E330F2E1-7532-4657-A941-C1782EAE9D1C}
