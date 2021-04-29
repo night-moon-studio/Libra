@@ -146,12 +146,12 @@ namespace Libra.Extension.Utils
         public byte[] GetBytes(Uri url)
         {
 
-            return LibraRequestPool.BytesResult(url, _route, _protocal);
+            return LibraClientPool.BytesResult(url, _route, _protocal);
 
         }
         public async Task<byte[]> GetBytesAsync(Uri url)
         {
-            return LibraRequestPool.BytesResult(url, _route, _protocal);
+            return LibraClientPool.BytesResult(url, _route, _protocal);
         }
 
 
@@ -162,11 +162,11 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public HttpStatusCode GetCode(Uri url)
         {
-            return LibraRequestPool.CodeResult(url, _route, _protocal);
+            return LibraClientPool.CodeResult(url, _route, _protocal);
         }
         public async Task<HttpStatusCode> GetCodeAsync(Uri url)
         {
-            return LibraRequestPool.CodeResult(url, _route, _protocal);
+            return LibraClientPool.CodeResult(url, _route, _protocal);
         }
 
 
@@ -179,13 +179,13 @@ namespace Libra.Extension.Utils
         public S GetResult<S>(Uri url)
         {
 
-            var result = LibraRequestPool.BytesResult(url, _route, _protocal);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
 
         }
         public async Task<S> GetResultAsync<S>(Uri url)
         {
-            var result = LibraRequestPool.BytesResult(url, _route, _protocal);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
         }
         #endregion
@@ -199,12 +199,12 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public S GetResult<S>()
         {
-            var result = LibraRequestPool.BytesResult(_route, _protocal);
+            var result = LibraClientPool.BytesResult(_route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
         }
         public async Task<S> GetResultAsync<S>()
         {
-            var result = LibraRequestPool.BytesResult(_route, _protocal);
+            var result = LibraClientPool.BytesResult(_route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
         }
 
@@ -214,11 +214,11 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public byte[] GetBytes()
         {
-            return LibraRequestPool.BytesResult(_route, _protocal);
+            return LibraClientPool.BytesResult(_route, _protocal);
         }
         public async Task<byte[]> GetBytesAsync()
         {
-            return LibraRequestPool.BytesResult(_route, _protocal);
+            return LibraClientPool.BytesResult(_route, _protocal);
         }
 
         /// <summary>
@@ -227,11 +227,11 @@ namespace Libra.Extension.Utils
         /// <returns></returns>
         public HttpStatusCode GetCode()
         {
-            return LibraRequestPool.CodeResult(_route, _protocal);
+            return LibraClientPool.CodeResult(_route, _protocal);
         }
         public async Task<HttpStatusCode> GetCodeAsync()
         {
-            return LibraRequestPool.CodeResult(_route, _protocal);
+            return LibraClientPool.CodeResult(_route, _protocal);
         }
         #endregion
 

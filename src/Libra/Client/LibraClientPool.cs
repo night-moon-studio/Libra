@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 /// <summary>
 /// Libra 操作池
 /// </summary>
-public static class LibraRequestPool
+public static class LibraClientPool
 {
 
     private static string _baseUrl;
-    private readonly static ConcurrentStack<LibraRequest> _stack;
-    static LibraRequestPool()
+    private readonly static ConcurrentStack<LibraClient> _stack;
+    static LibraClientPool()
     {
-        _stack = new ConcurrentStack<LibraRequest>();
+        _stack = new ConcurrentStack<LibraClient>();
     }
 
     
@@ -36,7 +36,7 @@ public static class LibraRequestPool
     /// 从池中获取一个可用的 客户端
     /// </summary>
     /// <returns></returns>
-    internal static LibraRequest GetRequestInternal()
+    internal static LibraClient GetRequestInternal()
     {
 
         if (_stack.TryPop(out var client))
@@ -45,7 +45,7 @@ public static class LibraRequestPool
         }
         else
         {
-            client = new LibraRequest();
+            client = new LibraClient();
             if (!string.IsNullOrEmpty(_baseUrl))
             {
                 client.SetBaseUrl(_baseUrl);
@@ -176,7 +176,7 @@ public static class LibraRequestPool
     /// 重置并回收 Request
     /// </summary>
     /// <param name="request"></param>
-    private static void Collect(LibraRequest request)
+    private static void Collect(LibraClient request)
     {
         request.RefreshRequest();
         _stack.Push(request);

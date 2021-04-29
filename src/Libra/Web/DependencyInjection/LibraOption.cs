@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public LibraOption SetBaseUrl(string url)
         {
-            LibraRequestPool.SetBaseUrl(url);
+            LibraClientPool.SetBaseUrl(url);
             return this;
         }
 

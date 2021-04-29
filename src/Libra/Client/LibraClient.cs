@@ -1,6 +1,4 @@
-﻿using Libra;
-using Libra.Model;
-using Libra.Sender;
+﻿using Libra.Sender;
 using Natasha.CSharp;
 using System;
 using System.IO;
@@ -15,7 +13,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Libra 请求基本操作单元
 /// </summary>
-public class LibraRequest
+public class LibraClient
 {
 
     private readonly static Action<HttpRequestMessage> _resetState;
@@ -23,7 +21,7 @@ public class LibraRequest
     private readonly HttpRequestMessage _request;
     private readonly HttpClient _client;
     private readonly LibraContent _content;
-    static LibraRequest()
+    static LibraClient()
     {
         try
         {
@@ -52,6 +50,7 @@ public class LibraRequest
         }
     }
 
+
     /// <summary>
     /// 刷新 Request 状态
     /// </summary>
@@ -66,7 +65,7 @@ public class LibraRequest
     }
 
 
-    public LibraRequest()
+    public LibraClient()
     {
         _content = new LibraContent();
         _client = new HttpClient();
@@ -115,7 +114,6 @@ public class LibraRequest
     }
 
 
-
     /// <summary>
     /// 请求 URL 地址并获取对方执行的序列化结果
     /// </summary>
@@ -142,7 +140,6 @@ public class LibraRequest
     {
         return GetReponse(route, protocal).StatusCode;
     }
-
 
 
     /// <summary>
