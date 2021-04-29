@@ -22,7 +22,7 @@ namespace Libra
         /// <summary>
         /// 指定远程地址, 执行 Void 方法
         /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+        /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
         public static async Task<HttpStatusCode> GetCodeAsync(this LibraExecutor handler, string url)
         {
@@ -33,7 +33,7 @@ namespace Libra
         /// <summary>
         /// 指定远程地址, 执行并返回比特流
         /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+        /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
         public static async Task<byte[]> GetBytesAsync(this LibraExecutor handler, string url)
         {
@@ -59,7 +59,7 @@ namespace Libra
         /// <summary>
         /// 指定远程地址, 执行 Void 方法
         /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+        /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
         public static HttpStatusCode GetCode(this LibraExecutor handler, string url)
         {
@@ -70,7 +70,7 @@ namespace Libra
         /// <summary>
         /// 指定远程地址, 执行并返回比特流
         /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+        /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
         public static byte[] GetBytes(this LibraExecutor handler, string url)
         {

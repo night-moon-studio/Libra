@@ -158,7 +158,7 @@ namespace Libra.Extension.Utils
         /// <summary>
         /// 指定远程地址, 执行 Void 方法
         /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+        /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
         public HttpStatusCode GetCode(Uri url)
         {

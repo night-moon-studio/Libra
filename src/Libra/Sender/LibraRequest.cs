@@ -103,7 +103,7 @@ public class LibraRequest
     /// <summary>
     /// 请求 URL 地址并获取状态码 (一般是对方的返回值为 void 时调用)
     /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+    /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -119,7 +119,7 @@ public class LibraRequest
     /// <summary>
     /// 请求 URL 地址并获取对方执行的序列化结果
     /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+    /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

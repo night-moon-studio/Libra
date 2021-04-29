@@ -114,7 +114,7 @@ public static class LibraRequestPool
     /// <summary>
     /// 同步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
     /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+    /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     public static HttpStatusCode CodeResult(Uri url, string route, Func<Stream, Task> protocal)
@@ -143,7 +143,7 @@ public static class LibraRequestPool
     /// <summary>
     /// 同步执行并返回对方执行的序列化结果 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
     /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx/Libra )</param>
+    /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     public static byte[] BytesResult(Uri url, string route, Func<Stream, Task> protocal)
