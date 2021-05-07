@@ -9,22 +9,16 @@ namespace Libra.Client.Utils
     /// <summary>
     /// Libra执行器
     /// </summary>
-    public class LibraExecutor
+    public class LibraExecutor 
     {
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
-        public LibraExecutor() { }
         public LibraExecutor(string route, Func<Stream, Task> protocal = null)
         {
             _route = route;
-            if (protocal == null)
-            {
-                protocal = item => Task.CompletedTask;
-            }
-            _protocal = protocal;
-        }
+            _protocal = protocal == null ? (item => Task.CompletedTask) : protocal;
 
-      
+        }
 
         #region 带有外部 URL 的API
         /// <summary>
@@ -86,12 +80,12 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <typeparam name="S">返回值类型</typeparam>
         /// <returns></returns>
-        public S GetResult<S>()
+        public virtual S GetResult<S>()
         {
             var result = LibraClientPool.BytesResult(_route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
         }
-        public async Task<S> GetResultAsync<S>()
+        public virtual async Task<S> GetResultAsync<S>()
         {
             var result = LibraClientPool.BytesResult(_route, _protocal);
             return LibraReadHandler<S>.GetResult(result);
@@ -101,11 +95,11 @@ namespace Libra.Client.Utils
         /// 不指定地址, 使用 BaseUrl, 执行返回比特流
         /// </summary>
         /// <returns></returns>
-        public byte[] GetBytes()
+        public virtual byte[] GetBytes()
         {
             return LibraClientPool.BytesResult(_route, _protocal);
         }
-        public async Task<byte[]> GetBytesAsync()
+        public virtual async Task<byte[]> GetBytesAsync()
         {
             return LibraClientPool.BytesResult(_route, _protocal);
         }
@@ -114,17 +108,101 @@ namespace Libra.Client.Utils
         /// 不指定远程地址, 使用 BaseUrl, 执行 Void 方法
         /// </summary>
         /// <returns></returns>
-        public HttpStatusCode GetCode()
+        public virtual HttpStatusCode GetCode()
         {
             return LibraClientPool.CodeResult(_route, _protocal);
         }
-        public async Task<HttpStatusCode> GetCodeAsync()
+        public virtual async Task<HttpStatusCode> GetCodeAsync()
         {
             return LibraClientPool.CodeResult(_route, _protocal);
         }
         #endregion
 
 
-    
+    }
+
+
+    /// <summary>
+    /// 参数处理程序
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class LibraExecutorWithoutUrl<T> : LibraExecutor
+    {
+
+        public LibraExecutorWithoutUrl(string route, T parameter) : base(route, LibraWirteHandler<T>.Serialize(parameter))
+        {
+
+        }
+
+    }
+
+    /// <summary>
+    /// 参数处理程序
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// 
+    public class LibraExecutorWithUrl : LibraExecutor
+    {
+        private readonly Uri _uri;
+        public LibraExecutorWithUrl(string route, Uri uri, Func<Stream, Task> protocal = null) : base(route, protocal)
+        {
+            _uri = uri;
+
+        }
+
+        #region 使用API
+        /// <summary>
+        /// 不指定地址, 使用 BaseUrl, 执行返回实体
+        /// </summary>
+        /// <typeparam name="S">返回值类型</typeparam>
+        /// <returns></returns>
+        public override S GetResult<S>()
+        {
+            return GetResult<S>(_uri);
+        }
+        public override Task<S> GetResultAsync<S>()
+        {
+            return GetResultAsync<S>(_uri);
+        }
+
+        /// <summary>
+        /// 不指定地址, 使用 BaseUrl, 执行返回比特流
+        /// </summary>
+        /// <returns></returns>
+        public override byte[] GetBytes()
+        {
+            return GetBytes(_uri);
+        }
+        public override Task<byte[]> GetBytesAsync()
+        {
+            return GetBytesAsync(_uri);
+        }
+
+        /// <summary>
+        /// 不指定远程地址, 使用 BaseUrl, 执行 Void 方法
+        /// </summary>
+        /// <returns></returns>
+        public override HttpStatusCode GetCode()
+        {
+            return GetCode(_uri);
+        }
+        public override Task<HttpStatusCode> GetCodeAsync()
+        {
+            return GetCodeAsync(_uri);
+        }
+        #endregion
+
+    }
+
+    public class LibraExecutorWithUrl<T> : LibraExecutorWithUrl
+    {
+
+        private readonly Uri _uri;
+        public LibraExecutorWithUrl(string route, Uri uri, T parameter) : base(route, uri, LibraWirteHandler<T>.Serialize(parameter))
+        {
+            _uri = uri;
+
+        }
+
     }
 }
