@@ -1,5 +1,5 @@
 # Libra
-Libra 是一款基于 Natasha 和 Asp.net Core Web 中间件的远程调用组件, 得益于 Natasha 强大的动态构建功能,它允许调用方不使用强接口约束,仅通过类及方法名即可完成调用.   
+Libra 是一款基于 Natasha 和 Asp.net Core Web 中间件的弱类型远程调用组件, 得益于 Natasha 强大的动态构建功能,它允许调用方不使用强接口约束,仅通过类及方法名即可完成调用.   
 
 <br> 
 
