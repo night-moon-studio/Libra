@@ -166,7 +166,7 @@ namespace Libra
 
 
             //获取方法元数据
-            var methodInfo = type.GetMethod(methodName);
+            var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             //方法代码
             var methodCallBuilder = new StringBuilder();
             var classBuilder = new StringBuilder();

@@ -78,7 +78,7 @@ namespace WebServiceProvider.Services
             return null;
         }
 
-        public TestModel GetNotNull(TestModel model)
+        protected TestModel GetNotNull(TestModel model)
         {
             return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
         }

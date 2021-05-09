@@ -64,7 +64,7 @@ public static class LibraTypeManagement
             {
                 _typeMethodCache[item] = new ConcurrentDictionary<string, bool>();
             }
-            var methods = item.GetMethods();
+            var methods = item.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             foreach (var method in methods)
             {
                 AddFlag(item, method);
