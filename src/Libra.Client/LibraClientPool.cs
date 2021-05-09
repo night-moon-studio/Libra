@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 
@@ -14,6 +15,7 @@ public static class LibraClientPool
 
     private static string _baseUrl;
     private readonly static ConcurrentStack<LibraClient> _stack;
+    private static Action<HttpRequestMessage> _requestHandler;
     static LibraClientPool()
     {
         _stack = new ConcurrentStack<LibraClient>();
@@ -21,10 +23,21 @@ public static class LibraClientPool
 
     
     /// <summary>
+    /// 配置全局请求处理委托
+    /// </summary>
+    /// <param name="handler"></param>
+    public static void SetGlobalRequestHandler(Action<HttpRequestMessage> handler)
+    {
+        _requestHandler = handler;
+    }
+
+
+
+    /// <summary>
     /// 设置全局 url. LibraRequest 在初始化时将使用该地址
     /// </summary>
     /// <param name="baseUrl"></param>
-    public static void SetBaseUrl(string baseUrl)
+    public static void SetGlobalBaseUrl(string baseUrl)
     {
         _baseUrl = baseUrl;
     }
@@ -59,9 +72,10 @@ public static class LibraClientPool
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static byte[] BytesResult(string route, Func<Stream, Task> protocal)
+    public static byte[] BytesResult(string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
     {
-        var request = GetRequestInternal();
+
+        var request = GetRequestInternal().SetRequestHandler(requestHandler);
         try
         {
 
@@ -79,6 +93,7 @@ public static class LibraClientPool
             //回收客户端
             Collect(request);
         }
+
     }
 
 
@@ -87,9 +102,9 @@ public static class LibraClientPool
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static HttpStatusCode CodeResult(string route, Func<Stream, Task> protocal)
+    public static HttpStatusCode CodeResult(string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
     {
-        var request = GetRequestInternal();
+        var request = GetRequestInternal().SetRequestHandler(requestHandler);
         try
         {
 
@@ -115,9 +130,9 @@ public static class LibraClientPool
     /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static HttpStatusCode CodeResult(Uri url, string route, Func<Stream, Task> protocal)
+    public static HttpStatusCode CodeResult(Uri url, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
     {
-        var request = GetRequestInternal();
+        var request = GetRequestInternal().SetRequestHandler(requestHandler);
         try
         {
 
@@ -144,10 +159,10 @@ public static class LibraClientPool
     /// <param name="url">请求地址(例如: http://xxxx )</param>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    public static byte[] BytesResult(Uri url, string route, Func<Stream, Task> protocal)
+    public static byte[] BytesResult(Uri url, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
     {
 
-        var request = GetRequestInternal();
+        var request = GetRequestInternal().SetRequestHandler(requestHandler);
         try
         {
 

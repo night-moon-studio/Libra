@@ -25,7 +25,7 @@ namespace WebCallerClient.Controller
         [HttpGet("2")]
         public DateTime GetHello2()
         {
-            return "TeacherService.Hello2".WpcParam(DateTime.Now).GetResult<DateTime>();
+            return "TeacherService.Hello2".WpcParam(DateTime.Now,item => { item.Headers.Add("a", "b"); }).GetResult<DateTime>();
         }
 
 
@@ -70,7 +70,7 @@ namespace WebCallerClient.Controller
         [HttpGet("9")]
         public object GetHello9()
         {
-            return "TeacherService.Hello9".NoWpcParam().GetCode();
+            return "TeacherService.Hello9".NoWpcParam().GetBytes();
         }
         [HttpGet("10")]
         public string GetHello10()

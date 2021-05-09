@@ -1,4 +1,6 @@
 ﻿using Libra;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Text.Json;
@@ -16,6 +18,20 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             _configuration = configuration;
         }
+
+
+        /// <summary>
+        /// 添加路由过滤器
+        /// </summary>
+        /// <param name="filterFunc">拦截方法</param>
+        /// <returns></returns>
+        public LibraBuilder ConfigureFilter(Func<string,HttpRequest,HttpResponse,bool> filterFunc)
+        {
+            LibraMiddleware.Filter = filterFunc;
+            return this;
+        }
+
+
         /// <summary>
         /// 配置 Libra 使用的 JSON 序列化选项
         /// </summary>

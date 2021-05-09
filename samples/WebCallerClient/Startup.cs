@@ -27,7 +27,7 @@ namespace WebCallerClient
         {
 
             services.AddControllers();
-            LibraClientPool.SetBaseUrl("https://localhost:5001/");
+            LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
             var multicast = LibraMulticastHostManagement.GetOrCreate("²âÊÔ×é");
             multicast.AppendHost("https://localhost:5001/");
             multicast.AppendHost("https://localhost:7001/");

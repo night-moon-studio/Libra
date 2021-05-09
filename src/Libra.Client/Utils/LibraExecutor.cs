@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Libra.Client.Utils
@@ -11,12 +12,14 @@ namespace Libra.Client.Utils
     /// </summary>
     public class LibraExecutor 
     {
+        private readonly Action<HttpRequestMessage> _requestHandler;
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
-        public LibraExecutor(string route, Func<Stream, Task> protocal = null)
+        public LibraExecutor(string route, Func<Stream, Task> protocal = null, Action<HttpRequestMessage> requestHandler = null)
         {
             _route = route;
             _protocal = protocal == null ? (item => Task.CompletedTask) : protocal;
+            _requestHandler = requestHandler;
 
         }
 
@@ -29,12 +32,12 @@ namespace Libra.Client.Utils
         public byte[] GetBytes(Uri url)
         {
 
-            return LibraClientPool.BytesResult(url, _route, _protocal);
+            return LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
 
         }
         public async Task<byte[]> GetBytesAsync(Uri url)
         {
-            return LibraClientPool.BytesResult(url, _route, _protocal);
+            return LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
         }
 
 
@@ -45,11 +48,11 @@ namespace Libra.Client.Utils
         /// <returns></returns>
         public HttpStatusCode GetCode(Uri url)
         {
-            return LibraClientPool.CodeResult(url, _route, _protocal);
+            return LibraClientPool.CodeResult(url, _route, _protocal, _requestHandler);
         }
         public async Task<HttpStatusCode> GetCodeAsync(Uri url)
         {
-            return LibraClientPool.CodeResult(url, _route, _protocal);
+            return LibraClientPool.CodeResult(url, _route, _protocal, _requestHandler);
         }
 
 
@@ -62,13 +65,13 @@ namespace Libra.Client.Utils
         public S GetResult<S>(Uri url)
         {
 
-            var result = LibraClientPool.BytesResult(url, _route, _protocal);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
             return LibraReadHandler<S>.GetResult(result);
 
         }
         public async Task<S> GetResultAsync<S>(Uri url)
         {
-            var result = LibraClientPool.BytesResult(url, _route, _protocal);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
         #endregion
@@ -82,12 +85,12 @@ namespace Libra.Client.Utils
         /// <returns></returns>
         public virtual S GetResult<S>()
         {
-            var result = LibraClientPool.BytesResult(_route, _protocal);
+            var result = LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
         public virtual async Task<S> GetResultAsync<S>()
         {
-            var result = LibraClientPool.BytesResult(_route, _protocal);
+            var result = LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
 
@@ -97,11 +100,11 @@ namespace Libra.Client.Utils
         /// <returns></returns>
         public virtual byte[] GetBytes()
         {
-            return LibraClientPool.BytesResult(_route, _protocal);
+            return LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
         }
         public virtual async Task<byte[]> GetBytesAsync()
         {
-            return LibraClientPool.BytesResult(_route, _protocal);
+            return LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
         }
 
         /// <summary>
@@ -110,11 +113,11 @@ namespace Libra.Client.Utils
         /// <returns></returns>
         public virtual HttpStatusCode GetCode()
         {
-            return LibraClientPool.CodeResult(_route, _protocal);
+            return LibraClientPool.CodeResult(_route, _protocal, _requestHandler);
         }
         public virtual async Task<HttpStatusCode> GetCodeAsync()
         {
-            return LibraClientPool.CodeResult(_route, _protocal);
+            return LibraClientPool.CodeResult(_route, _protocal, _requestHandler);
         }
         #endregion
 
@@ -129,7 +132,7 @@ namespace Libra.Client.Utils
     public class LibraExecutorWithoutUrl<T> : LibraExecutor
     {
 
-        public LibraExecutorWithoutUrl(string route, T parameter) : base(route, LibraWirteHandler<T>.Serialize(parameter))
+        public LibraExecutorWithoutUrl(string route, T parameter, Action<HttpRequestMessage> requestHandler = null) : base(route, LibraWirteHandler<T>.Serialize(parameter), requestHandler)
         {
 
         }
@@ -144,7 +147,7 @@ namespace Libra.Client.Utils
     public class LibraExecutorWithUrl : LibraExecutor
     {
         private readonly Uri _uri;
-        public LibraExecutorWithUrl(string route, Uri uri, Func<Stream, Task> protocal = null) : base(route, protocal)
+        public LibraExecutorWithUrl(string route, Uri uri, Func<Stream, Task> protocal = null, Action<HttpRequestMessage> requestHandler = null) : base(route, protocal, requestHandler)
         {
             _uri = uri;
 
@@ -198,7 +201,7 @@ namespace Libra.Client.Utils
     {
 
         private readonly Uri _uri;
-        public LibraExecutorWithUrl(string route, Uri uri, T parameter) : base(route, uri, LibraWirteHandler<T>.Serialize(parameter))
+        public LibraExecutorWithUrl(string route, Uri uri, T parameter, Action<HttpRequestMessage> requestHandler = null) : base(route, uri, LibraWirteHandler<T>.Serialize(parameter), requestHandler)
         {
             _uri = uri;
 

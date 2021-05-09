@@ -1,7 +1,6 @@
 ﻿using Libra.Client.Utils;
 using System;
-using System.IO;
-using System.Threading.Tasks;
+using System.Net.Http;
 
 public static class WpcStringExtension
 {
@@ -13,9 +12,9 @@ public static class WpcStringExtension
     /// <param name="tuple">调用标识和远程地址,标识一般由 "类名.方法名"组成</param>
     /// <param name="parameters">方法参数, 多参数请用匿名类包裹</param>
     /// <returns></returns>
-    public static LibraExecutor WpcParam<T>(this (Uri,string) tuple, T parameters)
+    public static LibraExecutor WpcParam<T>(this (Uri,string) tuple, T parameters, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutorWithUrl<T>(tuple.Item2,tuple.Item1, parameters);
+        return new LibraExecutorWithUrl<T>(tuple.Item2,tuple.Item1, parameters, requestHandler);
     }
 
 
@@ -26,9 +25,9 @@ public static class WpcStringExtension
     /// <param name="tuple">调用标识和远程地址,标识一般由 "类名.方法名"组成</param>
     /// <param name="parameters">方法参数, 多参数请用匿名类包裹</param>
     /// <returns></returns>
-    public static LibraExecutor WpcParam<T>(this (string, Uri) tuple, T parameters)
+    public static LibraExecutor WpcParam<T>(this (string, Uri) tuple, T parameters, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutorWithUrl<T>(tuple.Item1, tuple.Item2, parameters);
+        return new LibraExecutorWithUrl<T>(tuple.Item1, tuple.Item2, parameters, requestHandler);
     }
 
 
@@ -39,9 +38,9 @@ public static class WpcStringExtension
     /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
     /// <param name="parameters">方法参数, 多参数请用匿名类包裹</param>
     /// <returns></returns>
-    public static LibraExecutor WpcParam<T>(this string caller, T parameters)
+    public static LibraExecutor WpcParam<T>(this string caller, T parameters, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutorWithoutUrl<T>(caller, parameters);
+        return new LibraExecutorWithoutUrl<T>(caller, parameters, requestHandler);
     }
 
 
@@ -50,9 +49,9 @@ public static class WpcStringExtension
     /// </summary>
     /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
     /// <returns></returns>
-    public static LibraExecutor NoWpcParam(this string caller)
+    public static LibraExecutor NoWpcParam(this string caller, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutor(caller);
+        return new LibraExecutor(caller, null, requestHandler);
     }
 
     /// <summary>
@@ -60,9 +59,9 @@ public static class WpcStringExtension
     /// </summary>
     /// <param name="tuple">调用标识和远程地址,标识一般由 "类名.方法名"组成</param>
     /// <returns></returns>
-    public static LibraExecutor NoWpcParam(this (string, Uri) tuple)
+    public static LibraExecutor NoWpcParam(this (string, Uri) tuple, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutorWithUrl(tuple.Item1, tuple.Item2);
+        return new LibraExecutorWithUrl(tuple.Item1, tuple.Item2, null, requestHandler);
     }
 
     /// <summary>
@@ -70,9 +69,9 @@ public static class WpcStringExtension
     /// </summary>
     /// <param name="tuple">调用标识和远程地址,标识一般由 "类名.方法名"组成</param>
     /// <returns></returns>
-    public static LibraExecutor NoWpcParam(this (Uri, string) tuple)
+    public static LibraExecutor NoWpcParam(this (Uri, string) tuple, Action<HttpRequestMessage> requestHandler = null)
     {
-        return new LibraExecutorWithUrl(tuple.Item2, tuple.Item1);
+        return new LibraExecutorWithUrl(tuple.Item2, tuple.Item1, null, requestHandler);
     }
 
 }

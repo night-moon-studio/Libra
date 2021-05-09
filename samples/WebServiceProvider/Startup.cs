@@ -28,8 +28,17 @@ namespace WebServiceProvider
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-         
+
             services.AddLibraWpc()
+                .ConfigureFilter((route, req, rsp) => 
+                {
+                    var heads = req.Headers;
+                    foreach (var item in heads)
+                    {
+                        Console.WriteLine($"{item.Key}:{item.Value}");
+                    }
+                    return true;
+                })
                 .ConfigureJson(json => { json.PropertyNameCaseInsensitive = true; })
                 .ConfigureLibra(opt => opt
                     .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用

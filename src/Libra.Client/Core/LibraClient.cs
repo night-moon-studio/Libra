@@ -42,7 +42,7 @@ public class LibraClient
     /// </summary>
     internal void RefreshRequest()
     {
-        _request.Headers.Remove("Libra");
+        _request.Headers.Clear();
         if (_request.RequestUri != _defaultUrl)
         {
             _request.RequestUri = _defaultUrl;
@@ -57,6 +57,14 @@ public class LibraClient
         _client = new HttpClient();
         _request = new HttpRequestMessage(HttpMethod.Post, _defaultUrl);
         _request.Content = _content;
+    }
+
+
+
+    public LibraClient SetRequestHandler(Action<HttpRequestMessage> requestHandler)
+    {
+        requestHandler?.Invoke(_request);
+        return this;
     }
 
 

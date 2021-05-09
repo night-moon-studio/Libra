@@ -1,4 +1,5 @@
 ﻿using Libra;
+using Microsoft.AspNetCore.Http;
 using Natasha.CSharp;
 using System;
 using System.Collections.Concurrent;
@@ -40,7 +41,7 @@ namespace Microsoft.AspNetCore.Builder
 
         }
 
-
+        internal static Func<string, HttpRequest, HttpResponse, bool> Filter = (route,request,response) => true;
         /// <summary>
         /// 使用 Libra 远程调用服务
         /// </summary>
@@ -54,7 +55,10 @@ namespace Microsoft.AspNetCore.Builder
                 var reponse = context.Response;
                 if (request.Headers.TryGetValue("Libra", out var route))
                 {
-
+                    if (!Filter(route,request,reponse))
+                    {
+                        return;
+                    }
                     if (!_invokeFastCache.TryGetValue(route, out var func))
                     {
                         func = await LibraProxyCreator.CreateDelegate(route, reponse);
