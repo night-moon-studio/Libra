@@ -123,6 +123,8 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 ```
 - #### 扩展用法
 ```C#   
+// 无参配置头信息
+"TeacherService.MethodName".NoWpcParam(req=>{ req.Headers.Add("key","value"); }).GetCode(); 
 
 // 使用元组扩展
 (url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();  
