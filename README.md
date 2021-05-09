@@ -70,6 +70,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
 //配置服务
 services.AddLibraWpc()
+   .ConfigureFilter( (route,req,rsp) => {  return true;  }) //配置过滤器
    .ConfigureJson( json => { json.PropertyNameCaseInsensitive = true; })
    .ConfigureLibra
    (
@@ -100,8 +101,9 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 
 ```C#
 
- LibraClientPool.SetBaseUrl("https://localhost:5001/");
-
+ LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
+ LibraClientPool.SetGlobalRequestHandler( req => { req.Headers.Add("JWT", JWT);  });  
+ 
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 "TeacherService.HelloX".WpcParam(12.34).GetBytes();
 
@@ -117,7 +119,19 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
 "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(url);
 
+
 ```
+- #### 扩展用法
+```C#   
+
+// 使用元组扩展
+(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();  
+
+// 配置头信息
+(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }, req=>{ req.Headers.Add("key","value"); }).GetResult<int>();
+
+```
+
 
 - #### 组播
 
