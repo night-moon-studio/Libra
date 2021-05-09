@@ -124,13 +124,13 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 - #### 扩展用法
 ```C#   
 // 无参配置头信息
-"TeacherService.MethodName".NoWpcParam(req=>{ req.Headers.Add("key","value"); }).GetCode(); 
+"TeacherService.MethodName".NoWpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } ); 
 
 // 使用元组扩展
 (url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();  
 
 // 配置头信息
-(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }, req=>{ req.Headers.Add("key","value"); }).GetResult<int>();
+(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>( req=>{ req.Headers.Add("key","value"); });
 
 ```
 
@@ -140,7 +140,7 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
 ```C#
 
 var multicast = LibraMulticastHostManagement.GetOrCreate("测试组");
-multicast.AppendHost("https://localhost:5001/");
+multicast.AppendHost("https://localhost:5001/", req=>{ req.Headers.Add("key","value"); });
 multicast.AppendHost("https://localhost:7001/");
 
 //返回数组结果
