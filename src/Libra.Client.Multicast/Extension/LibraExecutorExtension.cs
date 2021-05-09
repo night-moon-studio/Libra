@@ -12,7 +12,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static Task<bool> MulticastNotifyAsync<TBool>(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static Task<bool> MulticastNotifyAsync<TBool>(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         TaskCompletionSource<bool> cts = new TaskCompletionSource<bool>();
@@ -64,7 +64,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static Task<bool> MulticastNotifyAsync(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static Task<bool> MulticastNotifyAsync(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         TaskCompletionSource<bool> cts = new TaskCompletionSource<bool>();
@@ -120,7 +120,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static S[] MulticastArrayResult<S>(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static S[] MulticastArrayResult<S>(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         if (indexs.Length == 0)
@@ -150,7 +150,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static HttpStatusCode[] MulticastArrayResult(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static HttpStatusCode[] MulticastArrayResult(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         if (indexs.Length == 0)
@@ -180,7 +180,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static LibraMulticastResult<S>[] MulticastTupleResult<S>(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static LibraMulticastResult<S>[] MulticastTupleResult<S>(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         if (indexs.Length == 0)
@@ -219,7 +219,7 @@ public static class LibraExecutorExtension
     /// </summary>
     /// <param name="key">组播KEY</param>
     /// <returns></returns>
-    public static LibraMulticastResult[] MulticastTupleResult(this LibraExecutorWithoutUrl executor, string key, params int[] indexs)
+    public static LibraMulticastResult[] MulticastTupleResult(this LibraExecutor executor, string key, params int[] indexs)
     {
 
         if (indexs.Length == 0)
