@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 
 namespace Libra.Client.Multicast
 {
@@ -12,7 +13,7 @@ namespace Libra.Client.Multicast
 
         private readonly object _multicastLock = new object();
         private readonly HashSet<string> _urlList;
-        public readonly List<Uri> Urls;
+        public readonly List<(Uri uri, Action<HttpRequestMessage> requestHandler)> Urls;
         public readonly string MulticastKey;
 
         /// <summary>
@@ -24,7 +25,7 @@ namespace Libra.Client.Multicast
             
             MulticastKey = key;
             _urlList = new HashSet<string>();
-            Urls = new List<Uri>();
+            Urls = new List<(Uri uri, Action<HttpRequestMessage> requestHandler)>();
         }
 
 
@@ -44,10 +45,36 @@ namespace Libra.Client.Multicast
                 for (int i = 0; i < urls.Length; i++)
                 {
 
-                    var url = urls[i] + (urls[i].EndsWith('/') ? "Libra" : "/Libra");
+                    var url = urls[i];
                     if (_urlList.Add(url))
                     {
-                        Urls.Add(new Uri(url));
+                        Urls.Add((new Uri(url),null));
+                    }
+
+                }
+                SyncUris();
+            }
+        }
+        /// <summary>
+        /// 按顺序追加若干主机
+        /// </summary>
+        /// <param name="urls"></param>
+        public void AppendHosts(params (string uri, Action<HttpRequestMessage> requestHandler)[] hosts)
+        {
+            if (hosts == null)
+            {
+                return;
+            }
+            lock (_multicastLock)
+            {
+
+                for (int i = 0; i < hosts.Length; i++)
+                {
+
+                    var host = hosts[i];
+                    if (_urlList.Add(host.uri))
+                    {
+                        Urls.Add((new Uri(host.uri),host.requestHandler));
                     }
 
                 }
@@ -60,16 +87,15 @@ namespace Libra.Client.Multicast
         /// 按顺序追加一个主机
         /// </summary>
         /// <param name="url"></param>
-        public void AppendHost(string url)
+        public void AppendHost(string url, Action<HttpRequestMessage> requestHandler = null)
         {
 
             lock (_multicastLock)
             {
 
-                url += (url.EndsWith('/') ? "Libra" : "/Libra");
                 if (_urlList.Add(url))
                 {
-                    Urls.Add(new Uri(url));
+                    Urls.Add((new Uri(url), requestHandler));
                     SyncUris();
                 }
 

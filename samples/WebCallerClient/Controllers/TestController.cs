@@ -25,7 +25,7 @@ namespace WebCallerClient.Controller
         [HttpGet("2")]
         public DateTime GetHello2()
         {
-            return "TeacherService.Hello2".WpcParam(DateTime.Now,item => { item.Headers.Add("a", "b"); }).GetResult<DateTime>();
+            return "TeacherService.Hello2".WpcParam(DateTime.Now).GetResult<DateTime>(item => { item.Headers.Add("a", "b"); });
         }
 
 

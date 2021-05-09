@@ -22,10 +22,11 @@ public static class LibraExecutorExtension
             Task.Run(() =>
             {
 
-                var urls = LibraMulticastHostManagement.GetUrls(key);
-                Parallel.For(0, urls.Length, index =>
+                var hosts = LibraMulticastHostManagement.GetUrls(key);
+                Parallel.For(0, hosts.Length, index =>
                 {
-                    if (!executor.GetResult<bool>(urls[index]))
+                    var host = hosts[index];
+                    if (!executor.GetResult<bool>(host.uri, host.requestHandler))
                     {
                         cts.SetResult(false);
                     }
@@ -41,10 +42,11 @@ public static class LibraExecutorExtension
             Task.Run((Action)(() =>
             {
 
-                var urls = LibraMulticastHostManagement.GetUrls(key);
-                Parallel.For(0, urls.Length, index =>
+                var hosts = LibraMulticastHostManagement.GetUrls(key);
+                Parallel.For(0, hosts.Length, index =>
                 {
-                    if (!executor.GetResult<bool>(urls[indexs[index]]))
+                    var host = hosts[indexs[index]];
+                    if (!executor.GetResult<bool>(host.uri, host.requestHandler))
                     {
                         cts.SetResult(false);
                     }
@@ -74,10 +76,11 @@ public static class LibraExecutorExtension
             Task.Run(() =>
             {
 
-                var urls = LibraMulticastHostManagement.GetUrls(key);
-                Parallel.For(0, urls.Length, index =>
+                var hosts = LibraMulticastHostManagement.GetUrls(key);
+                Parallel.For(0, hosts.Length, index =>
                 {
-                    var result = executor.GetCode(urls[index]);
+                    var host = hosts[index];
+                    var result = executor.GetCode(host.uri,host.requestHandler);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
                     {
                         cts.SetResult(false);
@@ -94,10 +97,11 @@ public static class LibraExecutorExtension
             Task.Run(() =>
             {
 
-                var urls = LibraMulticastHostManagement.GetUrls(key);
+                var hosts = LibraMulticastHostManagement.GetUrls(key);
                 Parallel.For(0, indexs.Length, index =>
                 {
-                    var result = executor.GetCode(urls[indexs[index]]);
+                    var host = hosts[indexs[index]];
+                    var result = executor.GetCode(host.uri, host.requestHandler);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
                     {
                         cts.SetResult(false);
@@ -126,18 +130,25 @@ public static class LibraExecutorExtension
         if (indexs.Length == 0)
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new S[urls.Length];
-            Parallel.For(0, urls.Length, index => { result[index] = executor.GetResult<S>(urls[index]); });
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new S[hosts.Length];
+            Parallel.For(0, hosts.Length, index => 
+            {
+                var host = hosts[index];
+                result[index] = executor.GetResult<S>(host.uri, host.requestHandler); 
+            });
             return result;
 
         }
         else
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new S[urls.Length];
-            Parallel.For(0, indexs.Length, index => { result[indexs[index]] = executor.GetResult<S>(urls[indexs[index]]); });
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new S[hosts.Length];
+            Parallel.For(0, indexs.Length, index => {
+                var host = hosts[indexs[index]];
+                result[indexs[index]] = executor.GetResult<S>(host.uri, host.requestHandler); 
+            });
             return result;
 
         }
@@ -156,18 +167,24 @@ public static class LibraExecutorExtension
         if (indexs.Length == 0)
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new HttpStatusCode[urls.Length];
-            Parallel.For(0, urls.Length, index => { result[index] = executor.GetCode(urls[index]); });
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new HttpStatusCode[hosts.Length];
+            Parallel.For(0, hosts.Length, index => {
+                var host = hosts[indexs[index]];
+                result[index] = executor.GetCode(host.uri, host.requestHandler); 
+            });
             return result;
 
         }
         else
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new HttpStatusCode[urls.Length];
-            Parallel.For(0, indexs.Length, index => { result[indexs[index]] = executor.GetCode(urls[indexs[index]]); });
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new HttpStatusCode[hosts.Length];
+            Parallel.For(0, indexs.Length, index => {
+                var host = hosts[indexs[index]];
+                result[indexs[index]] = executor.GetCode(host.uri, host.requestHandler); 
+            });
             return result;
 
         }
@@ -186,12 +203,12 @@ public static class LibraExecutorExtension
         if (indexs.Length == 0)
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new LibraMulticastResult<S>[urls.Length];
-            Parallel.For(0, urls.Length, index =>
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new LibraMulticastResult<S>[hosts.Length];
+            Parallel.For(0, hosts.Length, index =>
             {
-                var url = urls[index];
-                result[index] = new LibraMulticastResult<S>(url.Authority, executor.GetResult<S>(url));
+                var host = hosts[index];
+                result[index] = new LibraMulticastResult<S>(host.uri.Authority, executor.GetResult<S>(host.uri, host.requestHandler));
 
             });
             return result;
@@ -200,12 +217,12 @@ public static class LibraExecutorExtension
         else
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
             var result = new LibraMulticastResult<S>[indexs.Length];
             Parallel.For(0, indexs.Length, index =>
             {
-                var url = urls[indexs[index]];
-                result[indexs[index]] = new LibraMulticastResult<S>(url.Authority, executor.GetResult<S>(url));
+                var host = hosts[indexs[index]];
+                result[indexs[index]] = new LibraMulticastResult<S>(host.uri.Authority, executor.GetResult<S>(host.uri, host.requestHandler));
             });
             return result;
         }
@@ -225,12 +242,12 @@ public static class LibraExecutorExtension
         if (indexs.Length == 0)
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
-            var result = new LibraMulticastResult[urls.Length];
-            Parallel.For(0, urls.Length, index =>
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
+            var result = new LibraMulticastResult[hosts.Length];
+            Parallel.For(0, hosts.Length, index =>
             {
-                var url = urls[index];
-                result[index] = new LibraMulticastResult(url.Authority, executor.GetCode(url));
+                var host = hosts[index];
+                result[index] = new LibraMulticastResult(host.uri.Authority, executor.GetCode(host.uri, host.requestHandler));
 
             });
             return result;
@@ -239,12 +256,12 @@ public static class LibraExecutorExtension
         else
         {
 
-            var urls = LibraMulticastHostManagement.GetUrls(key);
+            var hosts = LibraMulticastHostManagement.GetUrls(key);
             var result = new LibraMulticastResult[indexs.Length];
             Parallel.For(0, indexs.Length, index =>
             {
-                var url = urls[indexs[index]];
-                result[indexs[index]] = new LibraMulticastResult(url.Authority, executor.GetCode(url));
+                var host = hosts[indexs[index]];
+                result[indexs[index]] = new LibraMulticastResult(host.uri.Authority, executor.GetCode(host.uri, host.requestHandler));
             });
             return result;
         }

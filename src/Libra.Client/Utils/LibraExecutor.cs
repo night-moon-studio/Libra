@@ -12,14 +12,13 @@ namespace Libra.Client.Utils
     /// </summary>
     public class LibraExecutor 
     {
-        private readonly Action<HttpRequestMessage> _requestHandler;
+
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
-        public LibraExecutor(string route, Func<Stream, Task> protocal = null, Action<HttpRequestMessage> requestHandler = null)
+        public LibraExecutor(string route, Func<Stream, Task> protocal = null)
         {
             _route = route;
             _protocal = protocal == null ? (item => Task.CompletedTask) : protocal;
-            _requestHandler = requestHandler;
 
         }
 
@@ -29,15 +28,15 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
-        public byte[] GetBytes(Uri url)
+        public byte[] GetBytes(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
 
-            return LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
+            return LibraClientPool.BytesResult(url, _route, _protocal, requestHandler);
 
         }
-        public async Task<byte[]> GetBytesAsync(Uri url)
+        public async Task<byte[]> GetBytesAsync(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
+            return LibraClientPool.BytesResult(url, _route, _protocal, requestHandler);
         }
 
 
@@ -46,13 +45,13 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <param name="url">请求地址(例如: http://xxxx )</param>
         /// <returns></returns>
-        public HttpStatusCode GetCode(Uri url)
+        public HttpStatusCode GetCode(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.CodeResult(url, _route, _protocal, _requestHandler);
+            return LibraClientPool.CodeResult(url, _route, _protocal, requestHandler);
         }
-        public async Task<HttpStatusCode> GetCodeAsync(Uri url)
+        public async Task<HttpStatusCode> GetCodeAsync(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.CodeResult(url, _route, _protocal, _requestHandler);
+            return LibraClientPool.CodeResult(url, _route, _protocal, requestHandler);
         }
 
 
@@ -62,16 +61,16 @@ namespace Libra.Client.Utils
         /// <typeparam name="S">返回值类型</typeparam>
         /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
         /// <returns></returns>
-        public S GetResult<S>(Uri url)
+        public S GetResult<S>(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
 
-            var result = LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal, requestHandler);
             return LibraReadHandler<S>.GetResult(result);
 
         }
-        public async Task<S> GetResultAsync<S>(Uri url)
+        public async Task<S> GetResultAsync<S>(Uri url, Action<HttpRequestMessage> requestHandler = null)
         {
-            var result = LibraClientPool.BytesResult(url, _route, _protocal, _requestHandler);
+            var result = LibraClientPool.BytesResult(url, _route, _protocal, requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
         #endregion
@@ -83,14 +82,14 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <typeparam name="S">返回值类型</typeparam>
         /// <returns></returns>
-        public virtual S GetResult<S>()
+        public virtual S GetResult<S>(Action<HttpRequestMessage> requestHandler = null)
         {
-            var result = LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
+            var result = LibraClientPool.BytesResult(_route, _protocal, requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
-        public virtual async Task<S> GetResultAsync<S>()
+        public virtual async Task<S> GetResultAsync<S>(Action<HttpRequestMessage> requestHandler = null)
         {
-            var result = LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
+            var result = LibraClientPool.BytesResult(_route, _protocal, requestHandler);
             return LibraReadHandler<S>.GetResult(result);
         }
 
@@ -98,26 +97,26 @@ namespace Libra.Client.Utils
         /// 不指定地址, 使用 BaseUrl, 执行返回比特流
         /// </summary>
         /// <returns></returns>
-        public virtual byte[] GetBytes()
+        public virtual byte[] GetBytes(Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
+            return LibraClientPool.BytesResult(_route, _protocal, requestHandler);
         }
-        public virtual async Task<byte[]> GetBytesAsync()
+        public virtual async Task<byte[]> GetBytesAsync(Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.BytesResult(_route, _protocal, _requestHandler);
+            return LibraClientPool.BytesResult(_route, _protocal, requestHandler);
         }
 
         /// <summary>
         /// 不指定远程地址, 使用 BaseUrl, 执行 Void 方法
         /// </summary>
         /// <returns></returns>
-        public virtual HttpStatusCode GetCode()
+        public virtual HttpStatusCode GetCode(Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.CodeResult(_route, _protocal, _requestHandler);
+            return LibraClientPool.CodeResult(_route, _protocal, requestHandler);
         }
-        public virtual async Task<HttpStatusCode> GetCodeAsync()
+        public virtual async Task<HttpStatusCode> GetCodeAsync(Action<HttpRequestMessage> requestHandler = null)
         {
-            return LibraClientPool.CodeResult(_route, _protocal, _requestHandler);
+            return LibraClientPool.CodeResult(_route, _protocal, requestHandler);
         }
         #endregion
 
@@ -132,7 +131,7 @@ namespace Libra.Client.Utils
     public class LibraExecutorWithoutUrl<T> : LibraExecutor
     {
 
-        public LibraExecutorWithoutUrl(string route, T parameter, Action<HttpRequestMessage> requestHandler = null) : base(route, LibraWirteHandler<T>.Serialize(parameter), requestHandler)
+        public LibraExecutorWithoutUrl(string route, T parameter) : base(route, LibraWirteHandler<T>.Serialize(parameter))
         {
 
         }
@@ -147,7 +146,7 @@ namespace Libra.Client.Utils
     public class LibraExecutorWithUrl : LibraExecutor
     {
         private readonly Uri _uri;
-        public LibraExecutorWithUrl(string route, Uri uri, Func<Stream, Task> protocal = null, Action<HttpRequestMessage> requestHandler = null) : base(route, protocal, requestHandler)
+        public LibraExecutorWithUrl(string route, Uri uri, Func<Stream, Task> protocal = null) : base(route, protocal)
         {
             _uri = uri;
 
@@ -159,39 +158,39 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <typeparam name="S">返回值类型</typeparam>
         /// <returns></returns>
-        public override S GetResult<S>()
+        public override S GetResult<S>(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetResult<S>(_uri);
+            return GetResult<S>(_uri, requestHandler);
         }
-        public override Task<S> GetResultAsync<S>()
+        public override Task<S> GetResultAsync<S>(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetResultAsync<S>(_uri);
+            return GetResultAsync<S>(_uri, requestHandler);
         }
 
         /// <summary>
         /// 不指定地址, 使用 BaseUrl, 执行返回比特流
         /// </summary>
         /// <returns></returns>
-        public override byte[] GetBytes()
+        public override byte[] GetBytes(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetBytes(_uri);
+            return GetBytes(_uri, requestHandler);
         }
-        public override Task<byte[]> GetBytesAsync()
+        public override Task<byte[]> GetBytesAsync(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetBytesAsync(_uri);
+            return GetBytesAsync(_uri, requestHandler);
         }
 
         /// <summary>
         /// 不指定远程地址, 使用 BaseUrl, 执行 Void 方法
         /// </summary>
         /// <returns></returns>
-        public override HttpStatusCode GetCode()
+        public override HttpStatusCode GetCode(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetCode(_uri);
+            return GetCode(_uri, requestHandler);
         }
-        public override Task<HttpStatusCode> GetCodeAsync()
+        public override Task<HttpStatusCode> GetCodeAsync(Action<HttpRequestMessage> requestHandler = null)
         {
-            return GetCodeAsync(_uri);
+            return GetCodeAsync(_uri, requestHandler);
         }
         #endregion
 
@@ -201,7 +200,7 @@ namespace Libra.Client.Utils
     {
 
         private readonly Uri _uri;
-        public LibraExecutorWithUrl(string route, Uri uri, T parameter, Action<HttpRequestMessage> requestHandler = null) : base(route, uri, LibraWirteHandler<T>.Serialize(parameter), requestHandler)
+        public LibraExecutorWithUrl(string route, Uri uri, T parameter) : base(route, uri, LibraWirteHandler<T>.Serialize(parameter))
         {
             _uri = uri;
 

@@ -1,7 +1,7 @@
 ﻿using Libra.Client.Multicast;
 using System;
 using System.Collections.Concurrent;
-
+using System.Net.Http;
 
 /// <summary>
 /// Libra 多播管理类
@@ -10,13 +10,13 @@ public static class LibraMulticastHostManagement
 {
 
     private static readonly ConcurrentDictionary<string, LibraMulticastHost> _keyHostMapper;
-    private static readonly ConcurrentDictionary<string, Uri[]> _hostsCache;
-    private static DynamicDictionaryBase<string, Uri[]> _keyUrlsMapper;
+    private static readonly ConcurrentDictionary<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]> _hostsCache;
+    private static DynamicDictionaryBase<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]> _keyUrlsMapper;
     static LibraMulticastHostManagement()
     {
         NatashaInitializer.InitializeAndPreheating();
         _keyHostMapper = new ConcurrentDictionary<string, LibraMulticastHost>();
-        _hostsCache = new ConcurrentDictionary<string, Uri[]>();
+        _hostsCache = new ConcurrentDictionary<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]>();
         _keyUrlsMapper = _hostsCache.FuzzyTree();
     }
 
@@ -42,7 +42,7 @@ public static class LibraMulticastHostManagement
     /// </summary>
     /// <param name="key">多播KEY</param>
     /// <param name="urls">目标url</param>
-    public static void SetMapper(string key, Uri[] urls)
+    public static void SetMapper(string key, (Uri uri, Action<HttpRequestMessage> requestHandler)[] urls)
     {
         _hostsCache[key] = urls;
         _keyUrlsMapper = _hostsCache.FuzzyTree();
@@ -53,7 +53,7 @@ public static class LibraMulticastHostManagement
     /// </summary>
     /// <param name="key">多播KEY</param>
     /// <returns></returns>
-    public static Uri[] GetUrls(string key)
+    public static (Uri uri, Action<HttpRequestMessage> requestHandler)[] GetUrls(string key)
     {
         return _keyUrlsMapper[key];
     }
