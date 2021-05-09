@@ -1,8 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net5.0;</TargetFrameworks>
 		<OutputType>Library</OutputType>
+		<Description>Libra.Common 为基础类提供结果和参数包装</Description>
+		<PackageId>NMS.Libra.Common</PackageId>
+		<Copyright>Night Moon Studio</Copyright>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageReleaseNotes>发布第一版</PackageReleaseNotes>
+		<Version>0.1.0</Version>
+		<PackageLicenseUrl>https://github.com/night-moon-studio/DynamicDictionary/blob/master/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/night-moon-studio/DynamicDictionary</PackageProjectUrl>
+		<PackageTags>WeekRpc;WRPC;Libra;WebClient;</PackageTags>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Company>NMSAzulX</Company>
+		<PackageIconUrl>https://avatars2.githubusercontent.com/u/51699821</PackageIconUrl>
+		<Authors>NMSAzulX</Authors>
+		<Product>Libra.Common</Product>
 	</PropertyGroup>
-
+	
+	<ItemGroup>
+		<PackageReference Include="DotNetCore.SourceLink.Environment" Version="2.2.0" />
+	</ItemGroup>
 </Project>

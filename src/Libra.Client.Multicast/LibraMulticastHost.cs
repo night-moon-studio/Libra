@@ -43,11 +43,13 @@ namespace Libra.Client.Multicast
 
                 for (int i = 0; i < urls.Length; i++)
                 {
+
                     var url = urls[i] + (urls[i].EndsWith('/') ? "Libra" : "/Libra");
                     if (_urlList.Add(url))
                     {
                         Urls.Add(new Uri(url));
                     }
+
                 }
                 SyncUris();
             }
