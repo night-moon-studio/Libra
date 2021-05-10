@@ -84,12 +84,13 @@ namespace Libra
         /// <returns></returns>
         public static async Task<string> GetStringFromRequest(HttpRequest request)
         {
-            var bytes = await GetBytesFromRequest(request);
-            if (bytes == null)
+            request.EnableBuffering();
+            var bufferResult = await request.BodyReader.ReadAsync().ConfigureAwait(false);
+            if (bufferResult.Buffer.IsEmpty)
             {
                 return null;
             }
-            return Encoding.UTF8.GetString(bytes);
+            return Encoding.UTF8.GetString(bufferResult.Buffer.ToArray());
         }
 
 
