@@ -117,13 +117,13 @@ namespace WebServiceProvider.Services
         }
     }
 
-    public static class Na41151da884a4636b704706c2ccbd793
-    {
-        public static async System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response)
-        {
-            var parameters = Libra.LibraProxyCreator.Deserialize<LibraSingleParameter<System.String>>(request);
-            var result = new LibraResult<System.String>() { Value = (new WebServiceProvider.Services.TeacherService()).Hello(parameters.Value) };
-            await System.Text.Json.JsonSerializer.SerializeAsync(response.Body, result);
-        }
-    }
+    //public static class Na41151da884a4636b704706c2ccbd793
+    //{
+    //    public static async System.Threading.Tasks.Task Invoke(Microsoft.AspNetCore.Http.HttpRequest request, Microsoft.AspNetCore.Http.HttpResponse response)
+    //    {
+    //        var parameters = Libra.LibraProxyCreator.Deserialize<LibraSingleParameter<System.String>>(request);
+    //        var result = new LibraResult<System.String>() { Value = (new WebServiceProvider.Services.TeacherService()).Hello(parameters.Value) };
+    //        await System.Text.Json.JsonSerializer.SerializeAsync(response.Body, result);
+    //    }
+    //}
 }

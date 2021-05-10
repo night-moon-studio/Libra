@@ -15,7 +15,7 @@ namespace WebServiceProvider.Controllers
         [HttpGet]
         public async void Test()
         {
-            await Na41151da884a4636b704706c2ccbd793.Invoke(Request, Response);
+            //await Na41151da884a4636b704706c2ccbd793.Invoke(Request, Response);
         }
     }
 }

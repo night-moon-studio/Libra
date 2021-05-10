@@ -6,8 +6,8 @@ namespace Libra.Server.Protocal
     public static class LibraServerProtocal
     {
 
-        public const string DeserializeScript = "Libra.LibraProxyCreator.Deserialize";
-        public const string DirectlyScript = "Libra.LibraProxyCreator.GetBytesFromRequest";
+        public const string DeserializeScript = "await Libra.LibraProxyCreator.Deserialize";
+        public const string DirectlyScript = "await Libra.LibraProxyCreator.GetBytesFromRequest";
         /// <summary>
         /// 获取单个参数时,需要反序列化的参数类型脚本
         /// </summary>
@@ -24,7 +24,7 @@ namespace Libra.Server.Protocal
                 //如果是基元类型或者是值类型
                 //生成以下逻辑:
                 //var parameters = JsonSerializer.Deserialize<LibraSingleParameter<int>>(arg, LibraProtocalAnalysis.JsonOption);
-                return $"var {parameterName} = {DeserializeScript}<LibraSingleParameter<{parameterType.GetDevelopName()}>>(request);";
+                return $"var {parameterName} = {DeserializeScript}<LibraSingleParameter<{parameterType.GetDevelopName()}>>(request).ConfigureAwait(false);";
                 
             }
             else if (parameterType == typeof(byte[]))
@@ -32,13 +32,13 @@ namespace Libra.Server.Protocal
                 //如果是byte数组
                 //复用这个变量, 此时记录参数的调用逻辑 
                 //无需创建临时变量直接从 Request 中获取
-                return $"var {parameterName} = {DirectlyScript}(request);";
+                return $"var {parameterName} = {DirectlyScript}(request).ConfigureAwait(false);";
             }
             else
             {
                 //如果是其他类型
                 //var parameters = JsonSerializer.Deserialize<ParameterType>(arg, LibraProtocalAnalysis.JsonOption);
-                return $"var {parameterName} = {DeserializeScript}<{parameterType.GetDevelopName()}>(request);";
+                return $"var {parameterName} = {DeserializeScript}<{parameterType.GetDevelopName()}>(request).ConfigureAwait(false);";
             }
 
         }
@@ -67,7 +67,7 @@ namespace Libra.Server.Protocal
                 // var result =  new LibraResult<int>(){ Value = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)] };
                 // await JsonSerializer.SerializeAsync((response.Body,result);
                 string result = $"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")}}};";
-                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result);";
+                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);";
                  
 
             }
@@ -90,7 +90,7 @@ namespace Libra.Server.Protocal
                 // var result = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)];
                 // await JsonSerializer.SerializeAsync(response.Body,result);
                 var result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
-                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result);";
+                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);";
             }
         }
 

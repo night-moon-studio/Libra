@@ -18,8 +18,9 @@ public class LibraClient
     private readonly static Action<HttpRequestMessage> _resetState;
     private static Uri _defaultUrl;
     private readonly HttpRequestMessage _request;
-    private readonly HttpClient _client;
+    private readonly HttpMessageInvoker _client;
     private readonly LibraContent _content;
+    private CancellationToken _cancellationToken;
     static LibraClient()
     {
 
@@ -36,7 +37,54 @@ public class LibraClient
         }
     }
 
+    /// <summary>
+    /// 配置请求信息
+    /// </summary>
+    public void ConfigClient(Uri uri, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler,in CancellationToken cancellationToken)
+    {
+        if (uri != null)
+        {
+            _request.RequestUri = uri;
+        }
+        _content.ProtocalAction = protocal;
+        _request.Headers.Add("Libra", route);
+        _cancellationToken = cancellationToken;
+        requestHandler?.Invoke(_request);
+    }
 
+    /// <summary>
+    /// 配置协议委托
+    /// </summary>
+    /// <param name="protocal"></param>
+    public void ConfigProtocal(Func<Stream, Task> protocal)
+    {
+        _content.ProtocalAction = protocal;
+    }
+    /// <summary>
+    /// 配置URIL
+    /// </summary>
+    /// <param name="uri"></param>
+    public void ConfigUrl(Uri uri)
+    {
+        _request.RequestUri = uri;
+    }
+    /// <summary>
+    /// 配置请求
+    /// </summary>
+    /// <param name="requestHandler"></param>
+    /// <returns></returns>
+    public void ConfigRequest(Action<HttpRequestMessage> requestHandler)
+    {
+        requestHandler?.Invoke(_request);
+    }
+    /// <summary>
+    /// 配置路由
+    /// </summary>
+    /// <param name="route"></param>
+    public void ConfigRoute(string route)
+    {
+        _request.Headers.Add("Libra", route);
+    }
     /// <summary>
     /// 刷新 Request 状态
     /// </summary>
@@ -54,18 +102,17 @@ public class LibraClient
     public LibraClient()
     {
         _content = new LibraContent();
-        _client = new HttpClient();
         _request = new HttpRequestMessage(HttpMethod.Post, _defaultUrl);
         _request.Content = _content;
+
+        var socketHandler = new SocketsHttpHandler();
+        socketHandler.UseProxy = false;
+        socketHandler.AllowAutoRedirect = false;
+        socketHandler.AutomaticDecompression = DecompressionMethods.None;
+        socketHandler.UseCookies = false;
+        _client = new HttpMessageInvoker(socketHandler,disposeHandler:true);
     }
 
-
-
-    public LibraClient SetRequestHandler(Action<HttpRequestMessage> requestHandler)
-    {
-        requestHandler?.Invoke(_request);
-        return this;
-    }
 
 
     /// <summary>
@@ -74,7 +121,7 @@ public class LibraClient
     /// <param name="baseUrl"></param>
     public void SetBaseUrl(string baseUrl)
     {
-        _defaultUrl = new Uri(baseUrl + (baseUrl.EndsWith('/') ? "Libra" : "/Libra"));
+        _defaultUrl = new Uri(baseUrl);
         _request.RequestUri = _defaultUrl;
     }
 
@@ -84,12 +131,10 @@ public class LibraClient
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
-    
-    private HttpResponseMessage GetReponse(string route, Func<Stream,Task> protocal)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private async Task<HttpResponseMessage> GetReponseAsync()
     {
-        _request.Headers.Add("Libra", route);
-        _content.ProtocalAction = protocal;
-        return _client.SendAsync(_request, CancellationToken.None).Result;
+        return await _client.SendAsync(_request, _cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -100,39 +145,10 @@ public class LibraClient
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal HttpStatusCode GetResponseCode(Uri url, string route, Func<Stream, Task> protocal)
+    internal async ValueTask<HttpStatusCode> GetResponseCodeAsync()
     {
-        _request.RequestUri = url;
-        return GetResponseCode(route,protocal);
+        return (await GetReponseAsync().ConfigureAwait(false)).StatusCode;
 
-    }
-
-
-    /// <summary>
-    /// 请求 URL 地址并获取对方执行的序列化结果
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] GetResponseBytes(Uri url, string route, Func<Stream, Task> protocal)
-    {
-
-        _request.RequestUri = url;
-        return GetResponseBytes(route, protocal);
-
-    }
-
-
-    /// <summary>
-    /// 根据协议内容获取状态码, 目标地址为 BaseUrl 字段  (一般是对方的返回值为 void 时调用)
-    /// </summary>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal HttpStatusCode GetResponseCode(string route, Func<Stream, Task> protocal)
-    {
-        return GetReponse(route, protocal).StatusCode;
     }
 
 
@@ -142,49 +158,34 @@ public class LibraClient
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] GetResponseBytes(string route, Func<Stream, Task> protocal)
+    internal async Task<byte[]> GetResponseBytesAsync()
     {
 
-        var response = GetReponse(route, protocal);
-        if (response.IsSuccessStatusCode)
+        var response = await GetReponseAsync().ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.OK)
         {
-            if (response.StatusCode != HttpStatusCode.NoContent)
-            {
-                return response.Content.ReadAsByteArrayAsync().Result;
-            }
-            else
-            {
-                return null;
-            }
+
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+
+        }
+        else if(response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return null;
         }
         //如果是 404 则认为目标地址没找到, 有可能是 URL 填写错误, 有可能是服务端不允许调用方法
         else if (response.StatusCode == HttpStatusCode.NotFound)
         {
 
-            //如果有内容则抛出内容
-            if (response.StatusCode != HttpStatusCode.NoContent)
-            {
-                throw new Exception(response.Content.ReadAsStringAsync().Result);
-            }
-            else
-            {
-                throw new Exception($"您当前的请求为 {_request.RequestUri} ;请检查地址及对方的服务是否开启!");
-            }
+            throw new Exception(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+            //throw new Exception($"您当前的请求为 {_request.RequestUri} ;请检查地址及对方的服务是否开启!");
 
         }
         //如果是未知错误 则抛出异常
         else
         {
 
-            //如果有内容则输出内容
-            if (response.StatusCode != HttpStatusCode.NoContent)
-            {
-                throw new Exception("请求失败!" + response.Content.ReadAsStringAsync().Result);
-            }
-            else
-            {
-                throw new Exception($"您当前的请求为 {_request.RequestUri}, 请求失败!");
-            }
+            throw new Exception("请求失败!" + await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+            //throw new Exception($"您当前的请求为 {_request.RequestUri}, 请求失败!");
 
         }
 

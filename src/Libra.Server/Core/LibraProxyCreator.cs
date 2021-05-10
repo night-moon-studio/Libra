@@ -5,7 +5,9 @@ using Natasha.CSharp;
 using Natasha.CSharp.Reverser;
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -38,17 +40,22 @@ namespace Libra
         /// <typeparam name="T"></typeparam>
         /// <param name="request">HTTP请求</param>
         /// <returns></returns>
-        public static T Deserialize<T>(HttpRequest request)
+        public static async Task<T> Deserialize<T>(HttpRequest request)
         {
-            
+
             request.EnableBuffering();
-            var bufferResult = request.BodyReader.ReadAsync().Result;
-            if (bufferResult.Buffer.IsEmpty)
+            var result = await request.BodyReader.ReadAsync().ConfigureAwait(false);
+            if (result.Buffer.IsEmpty)
             {
                 return default(T);
             }
-            var reader = new Utf8JsonReader(bufferResult.Buffer);
-            return JsonSerializer.Deserialize<T>(ref reader, JsonOption);
+            return GetResult(result.Buffer);
+
+            T GetResult(in ReadOnlySequence<byte> bytes)
+            {
+                var reader = new Utf8JsonReader(bytes);
+                return JsonSerializer.Deserialize<T>(ref reader, JsonOption);
+            }
 
         }
 
@@ -57,10 +64,10 @@ namespace Libra
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static byte[] GetBytesFromRequest(HttpRequest request)
+        public static async Task<byte[]> GetBytesFromRequest(HttpRequest request)
         {
             request.EnableBuffering();
-            var bufferResult = request.BodyReader.ReadAsync().Result;
+            var bufferResult = await request.BodyReader.ReadAsync().ConfigureAwait(false);
             if (bufferResult.Buffer.IsEmpty)
             {
                 return null;
@@ -117,7 +124,7 @@ namespace Libra
                 {
                     //如果未成功生成委托,则说明该调用不符合系统规范,可能不存在
                     response.StatusCode = 404;
-                    await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!");
+                    await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!").ConfigureAwait(false);
 
                 }
 
@@ -126,7 +133,7 @@ namespace Libra
             {
 
                 response.StatusCode = 501;
-                await response.WriteAsync($"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}");
+                await response.WriteAsync($"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}").ConfigureAwait(false);
 
             }
             return null;

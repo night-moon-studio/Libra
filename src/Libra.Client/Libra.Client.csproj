@@ -18,6 +18,10 @@
 		<Authors>NMSAzulX</Authors>
 		<Product>Libra.Client</Product>
 	</PropertyGroup>
+	
+	<ItemGroup>
+	  <Compile Remove="Extension\TaskExtension.cs" />
+	</ItemGroup>
 
 
 	<ItemGroup>

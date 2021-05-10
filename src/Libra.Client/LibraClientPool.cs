@@ -61,135 +61,20 @@ public static class LibraClientPool
             {
                 client.SetBaseUrl(_baseUrl);
             }
+            if (_requestHandler!=null)
+            {
+                client.ConfigRequest(_requestHandler);
+            }
             return client;
         }
 
     }
-
-
-    /// <summary>
-    /// 同步执行并返回对方执行的序列化结果, 请求地址是 BaseUrl (可以通过 SetBaseUrl 进行配置)
-    /// </summary>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static byte[] BytesResult(string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
-    {
-
-        var request = GetRequestInternal().SetRequestHandler(requestHandler);
-        try
-        {
-
-            return request.GetResponseBytes(route, protocal);
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-            //回收客户端
-            Collect(request);
-        }
-
-    }
-
-
-    /// <summary>
-    /// 同步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是 BaseUrl(可以通过 SetBaseUrl 进行配置)
-    /// </summary>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static HttpStatusCode CodeResult(string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
-    {
-        var request = GetRequestInternal().SetRequestHandler(requestHandler);
-        try
-        {
-
-            return request.GetResponseCode(route, protocal);
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-            Collect(request);
-        }
-    }
-
-
-    /// <summary>
-    /// 同步执行并返回状态码 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static HttpStatusCode CodeResult(Uri url, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
-    {
-        var request = GetRequestInternal().SetRequestHandler(requestHandler);
-        try
-        {
-
-            return request.GetResponseCode(url, route, protocal);
-
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-
-            Collect(request);
-        }
-    }
-
-
-    /// <summary>
-    /// 同步执行并返回对方执行的序列化结果 (一般是对方的返回值为 void 时调用), 请求地址是参数 URL
-    /// </summary>
-    /// <param name="url">请求地址(例如: http://xxxx )</param>
-    /// <param name="protocal">传递给对方服务器的协议内容</param>
-    /// <returns></returns>
-    public static byte[] BytesResult(Uri url, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler = null)
-    {
-
-        var request = GetRequestInternal().SetRequestHandler(requestHandler);
-        try
-        {
-
-            return request.GetResponseBytes(url, route, protocal);
-           
-        }
-        catch (Exception ex)
-        {
-
-            throw ex;
-
-        }
-        finally
-        {
-
-            Collect(request);
-
-        }
-
-    }
-
-
+   
     /// <summary>
     /// 重置并回收 Request
     /// </summary>
     /// <param name="request"></param>
-    private static void Collect(LibraClient request)
+    public static void Collect(LibraClient request)
     {
         request.RefreshRequest();
         _stack.Push(request);
