@@ -31,16 +31,5 @@ namespace Libra
             return await handler.GetCodeAsync(new Uri(url)).ConfigureAwait(false);
         }
 
-
-        /// <summary>
-        /// 指定远程地址, 执行并返回比特流
-        /// </summary>
-        /// <param name="url">请求地址(例如: http://xxxx )</param>
-        /// <returns></returns>
-        public static async Task<byte[]> GetBytesAsync(this LibraExecutor handler, string url)
-        {
-            return await handler.GetBytesAsync(new Uri(url)).ConfigureAwait(false);
-        }
-
     }
 }

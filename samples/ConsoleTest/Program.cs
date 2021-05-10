@@ -15,16 +15,16 @@ namespace ConsoleTest
         static async Task Get()
         {
             LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
-            var temp = await "TeacherService.Hello5".WpcParam().GetResultAsync<string>();
+            var temp = await "TeacherService.Hello5".WpcParam().GetResultAsync<byte[]>();
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var handler = await "TeacherService.Hello5".WpcParam().GetResultAsync<string>();
+            var handler = await "TeacherService.Hello5".WpcParam().GetResultAsync<byte[]>();
             stopwatch.Stop();
             Console.WriteLine("执行 1 次:" + stopwatch.Elapsed);
             stopwatch.Restart();
             for (int i = 0; i < 100; i++)
             {
-                await "TeacherService.Hello5".WpcParam().GetResultAsync<string>();
+                await "TeacherService.Hello5".WpcParam().GetResultAsync<byte[]>();
             }
             stopwatch.Stop();
             Console.WriteLine("执行 100 次:" + stopwatch.Elapsed);

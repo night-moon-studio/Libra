@@ -86,7 +86,7 @@ namespace WebCallerClient.Controller
         [HttpGet("9")]
         public async Task<object> GetHello9()
         {
-            return await "TeacherService.Hello9".WpcParam().GetBytesAsync().ConfigureAwait(false);
+            return await "TeacherService.Hello9".WpcParam().GetResultAsync<byte[]>().ConfigureAwait(false);
         }
         [HttpGet("10")]
         public async Task<string> GetHello10()
@@ -143,7 +143,7 @@ namespace WebCallerClient.Controller
         [HttpGet("18.5")]
         public async Task<byte[]> GetHello185()
         {
-            var result = await "TeacherService.GetBytes".WpcParam(new int[] { 1, 2, 3, 4, 5 }).GetBytesAsync().ConfigureAwait(false);
+            var result = await "TeacherService.GetBytes".WpcParam(new int[] { 1, 2, 3, 4, 5 }).GetResultAsync<byte[]>().ConfigureAwait(false);
             Debug.WriteLine(result);
             return result;
         }
@@ -151,7 +151,7 @@ namespace WebCallerClient.Controller
         [HttpGet("18.6")]
         public async Task<object> GetHello186()
         {
-            return "TeacherService.GetBytes".WpcParam<byte[]>(null).GetBytesAsync().ConfigureAwait(false);
+            return "TeacherService.GetBytes".WpcParam<byte[]>(null).GetResultAsync<byte[]>().ConfigureAwait(false);
         }
 
         [HttpGet("19")]
@@ -187,12 +187,17 @@ namespace WebCallerClient.Controller
         [HttpGet("24")]
         public async Task<object> GetHello24()
         {
-            return await "TeacherService.GetInts2".WpcParam(new byte[] { 1, 2 }).GetBytesAsync().ConfigureAwait(false);
+            return await "TeacherService.GetInts2".WpcParam(new byte[] { 1, 2 }).GetResultAsync<byte[]>().ConfigureAwait(false);
         }
         [HttpGet("25")]
         public async Task<string> GetHello25()
         {
             return await "IStudent.GetName".WpcParam().GetResultAsync<string>();
+        }
+        [HttpGet("26")]
+        public async Task<TestModel> GetHello26()
+        {
+            return await "TeacherService.GetNotNull1".WpcParam().GetResultAsync<TestModel>().ConfigureAwait(false);
         }
     }
 }

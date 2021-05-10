@@ -16,6 +16,7 @@ public class LibraClient
 {
 
     private readonly static Action<HttpRequestMessage> _resetState;
+
     private static Uri _defaultUrl;
     private readonly HttpRequestMessage _request;
     private readonly HttpMessageInvoker _client;
@@ -24,23 +25,24 @@ public class LibraClient
     static LibraClient()
     {
 
-        if (_resetState == default)
-        {
-            var _state = typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
-            DynamicMethod method = new DynamicMethod(Guid.NewGuid().ToString(), null, new Type[] { typeof(HttpRequestMessage) });
-            ILGenerator il = method.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Stfld, _state);
-            il.Emit(OpCodes.Ret);
-            _resetState = (Action<HttpRequestMessage>)(method.CreateDelegate(typeof(Action<HttpRequestMessage>)));
-        }
+
+        var _state = typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
+        DynamicMethod method = new DynamicMethod(Guid.NewGuid().ToString(), null, new Type[] { typeof(HttpRequestMessage) });
+        ILGenerator il = method.GetILGenerator();
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldc_I4_0);
+        il.Emit(OpCodes.Stfld, _state);
+        il.Emit(OpCodes.Ret);
+        _resetState = (Action<HttpRequestMessage>)(method.CreateDelegate(typeof(Action<HttpRequestMessage>)));
+
+
+
     }
 
     /// <summary>
     /// 配置请求信息
     /// </summary>
-    public void ConfigClient(Uri uri, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler,in CancellationToken cancellationToken)
+    public void ConfigClient(Uri uri, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler, in CancellationToken cancellationToken)
     {
         if (uri != null)
         {
@@ -110,7 +112,7 @@ public class LibraClient
         socketHandler.AllowAutoRedirect = false;
         socketHandler.AutomaticDecompression = DecompressionMethods.None;
         socketHandler.UseCookies = false;
-        _client = new HttpMessageInvoker(socketHandler,disposeHandler:true);
+        _client = new HttpMessageInvoker(socketHandler, disposeHandler: true);
     }
 
 
@@ -151,24 +153,23 @@ public class LibraClient
 
     }
 
-
     /// <summary>
-    /// 请求 BaseUrl 地址并获取对方执行的序列化结果
+    /// 获取返回内容
     /// </summary>
     /// <param name="protocal">传递给对方服务器的协议内容</param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal async Task<byte[]> GetResponseBytesAsync()
+    internal async Task<HttpContent> GetHttpContentAsync()
     {
 
         var response = await GetReponseAsync().ConfigureAwait(false);
         if (response.StatusCode == HttpStatusCode.OK)
         {
 
-            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            return response.Content;
 
         }
-        else if(response.StatusCode == HttpStatusCode.NoContent)
+        else if (response.StatusCode == HttpStatusCode.NoContent)
         {
             return null;
         }

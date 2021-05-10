@@ -45,8 +45,8 @@ namespace Libra.Sender
         /// <param name="stream"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected override Task SerializeToStreamAsync(Stream stream, TransportContext context) =>
-            ProtocalAction(stream);
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context) =>
+            await ProtocalAction(stream).ConfigureAwait(false);
 
 
         /// <summary>

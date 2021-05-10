@@ -59,6 +59,7 @@ namespace Libra
 
         }
 
+
         /// <summary>
         /// 直接获取bytes
         /// </summary>
@@ -77,6 +78,22 @@ namespace Libra
 
 
         /// <summary>
+        /// 从请求体中获取字符串
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static async Task<string> GetStringFromRequest(HttpRequest request)
+        {
+            var bytes = await GetBytesFromRequest(request);
+            if (bytes == null)
+            {
+                return null;
+            }
+            return Encoding.UTF8.GetString(bytes);
+        }
+
+
+        /// <summary>
         /// 创建执行委托
         /// </summary>
         /// <param name="route">路由</param>
@@ -84,6 +101,7 @@ namespace Libra
         /// <returns></returns>
         public static async Task<ExecuteLibraMethod> CreateDelegate(string route, HttpResponse response)
         {
+
             //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
             var realType = LibraTypeManagement.GetTypeFromMapper(route);
 

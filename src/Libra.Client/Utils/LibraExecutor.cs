@@ -16,7 +16,7 @@ namespace Libra.Client.Utils
 
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
-        private CancellationToken _cancellationToken;
+        private readonly CancellationToken _cancellationToken;
         public LibraExecutor(string route, in CancellationToken cancellationToken, Func<Stream, Task> protocal = null)
         {
 
@@ -26,31 +26,7 @@ namespace Libra.Client.Utils
 
         }
 
-        #region 带有外部 URL 的API
-        public async Task<byte[]> GetBytesAsync(Action<HttpRequestMessage> requestHandler,Uri url = null)
-        {
-            return await GetBytesAsync(url, requestHandler).ConfigureAwait(false);
-        }
-        /// <summary>
-        /// 指定地址执行返回比特流
-        /// </summary>
-        /// <param name="url">远程服务的地址:应为 url + "/Libra"</param>
-        /// <returns></returns>
-        public async Task<byte[]> GetBytesAsync(Uri url = null, Action<HttpRequestMessage> requestHandler = null)
-        {
-
-            var request = LibraClientPool.GetRequestInternal();
-            try
-            {
-                request.ConfigClient(url, _route, _protocal, requestHandler, _cancellationToken);
-                return await request.GetResponseBytesAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                LibraClientPool.Collect(request);
-            }
-            
-        }
+      
 
 
         /// <summary>
@@ -96,8 +72,8 @@ namespace Libra.Client.Utils
             try
             {
                 request.ConfigClient(url, _route, _protocal, requestHandler, _cancellationToken);
-                var result = await request.GetResponseBytesAsync().ConfigureAwait(false);
-                return LibraReadHandler<S>.GetResult(result);
+                var content = await request.GetHttpContentAsync().ConfigureAwait(false);
+                return await LibraReadHandler<S>.GetResult(content);
             }
             finally
             {
@@ -105,7 +81,6 @@ namespace Libra.Client.Utils
             }
 
         }
-        #endregion
 
     }
 

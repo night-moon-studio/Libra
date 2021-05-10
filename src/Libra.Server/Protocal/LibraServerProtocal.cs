@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Libra.Server.Protocal
@@ -8,6 +9,7 @@ namespace Libra.Server.Protocal
 
         public const string DeserializeScript = "await Libra.LibraProxyCreator.Deserialize";
         public const string DirectlyScript = "await Libra.LibraProxyCreator.GetBytesFromRequest";
+        public const string DeserializeToStringScript = "await Libra.LibraProxyCreator.GetStringFromRequest";
         /// <summary>
         /// 获取单个参数时,需要反序列化的参数类型脚本
         /// </summary>
@@ -16,7 +18,7 @@ namespace Libra.Server.Protocal
         public static string GetSingleParameterDeserializeTypeScript(Type parameterType, string parameterName, out string parameterCaller)
         {
             parameterCaller = parameterName;
-            if (parameterType.IsPrimitive || parameterType.IsValueType || parameterType == typeof(string))
+            if (parameterType.IsPrimitive || parameterType.IsValueType)
             {
 
                 //复用这个变量, 此时记录参数的调用逻辑 
@@ -25,20 +27,30 @@ namespace Libra.Server.Protocal
                 //生成以下逻辑:
                 //var parameters = JsonSerializer.Deserialize<LibraSingleParameter<int>>(arg, LibraProtocalAnalysis.JsonOption);
                 return $"var {parameterName} = {DeserializeScript}<LibraSingleParameter<{parameterType.GetDevelopName()}>>(request).ConfigureAwait(false);";
-                
+
+            }
+            else if (parameterType == typeof(string))
+            {
+
+                return $"var {parameterName} = {DeserializeToStringScript}(request).ConfigureAwait(false);"; 
+
             }
             else if (parameterType == typeof(byte[]))
             {
+
                 //如果是byte数组
                 //复用这个变量, 此时记录参数的调用逻辑 
                 //无需创建临时变量直接从 Request 中获取
                 return $"var {parameterName} = {DirectlyScript}(request).ConfigureAwait(false);";
+
             }
             else
             {
+
                 //如果是其他类型
                 //var parameters = JsonSerializer.Deserialize<ParameterType>(arg, LibraProtocalAnalysis.JsonOption);
                 return $"var {parameterName} = {DeserializeScript}<{parameterType.GetDevelopName()}>(request).ConfigureAwait(false);";
+
             }
 
         }
@@ -59,7 +71,14 @@ namespace Libra.Server.Protocal
                 return $"{(isAsync ? "await" : "")} {methodCaller};";
 
             }
-            else if (returnType.IsPrimitive || returnType.IsValueType || returnType == typeof(string))
+            else if (returnType == typeof(string))
+            {
+                
+                string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                return result + $"if(!string.IsNullOrEmpty(result)) {{ await response.WriteAsync(result); }}";
+
+            }
+            else if (returnType.IsPrimitive || returnType.IsValueType)
             {
 
                 //如果返回值为妓院类型或者值类型
@@ -78,7 +97,20 @@ namespace Libra.Server.Protocal
                 //生成执行逻辑代码:
                 //await response.BodyWriter.WriteAsync([await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
                 //var result = $"var result ={(isAsync ? "await " : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
-                return $"await response.BodyWriter.WriteAsync({(isAsync ? "await " : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")});";
+                string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                return result + $"if(result!=null && result.Length!=0) {{ await response.BodyWriter.WriteAsync(result); }}";
+                //return result + $"if(result!=null){{ await response.BodyWriter.WriteAsync(result); }}";
+
+            }
+            else if (returnType == typeof(Stream))
+            {
+
+                //如果是byte[]类型,则直接返回
+                //生成执行逻辑代码:
+                //await response.BodyWriter.WriteAsync([await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
+                //var result = $"var result ={(isAsync ? "await " : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                return result + $"if(result!=null && result.Length!=0) {{ await stream.CopyToAsync(response.BodyWriter); }}";
                 //return result + $"if(result!=null){{ await response.BodyWriter.WriteAsync(result); }}";
 
             }
@@ -90,7 +122,7 @@ namespace Libra.Server.Protocal
                 // var result = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)];
                 // await JsonSerializer.SerializeAsync(response.Body,result);
                 var result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
-                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);";
+                return result + $"if(result!=default){{await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);}}";
             }
         }
 

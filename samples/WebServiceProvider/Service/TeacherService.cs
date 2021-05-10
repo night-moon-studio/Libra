@@ -78,11 +78,14 @@ namespace WebServiceProvider.Services
             return null;
         }
 
-        protected TestModel GetNotNull(TestModel model)
+        public TestModel GetNotNull(TestModel model)
         {
             return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
         }
-
+        protected TestModel GetNotNull1(TestModel model)
+        {
+            return new TestModel() { Indexs = new int[] { 1, 2, 3 }, Name = "a" };
+        }
         public byte[] GetBytes(int[] arr)
         {
             //Console.WriteLine(arr[0]);
