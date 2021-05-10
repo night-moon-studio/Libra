@@ -20,13 +20,16 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  
     - 参数包装策略:
       - 当参数仅有1个时, 类型为常规类型: 基元类型/值类型/string 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
+      - 当参数仅有1个时, 类型为 string: 转换成 utf8-byte 传值.
       - 当参数仅有1个时, 类型为 byte[]: 不参与序列化直接传值.
       - 当参数仅有1个时, 类型为复杂类型: 数组/类/集合/字典 则以当前类型进行序列化.
       - 当参数有多个时, Libra 将包装多个参数到代理类中, 例如 method(string name, int age) 会有对应的代理类 class $uuid { string name ,int age }; 调用时: method( parameter.name, parameter.age);  
       
    - 返回值包装策略:
      - 如果为 void / Task 类型, 返回空.
+     - 如果为 string (可能被Task包裹`Task<string>`) 类型, 则直接写入响应函数.
      - 如果为 byte[] (可能被Task包裹`Task<byte[]>`) 类型, 则直接返回结果.
+     - 如果为 Stream (可能被Task包裹`Task<Stream>`) 类型, 则直接用流写入结果.
      - 如果为 基元类型/值类型/string (可能被Task包裹), 则被包装到 LibraResult 中序列化返回.
      - 如果为 复杂类型 (可能被Task包裹), 则直接将其序列化返回.  
       
@@ -37,11 +40,10 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  
 #### Libra 的结果:
 
- - 抛出异常 : 则目标方法不允许调用或者不存在.
- - HTTP状态码 : 则代表被调用的方法为 void, 视调用的API而定.
- - byte[] : 如果目标方法返回 byte[] 则为目标方法的执行结果, 否则为 Reponse.Body 中读取的流.
- - `LibraResult<S>` : 正常基元/值/string类型返回结果.  
- - 类实例 : 复杂类型返回结果.
+ - 抛出异常 : 目标方法不允许调用或者不存在.
+ - HTTP状态码 : 代表被调用的方法为 void, 视调用的API而定.
+ - `LibraResult<S>` : 正常基元/值类型返回结果.  
+ - 其他类型 : 正常返回.
 
 <br> 
 
@@ -105,32 +107,32 @@ LibraPluginManagement.UnloadPlugin(dllFilePath);
  LibraClientPool.SetGlobalRequestHandler( req => { req.Headers.Add("JWT", JWT);  });  
  
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
-"TeacherService.HelloX".WpcParam(12.34).GetBytes();
+await "TeacherService.HelloX".WpcParam(12.34).GetResultAsync<byte[]>();
 
 // 调用远程类 TeacherService 中 public int Hello3(double value) 方法
-"TeacherService.Hello3".WpcParam(12.34).GetResult<int>();
+await "TeacherService.Hello3".WpcParam(12.34).GetResultAsync<int>();
 
 // 调用远程类 TeacherService 中 public void Hello8() 方法, 返回 HttpStatusCode
-"TeacherService.Hello8".NoWpcParam().GetCode(); 
+await "TeacherService.Hello8".WpcParam().GetCodeAsync(); 
 
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
-"TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResult<string>(url); 
+await "TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResultAsync<string>(url); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
-"TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(url);
+await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResultAsync<int>(url);
 
 
 ```
-- #### 扩展用法
+- #### 其他用法
 ```C#   
 // 无参配置头信息
-"TeacherService.MethodName".NoWpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } ); 
+"TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } ); 
 
 // 使用元组扩展
-(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>();  
+(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(uri);  
 
 // 配置头信息
-(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>( req=>{ req.Headers.Add("key","value"); });
+(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(uri, req=>{ req.Headers.Add("key","value"); });
 
 ```
 
@@ -144,26 +146,30 @@ multicast.AppendHost("https://localhost:5001/", req=>{ req.Headers.Add("key","va
 multicast.AppendHost("https://localhost:7001/");
 
 //返回数组结果
-"TeacherService.Helloxxx".NoWpcParam().MulticastArrayResult<int>("测试组"); //[ 1, 2]
+"TeacherService.Helloxxx".WpcParam().MulticastArrayResult<int>("测试组"); //[ 1, 2]
 
 //返回 LibraMulticastResult 数组, 包括调用的 URL 和 其结果 Result;
-"TeacherService.Helloxxx".NoWpcParam().MulticastTupleResult<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
+"TeacherService.Helloxxx".WpcParam().MulticastTupleResult<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
 
 //远程通知目标主机的 void xxx() 方法, 遇到第一个结果不是 200 / 204 的就返回 false .
-"TeacherService.Helloxxx".NoWpcParam().MulticastNotifyAsync("测试组"); 
+"TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync("测试组"); 
 
 //远程通知目标主机的 bool xxx() 方法, 遇到第一个结果为 false 的就返回 false .
-"TeacherService.Helloxxx".NoWpcParam().MulticastNotifyAsync<bool>("测试组"); 
+"TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync<bool>("测试组"); 
 ```  
 
 <br> 
 
 ## 性能优化
 
-感谢 WebApiClient 作者的帮助, 客户端和服务端的序列化直连了 Request 和 Reponse 流操作, 性能得到了提升; 除此之外,在资源复用方面也得到了老九的帮助, 由此, Libra 客户端的发送单元, 避免了多次创建实例与多余的数据填充.
-Natasha 支持极复杂的动态构建和编译优化, 我们得以轻松构建高度定制的动态委托来提升性能;
-Natasha 支持创建动态代理, 这让我们的正反序列化均以强类型进行.
-我们使用 DynamicDictionary 作为路由字典, 以便突破并发字典带来的寻址损耗.
+感谢 WebApiClient 作者的帮助, 客户端和服务端的序列化直连了 Request 和 Reponse 流操作, 性能得到了提升; 除此之外,在资源复用方面也得到了老九的帮助, 由此, Libra 客户端的发送单元, 避免了多次创建实例与多余的数据填充, 我们绕过了 HttpClient臃肿的实现, LibraClient 更为轻量级.  
+
+Natasha 支持极复杂的动态构建和编译优化, 我们得以轻松构建高度定制的动态委托来提升性能;  
+
+Natasha 支持创建动态代理, 这让我们的正反序列化均以强类型进行.  
+
+我们使用 DynamicDictionary 作为路由字典, 以便突破并发字典带来的寻址损耗.  
+
 
 
 <br> 
