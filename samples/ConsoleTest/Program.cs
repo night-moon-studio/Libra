@@ -30,7 +30,11 @@ namespace ConsoleTest
             Console.WriteLine("执行 100 次:" + stopwatch.Elapsed);
         }
 
-
+        public static async Task Run1() 
+        {
+            await Run3();
+        }
+            
         public static async Task Run()
         {
             await Run2().ConfigureAwait(false);
