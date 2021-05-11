@@ -73,7 +73,13 @@ namespace Libra.Server.Protocal
             }
             else if (returnType == typeof(string))
             {
-                
+                //如果返回值为字符串类型
+                //生成执行逻辑代码:
+                //var result =[await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
+                //if(!string.IsNullOrEmpty(result))
+                //{
+                //  await response.WriteAsync(result);
+                //}   
                 string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
                 return result + $"if(!string.IsNullOrEmpty(result)) {{ await response.WriteAsync(result); }}";
 
@@ -81,7 +87,7 @@ namespace Libra.Server.Protocal
             else if (returnType.IsPrimitive || returnType.IsValueType)
             {
 
-                //如果返回值为妓院类型或者值类型
+                //如果返回值为基元类型或者值类型
                 //生成执行逻辑代码:
                 // var result =  new LibraResult<int>(){ Value = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)] };
                 // await JsonSerializer.SerializeAsync((response.Body,result);
@@ -95,23 +101,29 @@ namespace Libra.Server.Protocal
 
                 //如果是byte[]类型,则直接返回
                 //生成执行逻辑代码:
-                //await response.BodyWriter.WriteAsync([await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
-                //var result = $"var result ={(isAsync ? "await " : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                //var result =[await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
+                //if(result!=null && result.Length!=0)
+                //{
+                //  await response.BodyWriter.WriteAsync(result);
+                //}
                 string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
                 return result + $"if(result!=null && result.Length!=0) {{ await response.BodyWriter.WriteAsync(result); }}";
-                //return result + $"if(result!=null){{ await response.BodyWriter.WriteAsync(result); }}";
+
 
             }
             else if (returnType == typeof(Stream))
             {
 
-                //如果是byte[]类型,则直接返回
+                //如果是Stream类型,则使用流写入
                 //生成执行逻辑代码:
-                //await response.BodyWriter.WriteAsync([await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
-                //var result = $"var result ={(isAsync ? "await " : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
+                //var stream =[await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)]);
+                //if(stream!=null && stream.Length!=0)
+                //{
+                //      await stream.CopyToAsync(response.BodyWriter);
+                //}
+
                 string result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
-                return result + $"if(result!=null && result.Length!=0) {{ await stream.CopyToAsync(response.BodyWriter); }}";
-                //return result + $"if(result!=null){{ await response.BodyWriter.WriteAsync(result); }}";
+                return result + $"if(result!=null && result.Length!=0) {{ await result.CopyToAsync(response.BodyWriter); }}";
 
             }
             else
@@ -120,7 +132,10 @@ namespace Libra.Server.Protocal
                 //如果是其他墙类型
                 //生成执行逻辑代码:
                 // var result = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)];
-                // await JsonSerializer.SerializeAsync(response.Body,result);
+                //if(result!=default)
+                //{
+                //  await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);
+                //}
                 var result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
                 return result + $"if(result!=default){{await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);}}";
             }

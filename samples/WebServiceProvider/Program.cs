@@ -20,7 +20,10 @@ namespace WebServiceProvider
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureLogging(item => item.ClearProviders());
+#if RELEASE
+    webBuilder.ConfigureLogging(item => item.ClearProviders());
+#endif
+
                     webBuilder.UseKestrel().UseStartup<Startup>();
                 });
     }

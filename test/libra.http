@@ -79,4 +79,8 @@ GET https://localhost:6001/api/Test/24 HTTP/1.1
 ### 接口
 GET https://localhost:6001/api/Test/25 HTTP/1.1
 
+### 空模型
+GET https://localhost:6001/api/Test/26 HTTP/1.1
+### string 到 stream
+GET https://localhost:6001/api/Test/27 HTTP/1.1
 

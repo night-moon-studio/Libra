@@ -54,16 +54,16 @@ namespace Microsoft.AspNetCore.Builder
             app.Use(async (context,next) => {
 
                 var request = context.Request;
-                var reponse = context.Response;
+                var response = context.Response;
                 if (request.Headers.TryGetValue("Libra", out var route))
                 {
-                    if (!Filter(route,request,reponse))
+                    if (!Filter(route,request,response))
                     {
                         return;
                     }
                     if (!_invokeFastCache.TryGetValue(route, out var func))
                     {
-                        func = await LibraProxyCreator.CreateDelegate(route, reponse);
+                        func = await LibraProxyCreator.CreateDelegate(route, response);
                         if (func==null)
                         {
 
@@ -75,8 +75,8 @@ namespace Microsoft.AspNetCore.Builder
                         //从字典转换到精确快速查找树
                         _invokeFastCache = _invokerMapping.PrecisioTree();
                     }
-                    await func(request, reponse);
-
+                    await func(request, response);
+                    await response.CompleteAsync();
                 }
                 else
                 {

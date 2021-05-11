@@ -127,7 +127,7 @@ namespace WebCallerClient.Controller
         [HttpGet("17")]
         public async Task<LibraMulticastResult<int>[]> GetHello17()
         {
-            var result = await "TeacherService.Hello7".WpcParam().MulticastTupleResultAsync<int>("测试组").ConfigureAwait(false);
+            var result = await "TeacherService.Hello7".WpcParam().MulticastTupleResultAsync<int>("测试组");
             Debug.WriteLine(result);
             return result;
         }
@@ -135,7 +135,7 @@ namespace WebCallerClient.Controller
         [HttpGet("18")]
         public async Task<LibraMulticastResult<string>[]> GetHello18()
         {
-            var result = await "TeacherService.Hello5".WpcParam().MulticastTupleResultAsync<string>("测试组").ConfigureAwait(false);
+            var result = await "TeacherService.Hello5".WpcParam().MulticastTupleResultAsync<string>("测试组");
             Debug.WriteLine(result);
             return result;
         }
@@ -157,32 +157,32 @@ namespace WebCallerClient.Controller
         [HttpGet("19")]
         public async Task<object> GetHello19()
         {
-            return await "TeacherService.GetBytes".WpcParam(new int[] { 1,2,3,4,5}).MulticastArrayResultAsync<byte[]>("测试组").ConfigureAwait(false);
+            return "TeacherService.GetBytes".WpcParam(new int[] { 1,2,3,4,5}).MulticastArrayResultAsync<byte[]>("测试组");
         }
 
 
         [HttpGet("20")]
         public async Task<bool> GetHello20()
         {
-            return await "TeacherService.Notify".WpcParam().MulticastNotifyAsync("测试组").ConfigureAwait(false);
+            return await "TeacherService.Notify".WpcParam().MulticastNotifyAsync("测试组");
         }
 
         [HttpGet("21")]
         public async Task<bool> GetHello21()
         {
-            return await "TeacherService.Notify1".WpcParam().MulticastNotifyAsync("测试组").ConfigureAwait(false);
+            return await "TeacherService.Notify1".WpcParam().MulticastNotifyAsync("测试组");
         }
 
         [HttpGet("22")]
         public async Task<string[]> GetHello22()
         {
-            return await "TeacherService.GetStrings".WpcParam(new string[] {"a","b" }).GetResultAsync<string[]>().ConfigureAwait(false);
+            return await "TeacherService.GetStrings".WpcParam(new string[] {"a","b" }).GetResultAsync<string[]>();
         }
 
         [HttpGet("23")]
         public async Task<object> GetHello23()
         {
-            return await "TeacherService.GetInts".WpcParam(new int[] {1, 2 }).GetResultAsync<int[]>().ConfigureAwait(false);
+            return await "TeacherService.GetInts".WpcParam(new int[] {1, 2 }).GetResultAsync<int[]>();
         }
         [HttpGet("24")]
         public async Task<object> GetHello24()
@@ -198,6 +198,12 @@ namespace WebCallerClient.Controller
         public async Task<TestModel> GetHello26()
         {
             return await "TeacherService.GetNotNull1".WpcParam().GetResultAsync<TestModel>().ConfigureAwait(false);
+        }
+        [HttpGet("27")]
+        public async Task<string> GetHello27()
+        {
+            
+            return await "TeacherService.GetStreamString".WpcParam("abc").GetResultAsync<string>().ConfigureAwait(false);
         }
     }
 }

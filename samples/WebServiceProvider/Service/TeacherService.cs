@@ -1,5 +1,7 @@
 ﻿using Libra.Model;
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace WebServiceProvider.Services
@@ -39,6 +41,12 @@ namespace WebServiceProvider.Services
         public void Hello8()
         {
             Console.WriteLine("haha8888");
+        }
+
+        public Stream GetStreamString(string a)
+        {
+            MemoryStream memory = new MemoryStream(Encoding.UTF8.GetBytes(a));
+            return memory;
         }
 
         public string Hello6(TestModel model)

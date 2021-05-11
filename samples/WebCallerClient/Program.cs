@@ -20,7 +20,9 @@ namespace WebCallerClient
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+#if RELEASE
                     webBuilder.ConfigureLogging(item => item.ClearProviders());
+#endif
                     webBuilder.UseKestrel().UseStartup<Startup>();
                 });
     }

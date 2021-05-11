@@ -102,7 +102,7 @@ namespace Libra
         /// <returns></returns>
         public static async Task<ExecuteLibraMethod> CreateDelegate(string route, HttpResponse response)
         {
-
+            
             //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
             var realType = LibraTypeManagement.GetTypeFromMapper(route);
 
