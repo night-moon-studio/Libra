@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Libra.Client.Multicast
 {
-    public class LibraMulticastTask<T>
+    public struct LibraMulticastTask<T>
     {
         private LibraMulticastTask(int taskCount) 
         {
+            _resultCount = 0;
+            _onceShut = 0;
             _taskCount = taskCount;
             _taskNotify = new TaskCompletionSource<T>();
         }

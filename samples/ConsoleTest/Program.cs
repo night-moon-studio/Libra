@@ -29,5 +29,21 @@ namespace ConsoleTest
             stopwatch.Stop();
             Console.WriteLine("执行 100 次:" + stopwatch.Elapsed);
         }
+
+
+        public static async Task Run()
+        {
+            await Run2().ConfigureAwait(false);
+        }
+
+        public static async Task Run2()
+        {
+            await Run3().ConfigureAwait(false);
+        }
+
+        public static async Task Run3()
+        {
+
+        }
     }
 }

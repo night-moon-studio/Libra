@@ -224,7 +224,7 @@ namespace Libra
 
                 }
                 classBuilder.Append('}');
-                methodCallBuilder.AppendLine($"var {parameterName} = {LibraServerProtocal.DeserializeScript}<{className}>(request);");
+                methodCallBuilder.AppendLine($"var {parameterName} = {LibraReadHandler.DeserializeScript}<{className}>(request);");
                 //移除最后一个都好
                 parameterBuilder.Length -= 1;
                 //复用这个变量,临时变量名后面无需再用,后可作为参数逻辑使用.
@@ -241,7 +241,7 @@ namespace Libra
                 firstParameterInfo = parameterInfos[0];
                 //获取参数类型
                 var pType = firstParameterInfo.ParameterType;
-                methodCallBuilder.AppendLine(LibraServerProtocal.GetSingleParameterDeserializeTypeScript(pType, parameterName, out string parameterCaller));
+                methodCallBuilder.AppendLine(LibraReadHandler.GetSingleParameterDeserializeTypeScript(pType, parameterName, out string parameterCaller));
                 parameterName = parameterCaller;
 
             }
@@ -298,7 +298,7 @@ namespace Libra
                 
             }
 
-            methodCallBuilder.AppendLine(LibraServerProtocal.GetReturnScript(returnType, $"{caller}.{methodInfo.Name}({parameterName})", isAsync));
+            methodCallBuilder.AppendLine(LibraWriteHandler.GetReturnScript(returnType, $"{caller}.{methodInfo.Name}({parameterName})", isAsync));
             
             //使用 Natasha 进行动态方法构造
             var delegateFunc = NDelegate
