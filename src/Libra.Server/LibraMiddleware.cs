@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -14,7 +15,7 @@ namespace Microsoft.AspNetCore.Builder
     {
         private static readonly ConcurrentDictionary<string, ExecuteLibraMethod> _invokerMapping;
         private static DynamicDictionaryBase<string, ExecuteLibraMethod> _invokeFastCache;
-
+        internal static bool _hasFilter;
         static LibraMiddleware()
         {
             _invokerMapping = new ConcurrentDictionary<string, ExecuteLibraMethod>();
@@ -43,23 +44,25 @@ namespace Microsoft.AspNetCore.Builder
 
         }
 
-        internal static Func<string, HttpRequest, HttpResponse, bool> Filter = (route,request,response) => true;
+        internal static Func<string, HttpRequest, HttpResponse, ValueTask<bool>> Filter;
         /// <summary>
         /// 使用 Libra 远程调用服务
         /// </summary>
         /// <param name="app"></param>
-        public static async void UseLibraService(this IApplicationBuilder app)
+        public static void UseLibraService(this IApplicationBuilder app)
         {
-            
             app.Use(async (context,next) => {
 
                 var request = context.Request;
                 var response = context.Response;
                 if (request.Headers.TryGetValue("Libra", out var route))
                 {
-                    if (!Filter(route,request,response))
+                    if (_hasFilter)
                     {
-                        return;
+                        if (!await Filter(route, request, response))
+                        {
+                            return;
+                        }
                     }
                     if (!_invokeFastCache.TryGetValue(route, out var func))
                     {
@@ -84,6 +87,7 @@ namespace Microsoft.AspNetCore.Builder
                 }
                 
             });
+
         }
     }
 }

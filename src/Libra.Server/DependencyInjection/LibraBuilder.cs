@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -25,8 +26,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="filterFunc">拦截方法</param>
         /// <returns></returns>
-        public LibraBuilder ConfigureFilter(Func<string,HttpRequest,HttpResponse,bool> filterFunc)
+        public LibraBuilder ConfigureFilter(Func<string,HttpRequest,HttpResponse, ValueTask<bool>> filterFunc)
         {
+            LibraMiddleware._hasFilter = filterFunc != null;
             LibraMiddleware.Filter = filterFunc;
             return this;
         }
