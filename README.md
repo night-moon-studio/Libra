@@ -127,6 +127,12 @@ await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now 
 ```C#   
 // 无参配置头信息
 "TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
+
+//设置超时调用
+using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
+{
+     return await "TeacherService.Hello7".WpcParam(cts.Token).GetResultAsync<int>().ConfigureAwait(false);
+}
 ```
 
 
