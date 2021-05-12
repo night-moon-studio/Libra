@@ -126,14 +126,13 @@ await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now 
 - #### 其他用法
 ```C#   
 // 无参配置头信息
-"TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } ); 
+"TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
 
-// 使用元组扩展
-(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(uri);  
-
-// 配置头信息
-(url,"TeacherService.Hello4").WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResult<int>(uri, req=>{ req.Headers.Add("key","value"); });
-
+//设置超时调用
+using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
+{
+     return await "TeacherService.Hello7".WpcParam(cts.Token).GetResultAsync<int>().ConfigureAwait(false);
+}
 ```
 
 
@@ -146,16 +145,16 @@ multicast.AppendHost("https://localhost:5001/", req=>{ req.Headers.Add("key","va
 multicast.AppendHost("https://localhost:7001/");
 
 //返回数组结果
-"TeacherService.Helloxxx".WpcParam().MulticastArrayResult<int>("测试组"); //[ 1, 2]
+await "TeacherService.Helloxxx".WpcParam().MulticastArrayResultAsync<int>("测试组"); //[ 1, 2]
 
 //返回 LibraMulticastResult 数组, 包括调用的 URL 和 其结果 Result;
-"TeacherService.Helloxxx".WpcParam().MulticastTupleResult<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
+await "TeacherService.Helloxxx".WpcParam().MulticastTupleResultAsync<int>("测试组"); //[("https://localhost:5001/",1) ,("https://localhost:7001/",2)]
 
 //远程通知目标主机的 void xxx() 方法, 遇到第一个结果不是 200 / 204 的就返回 false .
-"TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync("测试组"); 
+await "TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync("测试组"); 
 
 //远程通知目标主机的 bool xxx() 方法, 遇到第一个结果为 false 的就返回 false .
-"TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync<bool>("测试组"); 
+await "TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync<bool>("测试组"); 
 ```  
 
 <br> 
