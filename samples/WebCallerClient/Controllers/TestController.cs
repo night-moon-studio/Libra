@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebCallerClient.Controller
@@ -101,7 +102,12 @@ namespace WebCallerClient.Controller
         [HttpGet("12")]
         public async ValueTask<int> GetHello12()
         {
-            return await "TeacherService.Hello7".WpcParam().GetResultAsync<int>().ConfigureAwait(false);
+
+            using (var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(1020)))
+            {
+                return await "TeacherService.Hello7".WpcParam(cts.Token).GetResultAsync<int>().ConfigureAwait(false);
+            }
+            
         }
         [HttpGet("13")]
         public async ValueTask<HttpStatusCode> GetHello13()
