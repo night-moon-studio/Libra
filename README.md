@@ -166,7 +166,7 @@ await "TeacherService.Helloxxx".WpcParam().MulticastNotifyAsync<bool>("测试组
 
 ## 性能优化
 
-感谢 WebApiClient 作者的帮助, 客户端和服务端的序列化直连了 Request 和 Reponse 流操作, 性能得到了提升; 除此之外,在资源复用方面也得到了老九的帮助, 由此, Libra 客户端的发送单元, 避免了多次创建实例与多余的数据填充, 我们绕过了 HttpClient臃肿的实现, LibraClient 更为轻量级.  
+感谢 WebApiClient 作者的帮助, 客户端和服务端的序列化直连了 Request 和 Reponse 流操作, 性能得到了提升; 除此之外,在资源复用方面也得到了老九的帮助, 由此, Libra 客户端的发送单元, 避免了多次创建实例与多余的数据填充, 我们绕过了 HttpClient 臃肿的实现, LibraClient 更为轻量级.  
 
 Natasha 支持极复杂的动态构建和编译优化, 我们得以轻松构建高度定制的动态委托来提升性能;  
 
