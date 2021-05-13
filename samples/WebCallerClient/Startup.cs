@@ -31,6 +31,7 @@ namespace WebCallerClient
             var multicast = LibraMulticastHostManagement.GetOrCreate("²âÊÔ×é");
             multicast.AppendHost("https://localhost:5001/");
             multicast.AppendHost("https://localhost:7001/");
+            multicast.Save();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
