@@ -141,8 +141,13 @@ using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
 ```C#
 
 var multicast = LibraMulticastHostManagement.GetOrCreate("测试组");
+multicast.AppendHost(
+   ("https://localhost:5001/", null), 
+   ("https://localhost:5001/", req=>{ req.Headers.Add("key","value");})
+);
 multicast.AppendHost("https://localhost:5001/", req=>{ req.Headers.Add("key","value"); });
 multicast.AppendHost("https://localhost:7001/");
+multicast.Save();
 
 //返回数组结果
 await "TeacherService.Helloxxx".WpcParam().MulticastArrayResultAsync<int>("测试组"); //[ 1, 2]
