@@ -84,3 +84,6 @@ GET https://localhost:6001/api/Test/26 HTTP/1.1
 ### string 到 stream
 GET https://localhost:6001/api/Test/27 HTTP/1.1
 
+### ValueTask<long>
+GET https://localhost:6001/api/Test/28 HTTP/1.1
+

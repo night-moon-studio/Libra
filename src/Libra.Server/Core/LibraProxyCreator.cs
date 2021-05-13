@@ -90,6 +90,10 @@ namespace Libra
             {
                 return null;
             }
+            if (bufferResult.Buffer.IsSingleSegment)
+            {
+                return Encoding.UTF8.GetString(bufferResult.Buffer.FirstSpan);
+            }
             return Encoding.UTF8.GetString(bufferResult.Buffer.ToArray());
         }
 
