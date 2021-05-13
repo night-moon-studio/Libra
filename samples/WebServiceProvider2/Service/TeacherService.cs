@@ -76,5 +76,10 @@ namespace WebServiceProvider2.Services
         {
             return;
         }
+
+        public ValueTask<long> Testlong()
+        {
+            return new ValueTask<long>(1);
+        }
     }
 }

@@ -211,5 +211,12 @@ namespace WebCallerClient.Controller
             
             return await "TeacherService.GetStreamString".WpcParam("abc").GetResultAsync<string>().ConfigureAwait(false);
         }
+
+        [HttpGet("28")]
+        public async ValueTask<long> GetHello28()
+        {
+
+            return await "TeacherService.Testlong".WpcParam().GetResultAsync<long>().ConfigureAwait(false);
+        }
     }
 }

@@ -126,6 +126,11 @@ namespace WebServiceProvider.Services
         {
             return;
         }
+
+        public ValueTask<long> Testlong()
+        {
+            return new ValueTask<long>(1);
+        }
     }
 
     //public static class Na41151da884a4636b704706c2ccbd793

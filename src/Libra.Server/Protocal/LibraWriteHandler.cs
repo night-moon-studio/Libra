@@ -13,7 +13,7 @@ namespace Libra.Server.Protocal
         /// <returns></returns>
         public static string GetReturnScript(Type returnType, string methodCaller, bool isAsync)
         {
-            if (returnType == typeof(void) || returnType == typeof(Task))
+            if (returnType == typeof(void) || returnType == typeof(Task) || returnType == typeof(ValueTask))
             {
 
                 //如果返回值为 void 或者是 Task

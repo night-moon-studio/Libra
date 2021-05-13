@@ -285,18 +285,21 @@ namespace Libra
 
 
             //结果处理
-            bool isAsync = AsyncReverser.GetAsync(methodInfo) != null;
             Type returnType = methodInfo.ReturnType;
-            if (isAsync)
+            bool isAsync = false;
+            if (returnType.IsGenericType)
             {
-                //如果是异步返回值
-                if (returnType!=typeof(Task))
+                if (returnType.GetGenericTypeDefinition() == typeof(Task<>) || returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
                 {
-                    //获取到被Task<T> 包裹的类型,如: T
-                    returnType = methodInfo.ReturnType.GenericTypeArguments[0];
+                    isAsync = true;
+                    returnType = returnType.GenericTypeArguments[0];
                 }
-                
             }
+            else if (returnType == typeof(Task) || returnType.BaseType == typeof(ValueTask))
+            {
+                isAsync = true;
+            }
+
 
             methodCallBuilder.AppendLine(LibraWriteHandler.GetReturnScript(returnType, $"{caller}.{methodInfo.Name}({parameterName})", isAsync));
             
