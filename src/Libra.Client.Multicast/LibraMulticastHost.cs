@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 
 namespace Libra.Client.Multicast
@@ -12,8 +14,7 @@ namespace Libra.Client.Multicast
     {
 
         private readonly object _multicastLock = new object();
-        private readonly HashSet<string> _urlList;
-        public readonly List<(Uri uri, Action<HttpRequestMessage> requestHandler)> Urls;
+        private readonly ConcurrentDictionary<string, MulticastModel> _urlList;
         public readonly string MulticastKey;
 
         /// <summary>
@@ -24,8 +25,7 @@ namespace Libra.Client.Multicast
         {
             
             MulticastKey = key;
-            _urlList = new HashSet<string>();
-            Urls = new List<(Uri uri, Action<HttpRequestMessage> requestHandler)>();
+            _urlList = new ConcurrentDictionary<string, MulticastModel>();
         }
 
 
@@ -46,10 +46,7 @@ namespace Libra.Client.Multicast
                 {
 
                     var url = urls[i];
-                    if (_urlList.Add(url))
-                    {
-                        Urls.Add((new Uri(url),null));
-                    }
+                    _urlList[url] = (new Uri(url), null);
 
                 }
                 SyncUris();
@@ -71,10 +68,15 @@ namespace Libra.Client.Multicast
                 for (int i = 0; i < hosts.Length; i++)
                 {
 
-                    var host = hosts[i];
-                    if (_urlList.Add(host.uri))
+                    var url = hosts[i].uri;
+                    if (_urlList.TryGetValue(url, out var model))
                     {
-                        Urls.Add((new Uri(host.uri),host.requestHandler));
+                        model.RequestHandler = hosts[i].requestHandler;
+
+                    }
+                    else
+                    {
+                        _urlList[url] = hosts[i];
                     }
 
                 }
@@ -93,12 +95,16 @@ namespace Libra.Client.Multicast
             lock (_multicastLock)
             {
 
-                if (_urlList.Add(url))
+                if (_urlList.TryGetValue(url, out var model))
                 {
-                    Urls.Add((new Uri(url), requestHandler));
-                    SyncUris();
+                    model.RequestHandler = requestHandler;
+                    
                 }
-
+                else
+                {
+                    _urlList[url] = new MulticastModel(new Uri(url),requestHandler);
+                }
+                SyncUris();
             }
 
         }
@@ -109,10 +115,37 @@ namespace Libra.Client.Multicast
         /// </summary>
         private void SyncUris()
         {
-            LibraMulticastHostManagement.SetMapper(MulticastKey, Urls.ToArray());
+            LibraMulticastHostManagement.SetMapper(MulticastKey, _urlList.Values.ToArray());
         }
 
     }
+
+
+    public class MulticastModel 
+    {
+        public MulticastModel(Uri uri, Action<HttpRequestMessage> action = null)
+        {
+            Address = uri;
+            RequestHandler = action;
+        }
+        public readonly Uri Address;
+        public Action<HttpRequestMessage> RequestHandler;
+
+        public static implicit operator MulticastModel(in (Uri, Action<HttpRequestMessage>) model)
+        {
+            return new MulticastModel(model.Item1, model.Item2);
+        }
+        public static implicit operator MulticastModel(in (Action<HttpRequestMessage> , Uri) model)
+        {
+            return new MulticastModel(model.Item2, model.Item1);
+        }
+
+        public static implicit operator MulticastModel((string uri, Action<HttpRequestMessage> requestHandler) model)
+        {
+            return new MulticastModel(new Uri(model.uri), model.requestHandler);
+        }
+    }
+
 
 }
 

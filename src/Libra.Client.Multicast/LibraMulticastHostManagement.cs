@@ -10,13 +10,13 @@ public static class LibraMulticastHostManagement
 {
 
     private static readonly ConcurrentDictionary<string, LibraMulticastHost> _keyHostMapper;
-    private static readonly ConcurrentDictionary<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]> _hostsCache;
-    private static DynamicDictionaryBase<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]> _keyUrlsMapper;
+    private static readonly ConcurrentDictionary<string, MulticastModel[]> _hostsCache;
+    private static DynamicDictionaryBase<string, MulticastModel[]> _keyUrlsMapper;
     static LibraMulticastHostManagement()
     {
         NatashaInitializer.InitializeAndPreheating();
         _keyHostMapper = new ConcurrentDictionary<string, LibraMulticastHost>();
-        _hostsCache = new ConcurrentDictionary<string, (Uri uri, Action<HttpRequestMessage> requestHandler)[]>();
+        _hostsCache = new ConcurrentDictionary<string, MulticastModel[]>();
         _keyUrlsMapper = _hostsCache.FuzzyTree();
     }
 
@@ -31,6 +31,8 @@ public static class LibraMulticastHostManagement
         {
             host = new LibraMulticastHost(multicastKey);
             _keyHostMapper[multicastKey] = host;
+            _hostsCache[multicastKey] = null;
+            _keyUrlsMapper = _hostsCache.FuzzyTree();
             return host;
         }
         return host;
@@ -42,10 +44,10 @@ public static class LibraMulticastHostManagement
     /// </summary>
     /// <param name="key">多播KEY</param>
     /// <param name="urls">目标url</param>
-    public static void SetMapper(string key, (Uri uri, Action<HttpRequestMessage> requestHandler)[] urls)
+    public static void SetMapper(string key, MulticastModel[] urls)
     {
         _hostsCache[key] = urls;
-        _keyUrlsMapper = _hostsCache.FuzzyTree();
+        _keyUrlsMapper.Change(key, urls);
     }
 
     /// <summary>
@@ -53,7 +55,7 @@ public static class LibraMulticastHostManagement
     /// </summary>
     /// <param name="key">多播KEY</param>
     /// <returns></returns>
-    public static (Uri uri, Action<HttpRequestMessage> requestHandler)[] GetUrls(string key)
+    public static MulticastModel[] GetUrls(string key)
     {
         return _keyUrlsMapper[key];
     }
