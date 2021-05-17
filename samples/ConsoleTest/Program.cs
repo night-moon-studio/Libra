@@ -6,8 +6,19 @@ namespace ConsoleTest
 {
     class Program
     {
+        public struct A 
+        {
+            public A(double a)
+            {
+                this._a = a;
+            }
+            private double _a;
+            public double a { get { return _a; } set { _a = value; } }
+        }
+
         static void Main(string[] args)
         {
+           var a = System.Text.Json.JsonSerializer.Deserialize<A>("{ \"a\":1 }");
             Get();
             Console.ReadKey();
         }

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace Libra
 {
 
-    public delegate Task ExecuteLibraMethod(HttpRequest request, HttpResponse response); 
+    public delegate Task ExecuteLibraMethod(HttpRequest request, HttpResponse response);
     /// <summary>
     /// Libra 协议分析及执行类
     /// </summary>
@@ -45,7 +45,6 @@ namespace Libra
                 return default(T);
             }
             return GetResult(result.Buffer);
-
             T GetResult(in ReadOnlySequence<byte> bytes)
             {
                 var reader = new Utf8JsonReader(bytes);
@@ -99,7 +98,7 @@ namespace Libra
         /// <param name="route">路由</param>
         /// <param name="response">回应实体</param>
         /// <returns></returns>
-        public static async Task<(ExecuteLibraMethod,string,int)> CreateDelegate(string route, string domainKey, HttpResponse response)
+        public static async Task<(ExecuteLibraMethod, string, int)> CreateDelegate(string route, string domainKey, HttpResponse response)
         {
 
             //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
@@ -131,14 +130,14 @@ namespace Libra
                 {
                     //将类型字符串转换成运行时类型传参生成调用委托
                     var dynamicFunc = nDelegate
-                            .Func<DomainBase,ExecuteLibraMethod>($"return LibraProxyCreator.CreateDelegate(arg,typeof({typeName}),\"{methodName}\");")(domain);
+                            .Func<DomainBase, ExecuteLibraMethod>($"return LibraProxyCreator.CreateDelegate(arg,typeof({typeName}),\"{methodName}\");")(domain);
                     //如果生成委托,如果是插件委托,则记录到管理类中
                     if (domain != null)
                     {
                         lpm.AddRecoder(domain, route);
                     }
                     //执行委托返回结果
-                    return (dynamicFunc,null,0);
+                    return (dynamicFunc, null, 0);
                 }
                 else
                 {
@@ -152,7 +151,7 @@ namespace Libra
             {
 
                 response.StatusCode = 501;
-                return (null,$"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}", 501);
+                return (null, $"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}", 501);
 
             }
         }
@@ -168,7 +167,7 @@ namespace Libra
         /// <returns></returns>
         public static ExecuteLibraMethod CreateDelegate(DomainBase domain, Type type, string methodName)
         {
-            //NSucceedLog.Enabled = true;
+            NSucceedLog.Enabled = true;
             //判断类型是否来自插件,如果是则获取插件域
             var isPlugin = false;
             //如果不属于插件域则赋值一个随即域
@@ -193,7 +192,7 @@ namespace Libra
             ParameterInfo firstParameterInfo = default;
             string parameterName = default;
 
-           
+
             if (parameterInfos.Length > 1)
             {
                 //大于1个参数时
@@ -202,18 +201,49 @@ namespace Libra
 
                 //传参字符串构建
                 var parameterBuilder = new StringBuilder();
-
+                //var constructMethodBuilder = new StringBuilder();
+                //var constructBodyBuilder = new StringBuilder();
                 //多个参数需要由代理类,创建代理类
-                var className = "N"+Guid.NewGuid().ToString("N");
-                classBuilder.Append($"public class {className}{{");
-                foreach (var item in parameterInfos.OrderBy(c=>c.Position))
+                var className = "N" + Guid.NewGuid().ToString("N");
+                classBuilder.Append($"public struct {className}{{");
+                //constructMethodBuilder.Append($"public {className}(");
+                foreach (var item in parameterInfos.OrderBy(c => c.Position))
                 {
-                    //创建 parameters 参数调用代码如: method(parameters.Age,parameters.Name)
-                    parameterBuilder.Append($"parameters.{item.Name},");
-                    //创建类的属性,如: public class ProxyClass{ public string Name{get;set;} public int Age{get;set;} }
-                    classBuilder.Append($"public {item.ParameterType.GetDevelopName()} {item.Name} {{ get;set; }}");
 
+                    //创建 parameters 参数调用代码如: method(parameters.Age,parameters.Name)
+                    //constructMethodBuilder.Append($"{item.ParameterType.GetDevelopName()} {item.Name},");
+                    parameterBuilder.Append($"parameters.{item.Name},");
+
+                    //创建多参数代理类
+#if NET5_0_OR_GREATER
+                    //public Construct(string Name, int Age){
+                    //       this.Name = Name;
+                    //       this.Age = Age;
+                    //}
+                    //pubilc readonly string Name;
+                    //pubilc readonly int Age;
+                    //constructBodyBuilder.Append($"this.{item.Name}={item.Name};");
+                    classBuilder.Append($"public {item.ParameterType.GetDevelopName()} {item.Name};");
+#else
+                    //public Construct(string Name, int Age){
+                    //       this._Name = Name;
+                    //       this._Age = Age;
+                    //}
+                    //private readonly string _Name;
+                    //private readonly int _Age;
+                    //constructBodyBuilder.Append($"this._{item.Name}={item.Name};");
+                    //classBuilder.Append($"private readonly {item.ParameterType.GetDevelopName()} _{item.Name};");
+                    //classBuilder.Append($"public {item.ParameterType.GetDevelopName()} {item.Name} {{ get{{return _{item.Name};}} }}");
+                    classBuilder.Append($"public {item.ParameterType.GetDevelopName()} {item.Name}{{get;set;}}");
+#endif
                 }
+
+
+                //constructMethodBuilder.Length -= 1;
+                //constructMethodBuilder.Append("){");
+                //constructMethodBuilder.Append(constructBodyBuilder);
+                //constructMethodBuilder.Append("}");
+                //classBuilder.Append(constructMethodBuilder);
                 classBuilder.Append('}');
                 methodCallBuilder.AppendLine($"var {parameterName} = {LibraReadHandler.DeserializeScript}<{className}>(request);");
                 //移除最后一个都好
@@ -271,7 +301,7 @@ namespace Libra
                     caller = $"LibraProxyCreator.Provider.GetService<{type.GetDevelopName()}>()";
 
                 }
-               
+
             }
 
 
@@ -293,7 +323,7 @@ namespace Libra
 
 
             methodCallBuilder.AppendLine(LibraWriteHandler.GetReturnScript(returnType, $"{caller}.{methodInfo.Name}({parameterName})", isAsync));
-            
+
             //使用 Natasha 进行动态方法构造
             var delegateFunc = NDelegate
                 .UseDomain(domain, item =>

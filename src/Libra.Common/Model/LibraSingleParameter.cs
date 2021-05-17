@@ -1,5 +1,16 @@
 ﻿namespace Libra.Model
 {
+    public struct LibraSingleParameter<S>
+    {
+#if NET5_0_OR_GREATER
+        public S Value;
+#else
+        public S Value { get;set; }
+#endif
+    }
+
+
+    /*
     /// <summary>
     /// 单个参数的包装
     /// </summary>
@@ -22,4 +33,5 @@
         public S Value { get { return _value; } }
 #endif
     }
+    */
 }

@@ -39,11 +39,7 @@ public class LibraDomainManagement
             return value;
         }
     }
-    public static void RemovePluginManagement(string domain)
-    {
-        var management = GetOrCreatePluginManagement(domain);
-        _lpmCache.Remove(domain);
-    }
+
     public static LibraPluginManagement GetDefaultPluginManagement()
     {
         return _lpmCache[LibraDefined.DEFAULT_DOMAIN];
@@ -64,10 +60,83 @@ public class LibraDomainManagement
         }
     }
 
+    /// <summary>
+    /// 将插件装在到默认域中
+    /// </summary>
+    /// <param name="path"></param>
+    public static void LoadPlugin(string path)
+    {
+        var management = GetDefaultPluginManagement();
+        management.LoadPlugin(path);
+    }
+    /// <summary>
+    /// 将某插件装在某域中,以供远程调用
+    /// </summary>
+    /// <param name="domain"></param>
+    /// <param name="path"></param>
+    public static void LoadPlugin(string domain, string path)
+    {
+        var management = GetOrCreatePluginManagement(domain);
+        management.LoadPlugin(path);
+    }
+
+
+    /// <summary>
+    /// 将某插件装在某域中,并挑选出被约束的类作为对外开放类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="domain"></param>
+    /// <param name="path"></param>
+    public static void LoadPlugin<T>(string domain, string path)
+    {
+        var management = GetOrCreatePluginManagement(domain);
+        management.LoadPlugin(path,typeof(T));
+    }
+
+
+    /// <summary>
+    /// 卸载对应域的插件
+    /// </summary>
+    /// <param name="domain"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static bool UnloadPlugin(string domain, string path)
+    {
+        var management = GetOrCreatePluginManagement(domain);
+        return management.UnloadPlugin(path);
+    }
+
+
+    /// <summary>
+    /// 卸载默认域的插件
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static bool UnloadPlugin(string path)
+    {
+        var management = GetDefaultPluginManagement();
+        return management.UnloadPlugin(path);
+    }
+
+
+    /// <summary>
+    /// 配置对应域的过滤器
+    /// </summary>
+    /// <param name="domain"></param>
+    /// <param name="func"></param>
     public static void ConfigureFilter(string domain, Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>> func)
     {
         LibraMiddleware.AddFilter(domain, func);
     }
 
+
+    // <summary>
+    /// 配置默认域的过滤器
+    /// </summary>
+    /// <param name="func"></param>
+    public static void ConfigureFilter(Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>> func)
+    {
+        LibraMiddleware.AddFilter(LibraDefined.DEFAULT_DOMAIN, func);
+    }
 }
 

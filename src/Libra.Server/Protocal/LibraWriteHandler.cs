@@ -41,7 +41,7 @@ namespace Libra.Server.Protocal
                 //生成执行逻辑代码:
                 // var result =  new LibraResult<int>(){ Value = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)] };
                 // await JsonSerializer.SerializeAsync((response.Body,result);
-                string result = $"var result = new LibraResult<{returnType.GetDevelopName()}>({(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")});";
+                string result = $"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")}}};";
                 return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result, LibraJsonSettings.Options).ConfigureAwait(false);";
 
 
