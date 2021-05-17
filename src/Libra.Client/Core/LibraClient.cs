@@ -26,7 +26,6 @@ public class LibraClient
     static LibraClient()
     {
 
-
         var _state = typeof(HttpRequestMessage).GetField("_sendStatus", BindingFlags.NonPublic | BindingFlags.Instance);
         DynamicMethod method = new DynamicMethod(Guid.NewGuid().ToString(), null, new Type[] { typeof(HttpRequestMessage) });
         ILGenerator il = method.GetILGenerator();
@@ -35,8 +34,6 @@ public class LibraClient
         il.Emit(OpCodes.Stfld, _state);
         il.Emit(OpCodes.Ret);
         _resetState = (Action<HttpRequestMessage>)(method.CreateDelegate(typeof(Action<HttpRequestMessage>)));
-
-
 
     }
 
@@ -118,6 +115,9 @@ public class LibraClient
         socketHandler.AllowAutoRedirect = false;
         socketHandler.AutomaticDecompression = DecompressionMethods.None;
         socketHandler.UseCookies = false;
+#if NET5_0_OR_GREATER
+        socketHandler.EnableMultipleHttp2Connections = true;
+#endif
         _client = new HttpMessageInvoker(socketHandler, disposeHandler: true);
     }
 
