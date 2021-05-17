@@ -26,10 +26,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="filterFunc">拦截方法</param>
         /// <returns></returns>
-        public LibraBuilder ConfigureFilter(Func<string,HttpRequest,HttpResponse, ValueTask<bool>> filterFunc)
+        public LibraBuilder ConfigureFilter(string domain, Func<string, string, HttpRequest,HttpResponse, ValueTask<bool>> filterFunc)
         {
-            LibraMiddleware._hasFilter = filterFunc != null;
-            LibraMiddleware.Filter = filterFunc;
+            LibraDomainManagement.ConfigureFilter(domain, filterFunc);
             return this;
         }
 
@@ -47,11 +46,15 @@ namespace Microsoft.Extensions.DependencyInjection
             return this;
         }
 
-        public LibraBuilder ConfigureLibra(Func<LibraOption, LibraOption> optAction)
+        public LibraBuilder ConfigureLibraDomain(string domain,Func<LibraOption, LibraOption> optAction)
         {
-            optAction?.Invoke(new LibraOption());
+            optAction?.Invoke(new LibraOption(domain));
             return this;
         }
-
+        public LibraBuilder ConfigureLibraDefaultDomain(Func<LibraOption, LibraOption> optAction)
+        {
+            optAction?.Invoke(new LibraOption(LibraDefined.DEFAULT_DOMAIN));
+            return this;
+        }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using Libra.Client.Utils;
-using System;
-using System.Diagnostics;
-using System.Net.Http;
 using System.Threading;
 
 public static class WpcStringExtension
@@ -17,7 +14,21 @@ public static class WpcStringExtension
     /// <returns></returns>
     public static LibraExecutor WpcParam<T>(this string caller, T parameters, in CancellationToken cancellationToken = default)
     {
-        return new LibraExecutor(caller, cancellationToken, LibraWirteHandler<T>.Serialize(parameters));
+        return new LibraExecutor(caller, LibraDefined.DEFAULT_DOMAIN, cancellationToken, LibraWirteHandler<T>.Serialize(parameters));
+
+    }
+
+
+    // <summary>
+    /// 远程方法带有参数
+    /// </summary>
+    /// <typeparam name="T">参数类型</typeparam>
+    /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
+    /// <param name="parameters">方法参数, 多参数请用匿名类包裹</param>
+    /// <returns></returns>
+    public static LibraExecutor WpcParam<T>(this (string,string) caller, T parameters, in CancellationToken cancellationToken = default)
+    {
+        return new LibraExecutor(caller.Item2, caller.Item1, cancellationToken, LibraWirteHandler<T>.Serialize(parameters));
 
     }
 
@@ -29,7 +40,17 @@ public static class WpcStringExtension
     /// <returns></returns>
     public static LibraExecutor WpcParam(this string caller, in CancellationToken cancellationToken = default)
     {
-        return new LibraExecutor(caller, cancellationToken, null);
+        return new LibraExecutor(caller, LibraDefined.DEFAULT_DOMAIN, cancellationToken, null);
+    }
+
+    /// <summary>
+    /// 远程方法无参数
+    /// </summary>
+    /// <param name="caller">调用标识,一般由 "类名.方法名"组成</param>
+    /// <returns></returns>
+    public static LibraExecutor WpcParam(this (string,string) caller, in CancellationToken cancellationToken = default)
+    {
+        return new LibraExecutor(caller.Item2, caller.Item1, cancellationToken, null);
     }
 
 }

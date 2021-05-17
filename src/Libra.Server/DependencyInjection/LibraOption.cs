@@ -9,7 +9,13 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public class LibraOption
     {
-
+        private readonly string _domain;
+        private readonly LibraTypeManagement _typeManagement;
+        public LibraOption(string domain)
+        {
+            _domain = domain;
+            _typeManagement = LibraDomainManagement.GetOrCreateTypeManagement(domain);
+        }
         /// <summary>
         /// 设置映射调用
         /// </summary>
@@ -18,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public LibraOption CallerMapper(string key, string caller)
         {
-            LibraTypeManagement.AddMapper(key, caller);
+            _typeManagement.AddMapper(key, caller);
             return this;
         }
 
@@ -31,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public LibraOption AllowTypes<T>(params Type[] typs)
         {
-            LibraTypeManagement.AddType<T>(typs);
+            _typeManagement.AddType<T>(typs);
             return this;
         }
 
@@ -43,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public LibraOption AllowTypes(params Type[] typs)
         {
-            LibraTypeManagement.AddType(typs);
+            _typeManagement.AddType(typs);
             return this;
         }
 

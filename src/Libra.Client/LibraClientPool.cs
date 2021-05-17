@@ -21,18 +21,6 @@ public static class LibraClientPool
         _stack = new ConcurrentStack<LibraClient>();
     }
 
-    
-    /// <summary>
-    /// 配置全局请求处理委托
-    /// </summary>
-    /// <param name="handler"></param>
-    public static void SetGlobalRequestHandler(Action<HttpRequestMessage> handler)
-    {
-        _requestHandler = handler;
-    }
-
-
-
     /// <summary>
     /// 设置全局 url. LibraRequest 在初始化时将使用该地址
     /// </summary>
@@ -60,10 +48,6 @@ public static class LibraClientPool
             if (!string.IsNullOrEmpty(_baseUrl))
             {
                 client.SetBaseUrl(_baseUrl);
-            }
-            if (_requestHandler!=null)
-            {
-                client.ConfigRequest(_requestHandler);
             }
             return client;
         }

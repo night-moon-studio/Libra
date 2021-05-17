@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Natasha.CSharp;
 using Natasha.CSharp.Reverser;
+using Natasha.Framework;
 using System;
 using System.Buffers;
 using System.Diagnostics;
@@ -104,11 +105,13 @@ namespace Libra
         /// <param name="route">路由</param>
         /// <param name="response">回应实体</param>
         /// <returns></returns>
-        public static async Task<ExecuteLibraMethod> CreateDelegate(string route, HttpResponse response)
+        public static async Task<(ExecuteLibraMethod,string,int)> CreateDelegate(string route, string domainKey, HttpResponse response)
         {
-            
+
             //检查是否为映射类型,如果是则获取真实的 "类名.方法名"
-            var realType = LibraTypeManagement.GetTypeFromMapper(route);
+            var lpm = LibraDomainManagement.GetOrCreatePluginManagement(domainKey);
+            var ltm = LibraDomainManagement.GetOrCreateTypeManagement(domainKey);
+            var realType = ltm.GetTypeFromMapper(route);
 
             //获取类名及方法名
             var index = realType.LastIndexOf('.');
@@ -118,7 +121,7 @@ namespace Libra
             {
 
                 //从插件管理获取方法所在的域
-                var domain = LibraPluginManagement.GetPluginDominByType(typeName);
+                var domain = lpm.GetPluginDominByType(typeName);
                 NDelegate nDelegate = default;
                 if (domain != null)
                 {
@@ -128,26 +131,25 @@ namespace Libra
                 {
                     nDelegate = NDelegate.RandomDomain();
                 }
-                //将类型字符串转换成运行时类型传参生成调用委托
-                var dynamicFunc = nDelegate
-                        .Func<ExecuteLibraMethod>($"return LibraProxyCreator.CreateDelegate(typeof({typeName}),\"{methodName}\",\"{typeName}\");")();
 
-
-                if (dynamicFunc != null)
+                //如果不属于插件委托并且记录中没有该类型的映射,则说明该调用不被允许
+                if (ltm.HasMethod(typeName, methodName) || domain != null)
                 {
+                    //将类型字符串转换成运行时类型传参生成调用委托
+                    var dynamicFunc = nDelegate
+                            .Func<DomainBase,ExecuteLibraMethod>($"return LibraProxyCreator.CreateDelegate(arg,typeof({typeName}),\"{methodName}\");")(domain);
                     //如果生成委托,如果是插件委托,则记录到管理类中
                     if (domain != null)
                     {
-                        LibraPluginManagement.AddRecoder(domain, route);
+                        lpm.AddRecoder(domain, route);
                     }
                     //执行委托返回结果
-                    return dynamicFunc;
+                    return (dynamicFunc,null,0);
                 }
                 else
                 {
+                    return (null, $"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!", 404);
                     //如果未成功生成委托,则说明该调用不符合系统规范,可能不存在
-                    response.StatusCode = 404;
-                    await response.WriteAsync($"请核对您所访问的类: {typeName} 及方法 {methodName} 是否存在!").ConfigureAwait(false);
 
                 }
 
@@ -156,10 +158,9 @@ namespace Libra
             {
 
                 response.StatusCode = 501;
-                await response.WriteAsync($"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}").ConfigureAwait(false);
+                return (null,$"创建: {typeName}.{methodName} 时出错! 额外信息:{ex.Message}", 501);
 
             }
-            return null;
         }
 
 
@@ -171,19 +172,11 @@ namespace Libra
         /// <param name="methodName"></param>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public static ExecuteLibraMethod CreateDelegate(Type type, string methodName, string typeName)
+        public static ExecuteLibraMethod CreateDelegate(DomainBase domain, Type type, string methodName)
         {
             //NSucceedLog.Enabled = true;
             //判断类型是否来自插件,如果是则获取插件域
             var isPlugin = false;
-            var domain = LibraPluginManagement.GetPluginDominByType(typeName);
-
-            //如果不属于插件委托并且记录中没有该类型的映射,则说明该调用不被允许
-            if (!LibraTypeManagement.HasMethod(type,methodName) && domain == null)
-            {
-                return null;
-            }
-
             //如果不属于插件域则赋值一个随即域
             if (domain == null)
             {

@@ -7,14 +7,15 @@ using System.Reflection;
 /// <summary>
 /// Libra 类型管理
 /// </summary>
-public static class LibraTypeManagement
+public class LibraTypeManagement
 {
-    private static readonly ConcurrentDictionary<string, string> _KeyCallerMapper;
-    private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, bool>> _typeMethodCache;
-    static LibraTypeManagement()
+
+    private readonly ConcurrentDictionary<string, string> _KeyCallerMapper;
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, bool>> _typeMethodCache;
+    public LibraTypeManagement()
     {
         _KeyCallerMapper = new ConcurrentDictionary<string, string>();
-        _typeMethodCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, bool>>();
+        _typeMethodCache = new ConcurrentDictionary<string, ConcurrentDictionary<string, bool>>();
     }
 
 
@@ -23,7 +24,7 @@ public static class LibraTypeManagement
     /// </summary>
     /// <param name="key">对外的Key</param>
     /// <param name="mapperName">映射的"类名.方法名"</param>
-    public static void AddMapper(string key, string mapperName)
+    public void AddMapper(string key, string mapperName)
     {
         _KeyCallerMapper[key] = mapperName;
     }
@@ -34,7 +35,7 @@ public static class LibraTypeManagement
     /// </summary>
     /// <typeparam name="T">接口类型</typeparam>
     /// <param name="types"></param>
-    public static void AddType<T>(params Type[] types)
+    public void AddType<T>(params Type[] types)
     {
 
         if (types == null)
@@ -51,7 +52,7 @@ public static class LibraTypeManagement
     /// 批量添加允许被调用的类
     /// </summary>
     /// <param name="types"></param>
-    public static void AddType(IEnumerable<Type> types)
+    public void AddType(IEnumerable<Type> types)
     {
 
         if (types == null)
@@ -60,14 +61,15 @@ public static class LibraTypeManagement
         }
         foreach (var item in types)
         {
-            if (!_typeMethodCache.ContainsKey(item))
+            var itemName = item.GetRuntimeName();
+            if (!_typeMethodCache.ContainsKey(itemName))
             {
-                _typeMethodCache[item] = new ConcurrentDictionary<string, bool>();
+                _typeMethodCache[itemName] = new ConcurrentDictionary<string, bool>();
             }
             var methods = item.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             foreach (var method in methods)
             {
-                AddFlag(item, method);
+                AddFlag(itemName, method);
             }
         }
 
@@ -79,7 +81,7 @@ public static class LibraTypeManagement
     /// </summary>
     /// <param name="type"></param>
     /// <param name="methodInfo"></param>
-    private static void AddFlag(Type type, MethodInfo methodInfo)
+    private void AddFlag(string type, MethodInfo methodInfo)
     {
 
         _typeMethodCache[type][methodInfo.Name] = true;
@@ -92,7 +94,7 @@ public static class LibraTypeManagement
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public static string GetTypeFromMapper(string key)
+    public string GetTypeFromMapper(string key)
     {
 
         if (_KeyCallerMapper.TryGetValue(key, out var value))
@@ -110,7 +112,7 @@ public static class LibraTypeManagement
     /// <param name="type"></param>
     /// <param name="methodName"></param>
     /// <returns></returns>
-    public static bool HasMethod(Type type, string methodName)
+    public bool HasMethod(string type, string methodName)
     {
 
         if (_typeMethodCache.ContainsKey(type))

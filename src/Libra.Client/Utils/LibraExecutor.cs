@@ -16,11 +16,13 @@ namespace Libra.Client.Utils
 
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
+        private readonly string _domain;
         private readonly CancellationToken _cancellationToken;
-        public LibraExecutor(string route, in CancellationToken cancellationToken, Func<Stream, Task> protocal = null)
+        public LibraExecutor(string route, string domain, in CancellationToken cancellationToken, Func<Stream, Task> protocal = null)
         {
 
             _route = route;
+            _domain = domain;
             _protocal = protocal == null ? (item => Task.CompletedTask) : protocal;
             _cancellationToken = cancellationToken;
 
@@ -44,7 +46,7 @@ namespace Libra.Client.Utils
             var request = LibraClientPool.GetRequestInternal();
             try
             {
-                request.ConfigClient(url, _route, _protocal, requestHandler, _cancellationToken);
+                request.ConfigClient(url, _route, _domain, _protocal, requestHandler, _cancellationToken);
                 return await request.GetResponseCodeAsync().ConfigureAwait(false);
             }
             finally
@@ -71,7 +73,7 @@ namespace Libra.Client.Utils
             var request = LibraClientPool.GetRequestInternal();
             try
             {
-                request.ConfigClient(url, _route, _protocal, requestHandler, _cancellationToken);
+                request.ConfigClient(url, _route, _domain, _protocal, requestHandler, _cancellationToken);
                 var content = await request.GetHttpContentAsync().ConfigureAwait(false);
                 return await LibraReadHandler<S>.GetResult(content);
             }

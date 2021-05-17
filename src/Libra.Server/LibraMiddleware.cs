@@ -15,13 +15,21 @@ namespace Microsoft.AspNetCore.Builder
     {
         private static readonly ConcurrentDictionary<string, ExecuteLibraMethod> _invokerMapping;
         private static DynamicDictionaryBase<string, ExecuteLibraMethod> _invokeFastCache;
-        internal static bool _hasFilter;
+        private static readonly ConcurrentDictionary<string, Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>>> _filterMapping;
+        private static DynamicDictionaryBase<string, Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>>> _filterCache;
         static LibraMiddleware()
         {
             _invokerMapping = new ConcurrentDictionary<string, ExecuteLibraMethod>();
             _invokeFastCache = _invokerMapping.PrecisioTree();
+            _filterMapping = new ConcurrentDictionary<string, Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>>>();
+            _filterCache = _filterMapping.PrecisioTree();
         }
 
+        public static void AddFilter(string domain, Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>> filter)
+        {
+            _filterMapping[domain] = filter;
+            _filterCache = _filterMapping.PrecisioTree();
+        }
 
         /// <summary>
         /// 批量移除已缓存的方法映射
@@ -44,48 +52,58 @@ namespace Microsoft.AspNetCore.Builder
 
         }
 
-        internal static Func<string, HttpRequest, HttpResponse, ValueTask<bool>> Filter;
         /// <summary>
         /// 使用 Libra 远程调用服务
         /// </summary>
         /// <param name="app"></param>
         public static void UseLibraService(this IApplicationBuilder app)
         {
-            app.Use(async (context,next) => {
+            app.Use(async (context, next) =>
+            {
 
                 var request = context.Request;
                 var response = context.Response;
-                if (request.Headers.TryGetValue("Libra", out var route))
+                if (request.Headers.TryGetValue(LibraDefined.ROUTE, out var route))
                 {
-                    if (_hasFilter)
+                    var domain = request.Headers[LibraDefined.DOMAIN];
+                    if (_filterCache.TryGetValue(domain, out var filter))
                     {
-                        if (!await Filter(route, request, response))
+                        if (!await filter(route, domain, request, response))
                         {
+                            await response.CompleteAsync();
                             return;
                         }
                     }
-                    if (!_invokeFastCache.TryGetValue(route, out var func))
+                    var caller = $"{domain}:{route}";
+                    if (!_invokeFastCache.TryGetValue(caller, out var func))
                     {
-                        func = await LibraProxyCreator.CreateDelegate(route, response);
-                        if (func==null)
+
+                        var (newFunc, message, code) = await LibraProxyCreator.CreateDelegate(route, domain, response);
+                        if (newFunc == null)
                         {
 
-                            return;
-
+                            response.StatusCode = code;
+                            await response.WriteAsync(message).ConfigureAwait(false);
                         }
-                        //添加到字典
-                        _invokerMapping[route] = func;
-                        //从字典转换到精确快速查找树
-                        _invokeFastCache = _invokerMapping.PrecisioTree();
+                        else
+                        {
+                            //添加到字典
+                            func = newFunc;
+                            _invokerMapping[caller] = newFunc;
+                            //从字典转换到精确快速查找树
+                            _invokeFastCache = _invokerMapping.PrecisioTree();
+                        }
                     }
+
                     await func(request, response);
                     await response.CompleteAsync();
+
                 }
                 else
                 {
                     await next();
                 }
-                
+
             });
 
         }

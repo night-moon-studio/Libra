@@ -10,14 +10,15 @@ using System.Text;
 /// <summary>
 /// Libra 插件管理类
 /// </summary>
-public static class LibraPluginManagement
+public class LibraPluginManagement
 {
-    private static readonly object _pluginLock = new object();
-    private static readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pluginKeyCache;
-    private static readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pluginTypesCache;
-    private static readonly ConcurrentDictionary<string, DomainBase> _nameDomainCache;
-    private static readonly ConcurrentDictionary<DomainBase, string> _domainPluginCache;
-    static LibraPluginManagement()
+
+    private readonly object _pluginLock = new object();
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pluginKeyCache;
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pluginTypesCache;
+    private readonly ConcurrentDictionary<string, DomainBase> _nameDomainCache;
+    private readonly ConcurrentDictionary<DomainBase, string> _domainPluginCache;
+    public LibraPluginManagement()
     {
         _domainPluginCache = new ConcurrentDictionary<DomainBase, string>();
         _pluginTypesCache = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
@@ -31,7 +32,7 @@ public static class LibraPluginManagement
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="path"></param>
-    public static Assembly LoadPlugin(string path, params Type[] interfaces)
+    public Assembly LoadPlugin(string path, params Type[] interfaces)
     {
         if (!_pluginKeyCache.ContainsKey(path))
         {
@@ -81,7 +82,7 @@ public static class LibraPluginManagement
     /// </summary>
     /// <param name="domain"></param>
     /// <param name="key"></param>
-    public static void AddRecoder(DomainBase domain, string key)
+    public void AddRecoder(DomainBase domain, string key)
     {
         _pluginKeyCache[_domainPluginCache[domain]].Enqueue(key);
     }
@@ -92,7 +93,7 @@ public static class LibraPluginManagement
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public static DomainBase GetPluginDominByType(string type)
+    public DomainBase GetPluginDominByType(string type)
     {
         if (_nameDomainCache.TryGetValue(type, out var domain))
         {
@@ -108,7 +109,7 @@ public static class LibraPluginManagement
     /// <param name="pluginPath"></param>
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static string Clear(string pluginPath)
+    private string Clear(string pluginPath)
     {
 
         lock (_pluginLock)
@@ -146,7 +147,7 @@ public static class LibraPluginManagement
     /// 卸载插件
     /// </summary>
     /// <param name="pluginPath"></param>
-    public static bool UnloadPlugin(string pluginPath)
+    public bool UnloadPlugin(string pluginPath)
     {
 
         if (_pluginKeyCache.ContainsKey(pluginPath))
@@ -168,7 +169,7 @@ public static class LibraPluginManagement
     /// </summary>
     /// <param name="type">类型</param>
     /// <returns></returns>
-    internal static string Reverser(Type type)
+    internal string Reverser(Type type)
     {
 
         string fatherString = default;

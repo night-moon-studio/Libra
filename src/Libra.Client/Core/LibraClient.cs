@@ -1,4 +1,5 @@
-﻿using Libra.Sender;
+﻿using Libra;
+using Libra.Sender;
 using System;
 using System.IO;
 using System.Net;
@@ -42,16 +43,29 @@ public class LibraClient
     /// <summary>
     /// 配置请求信息
     /// </summary>
-    public void ConfigClient(Uri uri, string route, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler, in CancellationToken cancellationToken)
+    public void ConfigClient(Uri uri, string route, string domain, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler, in CancellationToken cancellationToken)
     {
         if (uri != null)
         {
             _request.RequestUri = uri;
         }
+        _request.Headers.Add(LibraDefined.DOMAIN, domain);
         _content.ProtocalAction = protocal;
-        _request.Headers.Add("Libra", route);
+        _request.Headers.Add(LibraDefined.ROUTE, route);
         _cancellationToken = cancellationToken;
         requestHandler?.Invoke(_request);
+    }
+    /// <summary>
+    /// 配置路由
+    /// </summary>
+    /// <param name="route"></param>
+    public void ConfigRoute(string route)
+    {
+        _request.Headers.Add(LibraDefined.ROUTE, route);
+    }
+    public void ConfigDomain(string domain)
+    {
+        _request.Headers.Add(LibraDefined.DOMAIN, domain);
     }
 
     /// <summary>
@@ -79,14 +93,7 @@ public class LibraClient
     {
         requestHandler?.Invoke(_request);
     }
-    /// <summary>
-    /// 配置路由
-    /// </summary>
-    /// <param name="route"></param>
-    public void ConfigRoute(string route)
-    {
-        _request.Headers.Add("Libra", route);
-    }
+    
     /// <summary>
     /// 刷新 Request 状态
     /// </summary>
@@ -106,7 +113,6 @@ public class LibraClient
         _content = new LibraContent();
         _request = new HttpRequestMessage(HttpMethod.Post, _defaultUrl);
         _request.Content = _content;
-
         var socketHandler = new SocketsHttpHandler();
         socketHandler.UseProxy = false;
         socketHandler.AllowAutoRedirect = false;
