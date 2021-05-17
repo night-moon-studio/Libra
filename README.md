@@ -19,7 +19,7 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  - "分析模块" 会通过 **调用者Key** 寻找二三优化字典中的委托, 如果未找到委托, 则通过 Natasha 将字符串转换为类型来动态构造委托, 委托入参和返回值均为字符串类型, 该字符串是被包装的方法参数/返回值的序列化结果.   
  
     - 参数包装策略:
-      - 当参数仅有1个时, 类型为常规类型: 基元类型/值类型/string 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
+      - 当参数仅有1个时, 类型为常规类型: 基元类型/值类型 则被包装到 `LibraSingleParameter<SType>` 中, 以方便序列化.
       - 当参数仅有1个时, 类型为 string: 转换成 utf8-byte 传值.
       - 当参数仅有1个时, 类型为 byte[]: 不参与序列化直接传值.
       - 当参数仅有1个时, 类型为复杂类型: 数组/类/集合/字典 则以当前类型进行序列化.
@@ -72,10 +72,10 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
 //配置服务
 services.AddLibraWpc()
-   .ConfigureFilter( (route,req,rsp) => {  return true;  }) //配置过滤器
-   .ConfigureJson( json => { json.PropertyNameCaseInsensitive = true; })
-   .ConfigureLibra
+   .ConfigureFilter( "myDomain", (route,req,rsp) => {  return true;  }) //配置过滤器
+   .ConfigureLibraDomain
    (
+      "myDomain",
       opt => opt
         .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
         .CallerMapper("Hello7", "TeacherService.Hello6") //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
@@ -93,8 +93,8 @@ services.AddLibraWpc()
 
 //Libra 允许客户端远程调用服务端加载的插件方法
 //服务端加/卸载插件
-LibraPluginManagement.LoadPlugin(dllFilePath);
-LibraPluginManagement.UnloadPlugin(dllFilePath);
+LibraDomainManagement.LoadPlugin("myDomain",dllFilePath);
+LibraDomainManagement.UnloadPlugin("myDomain",dllFilePath);
 
 ```
 
@@ -127,6 +127,9 @@ await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now 
 ```C#   
 // 无参配置头信息
 "TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
+
+//调用远程服务器指定域的内容,下例域为 "remoteDomainName"
+("remoteDomainName", "TeacherService.MethodName").WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
 
 //设置超时调用
 using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
