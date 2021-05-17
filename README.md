@@ -177,7 +177,15 @@ Natasha 支持创建动态代理, 这让我们的正反序列化均以强类型�
 
 我们使用 DynamicDictionary 作为路由字典, 以便突破并发字典带来的寻址损耗.  
 
+<br> 
 
+## 性能计数
+
+#### 单次执行  
+
+ - .netcore3.1 (paintext : 3ms).  
+ 
+ - .net5 (paintext : 1ms).
 
 <br> 
 
