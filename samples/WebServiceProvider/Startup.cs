@@ -38,8 +38,7 @@ namespace WebServiceProvider
                 //    }
                 //    return true;
                 //})
-                .ConfigureJson(json => { json.PropertyNameCaseInsensitive = true; })
-                .ConfigureLibra(opt => opt
+                .ConfigureLibraDefaultDomain(opt => opt
                     .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
                     .CallerMapper("Hello7", "TeacherService.Hello6") //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
 

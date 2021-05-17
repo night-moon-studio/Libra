@@ -18,8 +18,10 @@ public class LibraPluginManagement
     private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _pluginTypesCache;
     private readonly ConcurrentDictionary<string, DomainBase> _nameDomainCache;
     private readonly ConcurrentDictionary<DomainBase, string> _domainPluginCache;
-    public LibraPluginManagement()
+    private readonly string _domainName;
+    public LibraPluginManagement(string domainName)
     {
+        _domainName = domainName;
         _domainPluginCache = new ConcurrentDictionary<DomainBase, string>();
         _pluginTypesCache = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         _pluginKeyCache = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
@@ -51,7 +53,7 @@ public class LibraPluginManagement
                     {
                         if (interfaces.Length == 0)
                         {
-                            var typeName = Reverser(item);
+                            var typeName = item.GetRuntimeName();
                             _nameDomainCache[typeName] = domain;
                             _pluginTypesCache[path].Enqueue(typeName);
                         }
@@ -61,7 +63,7 @@ public class LibraPluginManagement
                             {
                                 if (item.IsImplementFrom(interfaces[i]))
                                 {
-                                    var typeName = Reverser(item);
+                                    var typeName = item.GetRuntimeName();
                                     _nameDomainCache[typeName] = domain;
                                     _pluginTypesCache[path].Enqueue(typeName);
                                     break;
@@ -116,7 +118,7 @@ public class LibraPluginManagement
         {
             if (_pluginKeyCache.TryGetValue(pluginPath, out var queue))
             {
-                LibraMiddleware.Remove(queue.ToArray());
+                LibraMiddleware.Remove(_domainName, queue.ToArray());
             }
 
             DomainBase domain = default;
@@ -163,92 +165,5 @@ public class LibraPluginManagement
         return true;
     }
 
-
-    /// <summary>
-    /// 类名反解
-    /// </summary>
-    /// <param name="type">类型</param>
-    /// <returns></returns>
-    internal string Reverser(Type type)
-    {
-
-        string fatherString = default;
-        //外部类处理
-        if (type.DeclaringType != null && type.FullName != null)
-        {
-            fatherString = Reverser(type.DeclaringType) + ".";
-        }
-
-
-        //后缀
-        StringBuilder Suffix = new StringBuilder();
-
-
-        //数组判别
-        while (type.HasElementType)
-        {
-
-            if (type.IsArray)
-            {
-
-                int count = type.GetArrayRank();
-
-                Suffix.Append("[");
-                for (int i = 0; i < count - 1; i++)
-                {
-                    Suffix.Append(",");
-                }
-                Suffix.Append("]");
-
-            }
-            type = type.GetElementType();
-
-        }
-
-
-        //泛型判别
-        if (type.IsGenericType)
-        {
-
-            StringBuilder result = new StringBuilder();
-            result.Append($"{type.Name.Split('`')[0]}<");
-
-            if (type.GenericTypeArguments.Length > 0)
-            {
-
-                result.Append(Reverser(type.GenericTypeArguments[0]));
-                for (int i = 1; i < type.GenericTypeArguments.Length; i++)
-                {
-
-                    result.Append(',');
-                    result.Append(Reverser(type.GenericTypeArguments[i]));
-
-                }
-
-            }
-
-            result.Append('>');
-            result.Append(Suffix);
-            return fatherString + result.ToString();
-
-        }
-        else
-        {
-
-            //特殊类型判别
-            if (type == typeof(void))
-            {
-
-                return "void";
-
-            }
-            if (fatherString == default && type.Namespace != default && type.FullName != default)
-            {
-                return type.Name + Suffix;
-            }
-            return fatherString + type.Name + Suffix;
-
-        }
-    }
 }
 

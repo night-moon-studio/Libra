@@ -15,7 +15,7 @@ public static class LibraClientPool
 
     private static string _baseUrl;
     private readonly static ConcurrentStack<LibraClient> _stack;
-    private static Action<HttpRequestMessage> _requestHandler;
+
     static LibraClientPool()
     {
         _stack = new ConcurrentStack<LibraClient>();

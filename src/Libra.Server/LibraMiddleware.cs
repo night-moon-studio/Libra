@@ -36,15 +36,16 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         /// <param name="keys"></param>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Remove(IEnumerable<string> keys)
+        public static void Remove(string domain, IEnumerable<string> keys)
         {
 
             ExecuteLibraMethod func = null;
             foreach (var item in keys)
             {
-                if (_invokerMapping.ContainsKey(item))
+                var caller = $"{domain}:{item}";
+                if (_invokerMapping.ContainsKey(caller))
                 {
-                    while (!_invokerMapping.TryRemove(item, out func)) ;
+                    while (!_invokerMapping.TryRemove(caller, out func)) ;
                 }
             }
             func?.DisposeDomain();
@@ -84,6 +85,8 @@ namespace Microsoft.AspNetCore.Builder
 
                             response.StatusCode = code;
                             await response.WriteAsync(message).ConfigureAwait(false);
+                            await response.CompleteAsync();
+                            return;
                         }
                         else
                         {

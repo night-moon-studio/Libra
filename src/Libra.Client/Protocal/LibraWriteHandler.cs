@@ -21,7 +21,7 @@ namespace Libra.Client.Utils
                 //基元类型及值类型使用 LibraSingleParameter 进行代理
                 Serialize = obj => async stream =>
                 {
-                    await JsonSerializer.SerializeAsync(stream, new LibraSingleParameter<T>() { Value = obj });
+                    await JsonSerializer.SerializeAsync(stream, new LibraSingleParameter<T>(obj), LibraJsonSettings.Options);
                 };
 
             }
@@ -93,7 +93,7 @@ namespace Libra.Client.Utils
                     {
                         return async stream =>
                         {
-                            await JsonSerializer.SerializeAsync(stream, obj);
+                            await JsonSerializer.SerializeAsync(stream, obj, LibraJsonSettings.Options);
                         };
                     }
 

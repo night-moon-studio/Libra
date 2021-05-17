@@ -27,8 +27,7 @@ namespace WebServiceProvider2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLibraWpc()
-                .ConfigureJson(json => { json.PropertyNameCaseInsensitive = true; })
-                .ConfigureLibra(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()));
+                .ConfigureLibraDefaultDomain(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()));
 
             services.AddControllers();
         }

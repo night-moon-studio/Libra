@@ -33,19 +33,6 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
 
-        /// <summary>
-        /// 配置 Libra 使用的 JSON 序列化选项
-        /// </summary>
-        /// <param name="optAction"></param>
-        /// <returns></returns>
-        public LibraBuilder ConfigureJson(Action<JsonSerializerOptions> optAction)
-        {
-            var option = new JsonSerializerOptions();
-            optAction?.Invoke(option);
-            LibraProxyCreator.JsonOption = option;
-            return this;
-        }
-
         public LibraBuilder ConfigureLibraDomain(string domain,Func<LibraOption, LibraOption> optAction)
         {
             optAction?.Invoke(new LibraOption(domain));

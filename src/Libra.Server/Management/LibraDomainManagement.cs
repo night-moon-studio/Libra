@@ -16,10 +16,15 @@ public class LibraDomainManagement
     static LibraDomainManagement()
     {
         _lpmCache = new ConcurrentDictionary<string, LibraPluginManagement>();
+        _lpmCache[LibraDefined.DEFAULT_DOMAIN] = new LibraPluginManagement(LibraDefined.DEFAULT_DOMAIN);
         _ltmCache = new ConcurrentDictionary<string, LibraTypeManagement>();
+        _ltmCache[LibraDefined.DEFAULT_DOMAIN] = new LibraTypeManagement();
     }
 
-
+    public static LibraTypeManagement GetDefaultTypeManagement()
+    {
+        return _ltmCache[LibraDefined.DEFAULT_DOMAIN];
+    }
     public static LibraTypeManagement GetOrCreateTypeManagement(string domain)
     {
 
@@ -34,7 +39,15 @@ public class LibraDomainManagement
             return value;
         }
     }
-
+    public static void RemovePluginManagement(string domain)
+    {
+        var management = GetOrCreatePluginManagement(domain);
+        _lpmCache.Remove(domain);
+    }
+    public static LibraPluginManagement GetDefaultPluginManagement()
+    {
+        return _lpmCache[LibraDefined.DEFAULT_DOMAIN];
+    }
 
     public static LibraPluginManagement GetOrCreatePluginManagement(string domain)
     {
@@ -45,7 +58,7 @@ public class LibraDomainManagement
         }
         else
         {
-            var value = new LibraPluginManagement();
+            var value = new LibraPluginManagement(domain);
             _lpmCache[domain] = value;
             return value;
         }

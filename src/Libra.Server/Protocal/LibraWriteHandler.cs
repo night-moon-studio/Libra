@@ -37,13 +37,12 @@ namespace Libra.Server.Protocal
             }
             else if (returnType.IsPrimitive || returnType.IsValueType)
             {
-
                 //如果返回值为基元类型或者值类型
                 //生成执行逻辑代码:
                 // var result =  new LibraResult<int>(){ Value = [await] (new TestService()).Hello(parameters.Name,parameters.Age)[.ConfigureAwait(false)] };
                 // await JsonSerializer.SerializeAsync((response.Body,result);
-                string result = $"var result = new LibraResult<{returnType.GetDevelopName()}>(){{ Value = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")}}};";
-                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);";
+                string result = $"var result = new LibraResult<{returnType.GetDevelopName()}>({(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")});";
+                return result + $"await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result, LibraJsonSettings.Options).ConfigureAwait(false);";
 
 
             }
@@ -88,7 +87,7 @@ namespace Libra.Server.Protocal
                 //  await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);
                 //}
                 var result = $"var result = {(isAsync ? "await" : "")} {methodCaller}{(isAsync ? ".ConfigureAwait(false)" : "")};";
-                return result + $"if(result!=default){{await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result).ConfigureAwait(false);}}";
+                return result + $"if(result!=default){{await System.Text.Json.JsonSerializer.SerializeAsync(response.Body,result,LibraJsonSettings.Options).ConfigureAwait(false);}}";
             }
         }
     }

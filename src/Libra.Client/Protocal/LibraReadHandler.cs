@@ -25,7 +25,7 @@ namespace Libra.Client.Utils
             {
 
                 //基元类型及值类型返回 LibraResult 代理的实体
-                GetResult = async content => (await JsonSerializer.DeserializeAsync<LibraResult<S>>(await content.GetStreamAsync())).Value;
+                GetResult = async content => (await JsonSerializer.DeserializeAsync<LibraResult<S>>(await content.GetStreamAsync(), LibraJsonSettings.Options)).Value;
 
             }
             else if (typeof(S) == typeof(string))
@@ -55,7 +55,7 @@ namespace Libra.Client.Utils
                     var stream = await content.GetStreamAsync();
                     if (stream.Length!=0)
                     {
-                        return await JsonSerializer.DeserializeAsync<S>(stream);
+                        return await JsonSerializer.DeserializeAsync<S>(stream, LibraJsonSettings.Options);
                     }
                     return default; 
 

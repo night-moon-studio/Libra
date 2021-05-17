@@ -26,13 +26,7 @@ namespace Libra
     public static class LibraProxyCreator
     {
         public static IServiceCollection DIService;
-        public static JsonSerializerOptions JsonOption;
         public static IServiceProvider Provider;
-        
-        static LibraProxyCreator()
-        {
-            JsonOption = new JsonSerializerOptions();
-        }
 
 
         /// <summary>
@@ -55,7 +49,7 @@ namespace Libra
             T GetResult(in ReadOnlySequence<byte> bytes)
             {
                 var reader = new Utf8JsonReader(bytes);
-                return JsonSerializer.Deserialize<T>(ref reader, JsonOption);
+                return JsonSerializer.Deserialize<T>(ref reader, LibraJsonSettings.Options);
             }
 
         }
