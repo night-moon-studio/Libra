@@ -123,6 +123,13 @@ await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now 
 
 
 ```
+
+- #### 强类型客户端
+```C#
+var stu = LibraProxyClient.CreateClient<IStudent>("https://localhost:5001/");
+return await stu.GetStudentName(10,"aaaasdsdsd");
+```
+
 - #### 其他用法
 ```C#   
 // 无参配置头信息
