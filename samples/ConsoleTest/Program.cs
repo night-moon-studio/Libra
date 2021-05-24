@@ -18,7 +18,7 @@ namespace ConsoleTest
 
         static void Main(string[] args)
         {
-           var a = System.Text.Json.JsonSerializer.Deserialize<A>("{ \"a\":1 }");
+           //var a = System.Text.Json.JsonSerializer.Deserialize<A>("{ \"a\":1 }");
             Get();
             Console.ReadKey();
         }

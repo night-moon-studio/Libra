@@ -32,7 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Client", "src\Libra.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Client.Multicast", "src\Libra.Client.Multicast\Libra.Client.Multicast.csproj", "{774FF29C-F1F8-45EE-BCEB-B5502D327F50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "samples\ConsoleTest\ConsoleTest.csproj", "{19DF5AA3-12C5-4321-B57C-3C498694D49D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "samples\ConsoleTest\ConsoleTest.csproj", "{19DF5AA3-12C5-4321-B57C-3C498694D49D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libra.Client.Proxy", "src\Libra.Client.Proxy\Libra.Client.Proxy.csproj", "{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +86,10 @@ Global
 		{19DF5AA3-12C5-4321-B57C-3C498694D49D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19DF5AA3-12C5-4321-B57C-3C498694D49D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19DF5AA3-12C5-4321-B57C-3C498694D49D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,6 +106,7 @@ Global
 		{EA66B592-1E50-459D-8C8C-6665D63368D2} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 		{774FF29C-F1F8-45EE-BCEB-B5502D327F50} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 		{19DF5AA3-12C5-4321-B57C-3C498694D49D} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
+		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E330F2E1-7532-4657-A941-C1782EAE9D1C}

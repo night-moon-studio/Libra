@@ -218,5 +218,27 @@ namespace WebCallerClient.Controller
 
             return await "TeacherService.Testlong".WpcParam().GetResultAsync<long>().ConfigureAwait(false);
         }
+
+        [HttpGet("29")]
+        public async ValueTask<bool> GetHello29()
+        {
+            var client = LibraProxyClient.CreateClient<IStudent1>("https://localhost:5001/");
+            return await client.GetBool(1);
+        }
+
+        [HttpGet("30")]
+        public string GetHello30()
+        {
+            var client = LibraProxyClient.CreateClient<IStudent1>("https://localhost:5001/");
+            return client.GetName("aaaasdsdsd");
+        }
+
+        [HttpGet("31")]
+        public async Task<string> GetHello31()
+        {
+            var client = LibraProxyClient.CreateClient<IStudent1>("https://localhost:5001/");
+            return await client.GetString(10,"aaaasdsdsd");
+        }
+
     }
 }

@@ -44,6 +44,7 @@ namespace WebServiceProvider
 
                 );
             services.AddScoped<IStudent, Student>();
+            services.AddScoped<IStudent1, Student1>();
             services.AddControllers();
         }
 
