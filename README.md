@@ -46,23 +46,6 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
  - 其他类型 : 正常返回.
 
 <br> 
-
-## 功能列表
-
-1. 配置允许被远程调用的类型
-   - 允许调用本机某程序集内的某类的某方法. 
-   - 允许调用本机某程序集内带有指定接口约束的类及其方法.
-   - 允许以键值对方式配置映射.
-
-2. 配置默认远程地址
-   - 当 API 中不传地址时则使用默认地址.
-   - 可以传递指定的 URL 地址.
-
-3. 配置 Libra 传输使用的 Json 选项.
-  
-4. 配置组播实现整组调用.
-  
-<br> 
    
 ## 使用方法
 
@@ -72,7 +55,11 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 
 //配置服务
 services.AddLibraWpc()
-   .ConfigureFilter( "myDomain", (route,req,rsp) => {  return true;  }) //配置过滤器
+
+   //给 myDomain 域配置过滤器
+   .ConfigureFilter("myDomain", (route,req,rsp) => {  return true;  })
+   
+   //增加 myDomain 域可用的程序集或方法
    .ConfigureLibraDomain
    (
       "myDomain",
@@ -104,7 +91,6 @@ LibraDomainManagement.UnloadPlugin("myDomain",dllFilePath);
 ```C#
 
  LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
- LibraClientPool.SetGlobalRequestHandler( req => { req.Headers.Add("JWT", JWT);  });  
  
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 await "TeacherService.HelloX".WpcParam(12.34).GetResultAsync<byte[]>();
