@@ -91,7 +91,6 @@ LibraDomainManagement.UnloadPlugin("myDomain",dllFilePath);
 ```C#
 
  LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
- LibraClientPool.SetGlobalRequestHandler( req => { req.Headers.Add("JWT", JWT);  });  
  
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 await "TeacherService.HelloX".WpcParam(12.34).GetResultAsync<byte[]>();
