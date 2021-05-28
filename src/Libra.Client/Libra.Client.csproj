@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net5.0;</TargetFrameworks>
 		<OutputType>Library</OutputType>
+		<LangVersion>preview</LangVersion>
 		<Description>Libra.Client 为 Libra 远程调用的客户端</Description>
 		<PackageId>NMS.Libra.Client</PackageId>
 		<Copyright>Night Moon Studio</Copyright>
@@ -17,6 +18,10 @@
 		<PackageIconUrl>https://avatars2.githubusercontent.com/u/51699821</PackageIconUrl>
 		<Authors>NMSAzulX</Authors>
 		<Product>Libra.Client</Product>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	
 	<ItemGroup>
