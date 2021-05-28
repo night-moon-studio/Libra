@@ -62,10 +62,10 @@ namespace Microsoft.AspNetCore.Builder
             app.Use(async (context, next) =>
             {
 
-                var request = context.Request;
-                var response = context.Response;
-                if (request.Headers.TryGetValue(LibraDefined.ROUTE, out var route))
+                if (context.Request.Headers.TryGetValue(LibraDefined.ROUTE, out var route))
                 {
+                    var request = context.Request;
+                    var response = context.Response;
                     var domain = request.Headers[LibraDefined.DOMAIN];
                     if (_filterCache.TryGetValue(domain, out var filter))
                     {
