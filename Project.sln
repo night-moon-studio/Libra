@@ -36,8 +36,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "samples\Cons
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libra.Client.Proxy", "src\Libra.Client.Proxy\Libra.Client.Proxy.csproj", "{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraConsulServer", "samples\LibraConsulServer\LibraConsulServer.csproj", "{D2674815-181D-4E0E-995E-24D1EE71BC71}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,10 +90,6 @@ Global
 		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2674815-181D-4E0E-995E-24D1EE71BC71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2674815-181D-4E0E-995E-24D1EE71BC71}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D2674815-181D-4E0E-995E-24D1EE71BC71}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2674815-181D-4E0E-995E-24D1EE71BC71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,7 +107,6 @@ Global
 		{774FF29C-F1F8-45EE-BCEB-B5502D327F50} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
 		{19DF5AA3-12C5-4321-B57C-3C498694D49D} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 		{E9ED4F8A-94C1-4D08-9A22-EA13632A0F45} = {9A154FFA-A8AE-473E-8940-7020D44B9141}
-		{D2674815-181D-4E0E-995E-24D1EE71BC71} = {84977F43-7A74-4310-B07F-D4FBF5D0333F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E330F2E1-7532-4657-A941-C1782EAE9D1C}
