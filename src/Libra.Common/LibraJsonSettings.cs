@@ -7,6 +7,7 @@ public static class LibraJsonSettings
 
     static LibraJsonSettings()
     {
+
         Options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
 #if NET5_0_OR_GREATER
         Options.IncludeFields = true;
