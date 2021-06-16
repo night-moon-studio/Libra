@@ -27,7 +27,11 @@ public static class LibraExecutorExtension
                 var host = hosts[index];
                 try
                 {
-                    if (!(await executor.GetResultAsync<bool>(host.Address, host.RequestHandler).ConfigureAwait(false)))
+                    if (!(await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetResultAsync<bool>()
+                    .ConfigureAwait(false)))
                     {
                         task.SetOnceResult(false);
                     }
@@ -54,7 +58,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    if (!await executor.GetResultAsync<bool>(host.Address, host.RequestHandler).ConfigureAwait(false))
+                    if (!await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetResultAsync<bool>()
+                    .ConfigureAwait(false))
                     {
                         task.SetOnceResult(false);
                     }
@@ -93,7 +101,11 @@ public static class LibraExecutorExtension
                 var host = hosts[index];
                 try
                 {
-                    var result = await executor.GetCodeAsync(host.Address, host.RequestHandler).ConfigureAwait(false);
+                    var result = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetCodeAsync()
+                    .ConfigureAwait(false);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
                     {
                         task.SetOnceResult(false);
@@ -119,7 +131,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    var result = await executor.GetCodeAsync(host.Address, host.RequestHandler).ConfigureAwait(false);
+                    var result = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetCodeAsync()
+                    .ConfigureAwait(false);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
                     {
                         task.SetOnceResult(false);
@@ -161,7 +177,11 @@ public static class LibraExecutorExtension
                 var host = hosts[index];
                 try
                 {
-                    result[index] = await executor.GetResultAsync<S>(host.Address, host.RequestHandler).ConfigureAwait(false);
+                    result[index] = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetResultAsync<S>()
+                    .ConfigureAwait(false);
                 }
                 catch
                 {
@@ -181,7 +201,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    result[indexs[index]] = await executor.GetResultAsync<S>(host.Address, host.RequestHandler).ConfigureAwait(false);
+                    result[indexs[index]] = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetResultAsync<S>()
+                    .ConfigureAwait(false);
                 }
                 catch
                 {
@@ -213,7 +237,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    result[index] = await executor.GetCodeAsync((Uri)host.Address, (Action<System.Net.Http.HttpRequestMessage>)host.RequestHandler).ConfigureAwait(false);
+                    result[index] = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetCodeAsync()
+                    .ConfigureAwait(false);
                 }
                 catch
                 {
@@ -235,7 +263,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    result[indexs[index]] = await executor.GetCodeAsync(host.Address, host.RequestHandler).ConfigureAwait(false);
+                    result[indexs[index]] = await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetCodeAsync()
+                    .ConfigureAwait(false);
                 }
                 catch
                 {
@@ -271,7 +303,11 @@ public static class LibraExecutorExtension
                 var host = hosts[index];
                 try
                 {
-                    result[index] = new LibraMulticastResult<S>(host.Address.Authority, await executor.GetResultAsync<S>(host.Address, host.RequestHandler).ConfigureAwait(false));
+                    result[index] = new LibraMulticastResult<S>(host.Address.Authority, await executor
+                    .ConfigUrl(host.Address)
+                    .ConfigRequest(host.RequestHandler)
+                    .GetResultAsync<S>()
+                    .ConfigureAwait(false));
                 }
                 catch
                 {
@@ -294,7 +330,11 @@ public static class LibraExecutorExtension
                 var host = hosts[indexs[index]];
                 try
                 {
-                    result[indexs[index]] = new LibraMulticastResult<S>(host.Address.Authority, await executor.GetResultAsync<S>(host.Address, host.RequestHandler).ConfigureAwait(false));
+                    result[indexs[index]] = new LibraMulticastResult<S>(host.Address.Authority, await executor
+                        .ConfigUrl(host.Address)
+                        .ConfigRequest(host.RequestHandler)
+                        .GetResultAsync<S>()
+                        .ConfigureAwait(false));
                 }
                 catch
                 {

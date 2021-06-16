@@ -28,7 +28,11 @@ namespace WebCallerClient.Controller
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var result =await "TeacherService.Hello2".WpcParam(DateTime.Now).GetResultAsync<DateTime>(item => { item.Headers.Add("a", "b"); }).ConfigureAwait(false);
+            var result =await "TeacherService.Hello2"
+                .WpcParam(DateTime.Now)
+                .ConfigRequest(item => { item.Headers.Add("a", "b"); })
+                .GetResultAsync<DateTime>()
+                .ConfigureAwait(false);
             stopwatch.Stop();
             Console.WriteLine(stopwatch.Elapsed);
             return result;
@@ -105,7 +109,10 @@ namespace WebCallerClient.Controller
 
             using (var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(1020)))
             {
-                return await "TeacherService.Hello7".WpcParam(cts.Token).GetResultAsync<int>().ConfigureAwait(false);
+                return await "TeacherService.Hello7"
+                    .WpcParam()
+                    .ConfigCancellationToken(cts.Token)
+                    .GetResultAsync<int>().ConfigureAwait(false);
             }
             
         }

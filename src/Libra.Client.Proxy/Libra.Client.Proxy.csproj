@@ -7,8 +7,8 @@
 		<PackageId>NMS.Libra.Client.Proxy</PackageId>
 		<Copyright>Night Moon Studio</Copyright>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-		<PackageReleaseNotes>发布第一版</PackageReleaseNotes>
-		<Version>0.2.3</Version>
+		<PackageReleaseNotes>升级依赖</PackageReleaseNotes>
+		<Version>0.2.3.1</Version>
 		<PackageLicenseUrl>https://github.com/night-moon-studio/DynamicDictionary/blob/master/LICENSE</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/night-moon-studio/DynamicDictionary</PackageProjectUrl>
 		<PackageTags>WeekRpc;WRPC;Libra;WebClient;</PackageTags>
