@@ -56,11 +56,11 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 //配置服务
 services.AddLibraWpc()
 
-   //给 myDomain 域配置过滤器
+   //给 myDomain 调用域配置过滤器 (如果不指定调用域则配置默认调用域)
    .ConfigureFilter("myDomain", (route,req,rsp) => {  return true;  })
    
-   //增加 myDomain 域可用的程序集或方法
-   .ConfigureLibraDomain
+   //增加 myDomain 域可用的程序集或方法 (如果不指定调用域则配置默认调用域)
+   .ConfigureWrpcSource
    (
       "myDomain",
       opt => opt
@@ -90,7 +90,7 @@ LibraDomainManagement.UnloadPlugin("myDomain",dllFilePath);
 
 ```C#
 
- LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
+LibraClientPool.SetGlobalBaseUrl("https://localhost:5001/");
  
 // 调用远程类 TeacherService 中 public byte[] HelloX(double value) 方法, 获取流
 await "TeacherService.HelloX".WpcParam(12.34).GetResultAsync<byte[]>();
@@ -104,13 +104,13 @@ await "TeacherService.Hello8".WpcParam().GetCodeAsync();
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
 await "TeacherService.Hello6"
  .WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" })
- .ConfigUrl(url)
+ .WithUrl(url)
  .GetResultAsync<string>(); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
 await "TeacherService.Hello4"
  .WpcParam(new { Value = 12.34, time = DateTime.Now })
- .ConfigUrl(url)
+ .WithUrl(url)
  .GetResultAsync<int>();
 
 
@@ -127,15 +127,15 @@ return await stu.GetStudentName(10,"aaaasdsdsd");
 // 无参配置头信息
 "TeacherService.MethodName"
  .WpcParam()
- .ConfigRequest(req=>{ req.Headers.Add("key","value"); })
- .ConfigUrl(url)
+ .WithRequest(req=>{ req.Headers.Add("key","value"); })
+ .WithUrl(url)
  .GetCodeAsync(); 
 
 //调用远程服务器指定域的内容,下例域为 "remoteDomainName"
 ("remoteDomainName", "TeacherService.MethodName")
  .WpcParam()
- .ConfigRequest(req=>{ req.Headers.Add("key","value"); })
- .ConfigUrl(url)
+ .WithRequest(req=>{ req.Headers.Add("key","value"); })
+ .WithUrl(url)
  .GetCodeAsync(); 
 
 //设置超时调用
