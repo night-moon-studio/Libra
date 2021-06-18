@@ -102,10 +102,16 @@ await "TeacherService.Hello3".WpcParam(12.34).GetResultAsync<int>();
 await "TeacherService.Hello8".WpcParam().GetCodeAsync(); 
 
 // 调用远程类 TeacherService 中 public string Hello6(TestModel model) 方法, 其中 TestModel 结构如: class {int[] Indexs ,string Name}
-await "TeacherService.Hello6".WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" }).GetResultAsync<string>(url); 
+await "TeacherService.Hello6"
+ .WpcParam(new { Indexs = new int[] { 1,2,3,4 }, name="abc" })
+ .ConfigUrl(url)
+ .GetResultAsync<string>(); 
 
 // 调用远程类 TeacherService 中 public int Hello4(double value, DateTime time) 方法
-await "TeacherService.Hello4".WpcParam(new { Value = 12.34, time = DateTime.Now }).GetResultAsync<int>(url);
+await "TeacherService.Hello4"
+ .WpcParam(new { Value = 12.34, time = DateTime.Now })
+ .ConfigUrl(url)
+ .GetResultAsync<int>();
 
 
 ```
@@ -119,15 +125,26 @@ return await stu.GetStudentName(10,"aaaasdsdsd");
 - #### 其他用法
 ```C#   
 // 无参配置头信息
-"TeacherService.MethodName".WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
+"TeacherService.MethodName"
+ .WpcParam()
+ .ConfigRequest(req=>{ req.Headers.Add("key","value"); })
+ .ConfigUrl(url)
+ .GetCodeAsync(); 
 
 //调用远程服务器指定域的内容,下例域为 "remoteDomainName"
-("remoteDomainName", "TeacherService.MethodName").WpcParam().GetCode( req=>{ req.Headers.Add("key","value"); } , url); 
+("remoteDomainName", "TeacherService.MethodName")
+ .WpcParam()
+ .ConfigRequest(req=>{ req.Headers.Add("key","value"); })
+ .ConfigUrl(url)
+ .GetCodeAsync(); 
 
 //设置超时调用
 using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
 {
-     return await "TeacherService.Hello7".WpcParam(cts.Token).GetResultAsync<int>().ConfigureAwait(false);
+     return await "TeacherService.Hello7"
+      .WpcParam()
+      .ConfigCancellationToken(cts.Token)
+      .GetResultAsync<int>().ConfigureAwait(false);
 }
 ```
 
@@ -168,7 +185,7 @@ Natasha 支持极复杂的动态构建和编译优化, 我们得以轻松构建�
 
 Natasha 支持创建动态代理, 这让我们的正反序列化均以强类型进行.  
 
-我们使用 DynamicDictionary 作为路由字典, 以便突破并发字典带来的寻址损耗.  
+我们使用 DynamicDictionary 作为路由字典, 以便突破并发字典带来的寻址瓶颈.  
 
 <br> 
 
