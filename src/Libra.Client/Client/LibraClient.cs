@@ -41,7 +41,7 @@ public class LibraClient
     /// <summary>
     /// 配置请求信息
     /// </summary>
-    public LibraClient ConfigClient(Uri uri, string route, string domain, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler, in CancellationToken cancellationToken,int retry)
+    public LibraClient WithConfiguration(Uri uri, string route, string domain, Func<Stream, Task> protocal, Action<HttpRequestMessage> requestHandler, in CancellationToken cancellationToken,int retry)
     {
         if (uri != null)
         {
@@ -60,7 +60,7 @@ public class LibraClient
     /// 取消令牌
     /// </summary>
     /// <param name="cancellationToken"></param>
-    public LibraClient ConfigCancellation(in CancellationToken cancellationToken)
+    public LibraClient WithCancellation(in CancellationToken cancellationToken)
     {
         _cancellationToken = cancellationToken;
         return this;
@@ -71,7 +71,7 @@ public class LibraClient
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="parameters"></param>
-    public LibraClient ConfigParameters<T>(T parameters)
+    public LibraClient WithParameters<T>(T parameters)
     {
         _content.ProtocalAction = LibraWirteHandler<T>.Serialize(parameters);
         return this;
@@ -81,7 +81,7 @@ public class LibraClient
     /// 配置重试次数
     /// </summary>
     /// <param name="retry"></param>
-    public LibraClient ConfigRetry(int retry)
+    public LibraClient WithRetry(int retry)
     {
         _retry = retry;
         return this;
@@ -91,7 +91,7 @@ public class LibraClient
     /// 配置路由
     /// </summary>
     /// <param name="route"></param>
-    public LibraClient ConfigRoute(string route)
+    public LibraClient WithRoute(string route)
     {
         _request.Headers.Add(LibraDefined.ROUTE, route);
         return this;
@@ -101,7 +101,7 @@ public class LibraClient
     /// 设置请求域
     /// </summary>
     /// <param name="domain"></param>
-    public LibraClient ConfigDomain(string domain)
+    public LibraClient WithDomain(string domain)
     {
         _request.Headers.Add(LibraDefined.DOMAIN, domain);
         return this;
@@ -111,7 +111,7 @@ public class LibraClient
     /// 配置协议委托
     /// </summary>
     /// <param name="protocal"></param>
-    public LibraClient ConfigProtocal(Func<Stream, Task> protocal)
+    public LibraClient WithProtocal(Func<Stream, Task> protocal)
     {
         _content.ProtocalAction = protocal;
         return this;
@@ -121,7 +121,7 @@ public class LibraClient
     /// 配置URIL
     /// </summary>
     /// <param name="uri"></param>
-    public LibraClient ConfigUrl(Uri uri)
+    public LibraClient WithUrl(Uri uri)
     {
         _request.RequestUri = uri;
         return this;
@@ -132,7 +132,7 @@ public class LibraClient
     /// </summary>
     /// <param name="requestHandler"></param>
     /// <returns></returns>
-    public LibraClient ConfigRequest(Action<HttpRequestMessage> requestHandler)
+    public LibraClient WithRequest(Action<HttpRequestMessage> requestHandler)
     {
         requestHandler?.Invoke(_request);
         return this;

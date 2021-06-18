@@ -16,7 +16,7 @@ namespace Libra.Client.Utils
 
         private readonly Func<Stream, Task> _protocal;
         private readonly string _route;
-        private readonly string _domain;
+        private string _domain;
         private Uri _url;
         private int _retry;
         private CancellationToken _cancellationToken;
@@ -30,13 +30,25 @@ namespace Libra.Client.Utils
 
         }
 
+
+        /// <summary>
+        /// 指定请求域
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public LibraExecutor WithDomain(string domain)
+        {
+            _domain = domain;
+            return this;
+        }
+
       
         /// <summary>
         /// 配置取消令牌
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public LibraExecutor ConfigCancellationToken(in CancellationToken cancellationToken)
+        public LibraExecutor WithCancellationToken(in CancellationToken cancellationToken)
         {
             _cancellationToken = cancellationToken;
             return this;
@@ -48,7 +60,7 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <param name="requestHandler"></param>
         /// <returns></returns>
-        public LibraExecutor ConfigRequest(Action<HttpRequestMessage> requestHandler)
+        public LibraExecutor WithRequest(Action<HttpRequestMessage> requestHandler)
         {
             _requestHandler = requestHandler;
             return this;
@@ -60,12 +72,12 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public LibraExecutor ConfigUrl(Uri url)
+        public LibraExecutor WithUrl(Uri url)
         {
             _url = url;
             return this;
         }
-        public LibraExecutor ConfigUrl(string url)
+        public LibraExecutor WithUrl(string url)
         {
             _url = new Uri(url);
             return this;
@@ -76,7 +88,7 @@ namespace Libra.Client.Utils
         /// </summary>
         /// <param name="retry"></param>
         /// <returns></returns>
-        public LibraExecutor ConfigRetry(int retry)
+        public LibraExecutor WithRetry(int retry)
         {
             _retry = retry;
             return this;
@@ -94,7 +106,7 @@ namespace Libra.Client.Utils
             var request = LibraClientPool.GetRequestInternal();
             try
             {
-                request.ConfigClient(_url, _route, _domain, _protocal, _requestHandler, _cancellationToken, _retry);
+                request.WithConfiguration(_url, _route, _domain, _protocal, _requestHandler, _cancellationToken, _retry);
                 return await request.GetResponseCodeAsync().ConfigureAwait(false);
             }
             finally
@@ -117,7 +129,7 @@ namespace Libra.Client.Utils
             var request = LibraClientPool.GetRequestInternal();
             try
             {
-                request.ConfigClient(_url, _route, _domain, _protocal, _requestHandler, _cancellationToken, _retry);
+                request.WithConfiguration(_url, _route, _domain, _protocal, _requestHandler, _cancellationToken, _retry);
                 return await request.GetResultAsync<S>().ConfigureAwait(false);
             }
             finally

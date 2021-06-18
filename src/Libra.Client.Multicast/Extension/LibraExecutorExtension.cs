@@ -28,8 +28,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     if (!(await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetResultAsync<bool>()
                     .ConfigureAwait(false)))
                     {
@@ -59,8 +59,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     if (!await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetResultAsync<bool>()
                     .ConfigureAwait(false))
                     {
@@ -102,8 +102,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     var result = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetCodeAsync()
                     .ConfigureAwait(false);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
@@ -132,8 +132,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     var result = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetCodeAsync()
                     .ConfigureAwait(false);
                     if (result != HttpStatusCode.OK && result != HttpStatusCode.NoContent)
@@ -178,8 +178,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[index] = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetResultAsync<S>()
                     .ConfigureAwait(false);
                 }
@@ -202,8 +202,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[indexs[index]] = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetResultAsync<S>()
                     .ConfigureAwait(false);
                 }
@@ -238,8 +238,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[index] = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetCodeAsync()
                     .ConfigureAwait(false);
                 }
@@ -264,8 +264,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[indexs[index]] = await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetCodeAsync()
                     .ConfigureAwait(false);
                 }
@@ -304,8 +304,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[index] = new LibraMulticastResult<S>(host.Address.Authority, await executor
-                    .ConfigUrl(host.Address)
-                    .ConfigRequest(host.RequestHandler)
+                    .WithUrl(host.Address)
+                    .WithRequest(host.RequestHandler)
                     .GetResultAsync<S>()
                     .ConfigureAwait(false));
                 }
@@ -331,8 +331,8 @@ public static class LibraExecutorExtension
                 try
                 {
                     result[indexs[index]] = new LibraMulticastResult<S>(host.Address.Authority, await executor
-                        .ConfigUrl(host.Address)
-                        .ConfigRequest(host.RequestHandler)
+                        .WithUrl(host.Address)
+                        .WithRequest(host.RequestHandler)
                         .GetResultAsync<S>()
                         .ConfigureAwait(false));
                 }
