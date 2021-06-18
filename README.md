@@ -56,11 +56,11 @@ Libra 允许远程主机通过 **"类名.方法名"** 方式调用本机服务. 
 //配置服务
 services.AddLibraWpc()
 
-   //给 myDomain 域配置过滤器
+   //给 myDomain 调用域配置过滤器 (如果不指定调用域则配置默认调用域)
    .ConfigureFilter("myDomain", (route,req,rsp) => {  return true;  })
    
-   //增加 myDomain 域可用的程序集或方法
-   .ConfigureLibraDomain
+   //增加 myDomain 域可用的程序集或方法 (如果不指定调用域则配置默认调用域)
+   .ConfigureWrpcSource
    (
       "myDomain",
       opt => opt
