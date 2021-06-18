@@ -27,7 +27,7 @@ namespace WebServiceProvider2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLibraWpc()
-                .ConfigureLibraDefaultDomain(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()));
+                .ConfigureWrpcSource(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()));
 
             services.AddControllers();
         }

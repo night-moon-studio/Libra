@@ -31,14 +31,33 @@ namespace Microsoft.Extensions.DependencyInjection
             LibraDomainManagement.ConfigureFilter(domain, filterFunc);
             return this;
         }
-
-
-        public LibraBuilder ConfigureLibraDomain(string domain,Func<LibraOption, LibraOption> optAction)
+        /// <summary>
+        /// 配置默认域的路由过滤器
+        /// </summary>
+        /// <param name="filterFunc"></param>
+        /// <returns></returns>
+        public LibraBuilder ConfigureFilter(Func<string, string, HttpRequest, HttpResponse, ValueTask<bool>> filterFunc)
+        {
+            LibraDomainManagement.ConfigureFilter(LibraDefined.DEFAULT_DOMAIN, filterFunc);
+            return this;
+        }
+        /// <summary>
+        /// 配置 RPC 方法
+        /// </summary>
+        /// <param name="domain">调用域</param>
+        /// <param name="optAction"></param>
+        /// <returns></returns>
+        public LibraBuilder ConfigureWrpcSource(string domain,Func<LibraOption, LibraOption> optAction)
         {
             optAction?.Invoke(new LibraOption(domain));
             return this;
         }
-        public LibraBuilder ConfigureLibraDefaultDomain(Func<LibraOption, LibraOption> optAction)
+        /// <summary>
+        /// 配置默认调用域的 RPC 方法
+        /// </summary>
+        /// <param name="optAction"></param>
+        /// <returns></returns>
+        public LibraBuilder ConfigureWrpcSource(Func<LibraOption, LibraOption> optAction)
         {
             optAction?.Invoke(new LibraOption(LibraDefined.DEFAULT_DOMAIN));
             return this;
