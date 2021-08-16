@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public static class LibraExecutorExtension
 {
     #region 组播通知
+    /*
     /// <summary>
     /// 通知一组远程主机,并返回通知是否成功
     /// </summary>
@@ -81,7 +82,7 @@ public static class LibraExecutorExtension
        
 
     }
-
+    */
 
     /// <summary>
     /// 通知一组远程主机,并返回通知是否成功

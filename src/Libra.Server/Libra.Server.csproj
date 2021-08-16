@@ -9,7 +9,7 @@
 		<Copyright>Night Moon Studio</Copyright>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<PackageReleaseNotes>修改部分 API 命名</PackageReleaseNotes>
-		<Version>0.3.0.1</Version>
+		<Version>0.3.2</Version>
 		<PackageLicenseUrl>https://github.com/night-moon-studio/DynamicDictionary/blob/master/LICENSE</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/night-moon-studio/DynamicDictionary</PackageProjectUrl>
 		<PackageTags>Libra;WebClient;WeekRpc;WRPC;</PackageTags>
@@ -21,7 +21,7 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="NMS.DynamicDictionary" Version="1.1.0.2" />
+		<PackageReference Include="NMS.DynamicDictionary" Version="2.1.0" />
 	</ItemGroup>
 	
 	<ItemGroup>
