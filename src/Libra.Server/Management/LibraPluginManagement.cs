@@ -43,7 +43,7 @@ public class LibraPluginManagement
                 if (!_pluginKeyCache.ContainsKey(path))
                 {
                     var domain = DomainManagement.Random;
-                    var assembly = domain.LoadPluginFromStream(path);
+                    var assembly = domain.LoadPlugin(path);
                     var types = assembly.GetTypes();
 
                     _domainPluginCache[domain] = path;
