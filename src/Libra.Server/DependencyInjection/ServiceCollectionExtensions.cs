@@ -1,4 +1,5 @@
 ﻿using Libra;
+using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -14,14 +15,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services"></param>
         /// <param name="optAction"></param>
         /// <returns></returns>
-        public static LibraBuilder AddLibraWpc(this IServiceCollection services)
+        public static IServiceCollection AddLibraWpc(this IServiceCollection services,Func<LibraBuilder,LibraBuilder> func = default)
         {
 
             NatashaInitializer.InitializeAndPreheating();
-            services.AddSingleton(typeof(LibraBuilder));
-            LibraProxyCreator.DIService = services;
-            LibraProxyCreator.Provider = services.BuildServiceProvider();
-            return LibraProxyCreator.Provider.GetService<LibraBuilder>();
+            func?.Invoke(new LibraBuilder());
+            return services;
 
         }
 

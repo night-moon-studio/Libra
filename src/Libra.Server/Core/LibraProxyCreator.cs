@@ -25,7 +25,6 @@ namespace Libra
     /// </summary>
     public static class LibraProxyCreator
     {
-        public static IServiceCollection DIService;
         public static IServiceProvider Provider;
 
 
@@ -267,7 +266,6 @@ namespace Libra
 
             }
 
-            Provider = DIService.BuildServiceProvider();
             //获取调用者
             string caller = default;
             if (methodInfo.IsStatic)

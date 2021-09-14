@@ -13,12 +13,6 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public class LibraBuilder
     {
-        private readonly IConfiguration _configuration;
-
-        public LibraBuilder(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
 
 
         /// <summary>
@@ -47,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="domain">调用域</param>
         /// <param name="optAction"></param>
         /// <returns></returns>
-        public LibraBuilder ConfigureWrpcSource(string domain,Func<LibraOption, LibraOption> optAction)
+        public LibraBuilder ConfigureWrpcSource(string domain, Func<LibraOption, LibraOption> optAction)
         {
             optAction?.Invoke(new LibraOption(domain));
             return this;
@@ -59,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public LibraBuilder ConfigureWrpcSource(Func<LibraOption, LibraOption> optAction)
         {
-            optAction?.Invoke(new LibraOption(LibraDefined.DEFAULT_DOMAIN));
+            ConfigureWrpcSource(LibraDefined.DEFAULT_DOMAIN, optAction);
             return this;
         }
     }

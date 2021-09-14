@@ -59,6 +59,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="app"></param>
         public static void UseLibraService(this IApplicationBuilder app)
         {
+            LibraProxyCreator.Provider = app.ApplicationServices;
             app.Use(async (context, next) =>
             {
 

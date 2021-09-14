@@ -28,7 +28,10 @@ namespace WebServiceProvider
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLibraWpc()
+            services.AddLibraWpc(builder =>
+                builder.ConfigureWrpcSource(opt => opt
+                    .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
+                    .CallerMapper("Hello7", "TeacherService.Hello6")));//当远程传来 Hello7 时默认路由到 TeacherService.Hello6)
                 //.ConfigureFilter((route, req, rsp) => 
                 //{
                 //    var heads = req.Headers;
@@ -37,12 +40,7 @@ namespace WebServiceProvider
                 //        Console.WriteLine($"{item.Key}:{item.Value}");
                 //    }
                 //    return true;
-                //})
-                .ConfigureWrpcSource(opt => opt
-                    .AllowAssembly(Assembly.GetEntryAssembly()) //允许该程序集内所有的类型被远程调用
-                    .CallerMapper("Hello7", "TeacherService.Hello6") //当远程传来 Hello7 时默认路由到 TeacherService.Hello6
-
-                );
+                //});
             services.AddScoped<IStudent, Student>();
             services.AddScoped<IStudent1, Student1>();
             services.AddControllers();

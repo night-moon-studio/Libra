@@ -26,8 +26,7 @@ namespace WebServiceProvider2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLibraWpc()
-                .ConfigureWrpcSource(opt => opt.AllowAssembly(Assembly.GetEntryAssembly()));
+            services.AddLibraWpc(builder => builder.ConfigureWrpcSource(opt => opt.AllowAssembly(Assembly.GetEntryAssembly())));
 
             services.AddControllers();
         }
